@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#CF002E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Auditoría de Pallets v23</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,700;1,300&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #CF002E; --yellow: #FDD000; --white: #FFFFFF;
+  --black: #1A1A1A; --gray: #6B6B6B; --light: #F5F5F5;
+  --border: #E0E0E0;
+  --green: #2D8A4E; --orange: #E07000;
+  --blue: #1A5276;
+  --purple: #6C3483;
+  --teal: #0E6655;
+  --grad: linear-gradient(160deg,#FFF 0%,#FDD000 100%);
+  --grad-header: linear-gradient(135deg,#CF002E 0%,#8B001F 100%);
+  --grad-header-blue: linear-gradient(135deg,#1A5276 0%,#0D2E42 100%);
+  --grad-header-green: linear-gradient(135deg,#2D8A4E 0%,#1A5230 100%);
+  --grad-header-purple: linear-gradient(135deg,#6C3483 0%,#3B1F5E 100%);
+  --shadow: 0 4px 24px rgba(207,0,46,0.12);
+  --radius: 14px;
+  --role-color: #CF002E;
+  --role-grad: var(--grad-header);
+  --col-despacho: #1A5276;
+  --col-mesa:     #6C3483;
+  --col-pending-flash: #FDD000;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Barlow',sans-serif;background:var(--light);color:var(--black);min-height:100vh;overflow-x:hidden}
+
+/* ── SPLASH ─────────────────────────────────────────── */
+#splash{position:fixed;inset:0;z-index:999;background:var(--grad-header);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .5s,transform .5s;padding:20px}
+#splash.hide{opacity:0;transform:translateY(-20px);pointer-events:none}
+.splash-logo{width:80px;height:80px;background:var(--yellow);border-radius:22px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--red);box-shadow:0 8px 32px rgba(0,0,0,0.3);letter-spacing:-1px}
+.splash-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--white);text-align:center;letter-spacing:1px;text-transform:uppercase;line-height:1.1}
+.splash-sub{font-size:11px;color:rgba(255,255,255,0.65);letter-spacing:2px;text-transform:uppercase}
+
+/* ── ROLE SELECTOR ──────────────────────────────────── */
+.role-selector{width:min(94vw,400px)}
+.role-selector h3{font-size:13px;font-weight:700;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:1.5px;text-align:center;margin-bottom:14px}
+.role-cards{display:flex;flex-direction:column;gap:10px}
+.role-card{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);border-radius:14px;padding:16px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;backdrop-filter:blur(8px)}
+.role-card:hover,.role-card:active{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.5);transform:translateY(-2px)}
+.role-card-icon{font-size:30px;flex-shrink:0;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.role-card-icon.auditor{background:rgba(207,0,46,0.35)}
+.role-card-icon.analista{background:rgba(26,82,118,0.4)}
+.role-card-icon.mesa{background:rgba(108,52,131,0.4)}
+.role-card-icon.inventario{background:rgba(45,138,78,0.35)}
+.role-card-text{flex:1}
+.role-card-name{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.5px}
+.role-card-desc{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px}
+.role-card-arrow{font-size:20px;color:rgba(255,255,255,0.5)}
+
+/* ── LOGIN FORM ─────────────────────────────────────── */
+.login-panel{display:none;width:min(94vw,400px);flex-direction:column;gap:14px}
+.login-panel.visible{display:flex}
+.login-back{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.75);font-size:13px;font-weight:700;cursor:pointer;padding:4px 0;letter-spacing:.5px;text-transform:uppercase;width:fit-content}
+.login-back:hover{color:white}
+.login-card{background:white;border-radius:var(--radius);padding:24px 20px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-card .lc-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--light)}
+.login-card .lc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.lc-icon.auditor{background:rgba(207,0,46,0.1)}
+.lc-icon.analista{background:rgba(26,82,118,0.1)}
+.lc-icon.mesa{background:rgba(108,52,131,0.1)}
+.lc-icon.inventario{background:rgba(45,138,78,0.1)}
+.login-card .lc-title{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--black);text-transform:uppercase;letter-spacing:.5px}
+.login-card .lc-sub{font-size:11px;color:var(--gray);margin-top:1px}
+
+/* ── HEADER ──────────────────────────────────────────── */
+header{color:white;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.25)}
+header.role-auditor{background:var(--grad-header)}
+header.role-analista{background:var(--grad-header-blue)}
+header.role-mesa{background:var(--grad-header-purple)}
+header.role-inventario{background:var(--grad-header-green)}
+.header-inner{display:flex;align-items:center;padding:13px 16px;gap:10px}
+.logo-sm{width:36px;height:36px;background:var(--yellow);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--red);flex-shrink:0}
+.header-text{flex:1}
+.header-text h1{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.4px;line-height:1.1}
+.header-text span{font-size:10px;opacity:.7;letter-spacing:1px;text-transform:uppercase}
+.header-user{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.header-user .user-name{font-size:11px;font-weight:700}
+.header-user .user-shift{font-size:10px;opacity:.7}
+.role-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;background:rgba(255,255,255,0.2);color:white;margin-top:2px}
+
+/* ── NAV ────────────────────────────────────────────── */
+.nav-tabs{display:flex;background:rgba(0,0,0,0.2);border-top:1px solid rgba(255,255,255,0.12);overflow-x:auto;white-space:nowrap}
+.nav-tab{flex:1;padding:9px 4px;text-align:center;cursor:pointer;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,0.55);border-bottom:3px solid transparent;transition:all .2s;line-height:1.3;position:relative;min-width:56px}
+.nav-tab.active{color:var(--yellow);border-bottom-color:var(--yellow);background:rgba(255,255,255,0.04)}
+.nav-tab .tab-icon{font-size:16px;display:block;margin-bottom:2px}
+.nav-badge{position:absolute;top:5px;right:5px;background:var(--yellow);color:var(--black);border-radius:99px;font-size:8px;font-weight:800;padding:1px 4px;line-height:1.4}
+
+/* ── MAIN ────────────────────────────────────────────── */
+main{padding:14px;max-width:640px;margin:0 auto}
+
+/* ── SECTION HEADER ──────────────────────────────────── */
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.section-icon{width:42px;height:42px;background:var(--grad);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 4px 12px rgba(253,208,0,0.3);flex-shrink:0}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:700;letter-spacing:.4px}
+.section-desc{font-size:11px;color:var(--gray);margin-top:1px}
+
+/* ── CARDS ───────────────────────────────────────────── */
+.card{background:white;border-radius:var(--radius);padding:18px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04)}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--red);margin-bottom:12px;padding-bottom:9px;border-bottom:2px solid var(--yellow);display:flex;align-items:center;gap:7px}
+.card-title.blue{color:var(--blue);border-bottom-color:#5DADE2}
+.card-title.green{color:var(--green);border-bottom-color:#58D68D}
+.card-title.purple{color:var(--purple);border-bottom-color:#C39BD3}
+
+/* ── COLUMNAS EMBARQUE ── */
+.emb-col-despacho{border-left:4px solid var(--col-despacho)!important;background:linear-gradient(135deg,#EAF2FF,#D6EAF8)!important}
+.emb-col-mesa{border-left:4px solid var(--col-mesa)!important;background:linear-gradient(135deg,#F5EEF8,#E8DAEF)!important}
+.emb-tag-despacho{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;background:var(--col-despacho);color:white;margin-bottom:8px}
+.emb-tag-mesa{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;background:var(--col-mesa);color:white;margin-bottom:8px}
+
+/* ── PENDIENTE FLASH ─────────────────────────────────── */
+@keyframes pendiente-flash {
+  0%,100%{background:rgba(253,208,0,0.15);border-color:rgba(253,208,0,0.6)}
+  50%{background:rgba(253,208,0,0.45);border-color:#FDD000}
+}
+.pendiente-flash{animation:pendiente-flash 1.8s ease-in-out infinite;border:2px solid rgba(253,208,0,0.6)!important}
+
+/* ── HERENCIA BANNER ─────────────────────────────────── */
+.continuar-card{background:linear-gradient(135deg,#EDF9F0,#D5F0E0);border:2px solid var(--green);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.continuar-card .cc-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.continuar-card .cc-header .cc-icon{font-size:20px}
+.continuar-card .cc-header .cc-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--green);text-transform:uppercase}
+.continuar-card .cc-meta{font-size:12px;color:#1A6B36;margin-bottom:10px;line-height:1.6}
+
+/* ── FORM ────────────────────────────────────────────── */
+.form-row{margin-bottom:13px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:13px}
+label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:5px}
+label span.req{color:var(--red)}
+input[type="text"],input[type="number"],input[type="date"],input[type="time"],select,textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--black);background:#FAFAFA;transition:border-color .2s,box-shadow .2s;appearance:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(207,0,46,0.08);background:white}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23CF002E' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
+textarea{resize:vertical;min-height:75px}
+input:disabled,select:disabled{opacity:.5;cursor:not-allowed;background-color:#F0F0F0}
+.prefix-group{display:flex;align-items:center;gap:0}
+.prefix-label{background:#E8E8E8;border:1.5px solid var(--border);border-right:none;border-radius:10px 0 0 10px;padding:10px 10px;font-size:13px;font-weight:700;color:var(--gray);white-space:nowrap;line-height:1}
+.prefix-group input{border-radius:0 10px 10px 0;border-left:none}
+
+/* ── TOGGLE ──────────────────────────────────────────── */
+.toggle-group{display:flex;gap:7px;flex-wrap:wrap}
+.toggle-option{flex:1;min-width:68px;padding:9px 8px;border:2px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;color:var(--gray);transition:all .2s;user-select:none}
+.toggle-option.selected{border-color:var(--red);background:rgba(207,0,46,0.05);color:var(--red)}
+.toggle-option.selected-green{border-color:var(--green)!important;background:rgba(45,138,78,0.07)!important;color:var(--green)!important}
+.toggle-option.selected-blue{border-color:var(--blue)!important;background:rgba(26,82,118,0.07)!important;color:var(--blue)!important}
+
+/* ── PHOTO ───────────────────────────────────────────── */
+.photo-zone{border:2px dashed var(--border);border-radius:11px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.photo-zone:hover{border-color:var(--red);background:rgba(207,0,46,0.02)}
+.photo-zone .ph-icon{font-size:36px;margin-bottom:6px}
+.photo-zone p{font-size:12px;color:var(--gray);font-weight:600}
+.photo-zone span{font-size:10px;color:var(--gray);opacity:.7}
+.photo-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;background:none;padding:0}
+.photo-previews{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.photo-thumb{aspect-ratio:1;border-radius:9px;overflow:hidden;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-thumb .del-btn{position:absolute;top:3px;right:3px;width:20px;height:20px;background:var(--red);color:white;border-radius:50%;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+/* ── DOC UPLOAD (Despacho) ─────────────────────────── */
+.doc-upload-zone{border:2px dashed rgba(26,82,118,0.4);border-radius:11px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:rgba(26,82,118,0.03)}
+.doc-upload-zone:hover{border-color:var(--blue);background:rgba(26,82,118,0.06)}
+.doc-upload-zone .ph-icon{font-size:36px;margin-bottom:6px}
+.doc-upload-zone p{font-size:12px;color:var(--blue);font-weight:600}
+.doc-upload-zone span{font-size:10px;color:var(--gray);opacity:.7}
+.doc-upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;background:none;padding:0}
+.doc-preview{background:rgba(26,82,118,0.07);border:1.5px solid rgba(26,82,118,0.3);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:9px}
+.doc-preview-icon{font-size:26px;flex-shrink:0}
+.doc-preview-info{flex:1;min-width:0}
+.doc-preview-name{font-size:12px;font-weight:700;color:var(--blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-preview-size{font-size:10px;color:var(--gray);margin-top:2px}
+.doc-preview-del{background:var(--red);color:white;border:none;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
+
+/* ── TARIMA BLOCK (Mesa) ────────────────────────────── */
+.tarima-block{background:linear-gradient(135deg,#F5EEF8,#EDE0F5);border:1.5px solid rgba(108,52,131,0.25);border-radius:12px;padding:14px;margin-bottom:12px}
+.tarima-block-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:var(--purple);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;display:flex;align-items:center;gap:6px;border-bottom:1.5px solid rgba(108,52,131,0.2);padding-bottom:7px}
+.tarima-optional{font-size:9px;font-weight:700;background:rgba(45,138,78,0.12);color:var(--green);padding:2px 7px;border-radius:99px;margin-left:6px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px 18px;border-radius:11px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;width:100%;text-transform:uppercase;letter-spacing:.4px}
+.btn-primary{background:var(--red);color:white;box-shadow:0 4px 16px rgba(207,0,46,0.3)}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(--yellow);color:var(--black);box-shadow:0 4px 16px rgba(253,208,0,0.3)}
+.btn-ghost{background:transparent;color:var(--red);border:2px solid var(--red)}
+.btn-green{background:var(--green);color:white;box-shadow:0 4px 16px rgba(45,138,78,0.3)}
+.btn-blue{background:var(--blue);color:white;box-shadow:0 4px 14px rgba(26,82,118,0.3)}
+.btn-purple{background:var(--purple);color:white;box-shadow:0 4px 14px rgba(108,52,131,0.3)}
+.btn-sm{padding:9px 14px;font-size:12px;width:auto}
+
+/* ── RECORDS LIST ────────────────────────────────────── */
+.record-item{background:white;border-radius:11px;padding:13px 15px;margin-bottom:9px;border-left:4px solid var(--red);box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;align-items:center;gap:10px;cursor:pointer;transition:box-shadow .2s}
+.record-item:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.record-item.pending{border-left-color:var(--yellow);background:#FFFDF0}
+.record-item.herencia{border-left-color:var(--green);background:#F0FFF6}
+.record-icon{font-size:22px;flex-shrink:0}
+.record-content{flex:1;min-width:0}
+.record-title{font-size:13px;font-weight:700;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-meta{font-size:10px;color:var(--gray);margin-top:2px}
+.record-badge{padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;flex-shrink:0}
+.badge-ok{background:rgba(45,138,78,0.12);color:var(--green)}
+.badge-pendiente{background:rgba(253,208,0,0.3);color:#8B6B00}
+
+/* ── PENDIENTES ──────────────────────────────────────── */
+.pendientes-panel{background:linear-gradient(135deg,#FFF9E0 0%,#FFF5CC 100%);border:2px solid var(--yellow);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+.pendientes-header{background:var(--yellow);padding:11px 15px;display:flex;align-items:center;gap:7px}
+.pendientes-header .ph-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--black);text-transform:uppercase;flex:1}
+.pendientes-count{background:var(--black);color:var(--yellow);border-radius:99px;padding:2px 9px;font-size:11px;font-weight:800}
+.pendiente-item{padding:11px 15px;border-bottom:1px solid rgba(253,208,0,0.3);display:flex;align-items:flex-start;gap:9px}
+.pendiente-item:last-child{border-bottom:none}
+.pi-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.pi-body{flex:1;min-width:0}
+.pi-title{font-size:12px;font-weight:700;color:var(--black)}
+.pi-meta{font-size:10px;color:#8B6B00;margin-top:2px;line-height:1.4}
+.pi-actions{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.pi-btn{padding:5px 11px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;border:none;text-transform:uppercase;letter-spacing:.4px}
+.pi-btn-continuar{background:var(--green);color:white}
+.pi-btn-ver{background:rgba(26,26,26,0.08);color:var(--black)}
+
+/* ── MODAL ───────────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:white;width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:22px 18px 38px;transform:translateY(40px);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:38px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 18px}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin-bottom:14px}
+
+/* ── INVENTARIO ───────────────────────────────────────── */
+.stock-section{background:white;border-radius:var(--radius);margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);overflow:hidden}
+.stock-section-header{padding:13px 16px;display:flex;align-items:center;gap:8px;border-bottom:2px solid rgba(45,138,78,0.15)}
+.stock-section-header.chep{background:linear-gradient(135deg,#EAF2FF,#D6EAF8);border-bottom-color:rgba(26,82,118,0.25)}
+.stock-section-header.roja{background:linear-gradient(135deg,#FDEDEC,#FADBD8);border-bottom-color:rgba(207,0,46,0.25)}
+.stock-section-header.blanca{background:linear-gradient(135deg,#F9F9F9,#F0F0F0);border-bottom-color:rgba(100,100,100,0.2)}
+.stock-section-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}
+.stock-section-title.chep{color:var(--blue)}
+.stock-section-title.roja{color:var(--red)}
+.stock-section-title.blanca{color:#555}
+.stock-body{padding:14px 16px}
+.stock-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stock-sub-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:7px;padding:4px 8px;background:rgba(0,0,0,0.04);border-radius:6px;display:inline-block}
+.stock-grid-4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.mov-block{border-top:1.5px solid var(--border);padding-top:12px;margin-top:4px}
+.mov-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05)}
+.mov-row:last-child{border-bottom:none}
+.mov-label{flex:1;font-size:12px;font-weight:600;color:var(--black);line-height:1.3}
+.mov-input{width:100px;flex-shrink:0}
+
+/* ── MISC ────────────────────────────────────────────── */
+.accent-line{height:3px;background:linear-gradient(90deg,var(--red),var(--yellow));border-radius:99px;margin:14px 0}
+.hidden{display:none!important}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.info-note{font-size:11px;color:var(--gray);background:#F8F8F8;border-radius:8px;padding:9px 11px;line-height:1.5;margin-bottom:9px}
+.info-note strong{color:var(--black)}
+.warn-note{font-size:11px;color:#8B6B00;background:rgba(253,208,0,0.15);border:1.5px solid rgba(253,208,0,0.5);border-radius:8px;padding:9px 11px;line-height:1.5;margin-bottom:9px}
+.warn-note strong{color:#6B4F00}
+.ok-note{font-size:11px;color:#1A6B36;background:rgba(45,138,78,0.1);border:1.5px solid rgba(45,138,78,0.3);border-radius:8px;padding:9px 11px;line-height:1.5;margin-bottom:9px}
+.tl-item{display:flex;gap:10px;margin-bottom:7px;align-items:flex-start}
+.tl-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:1px}
+.tl-dot-start{background:rgba(45,138,78,0.15);border:2px solid var(--green)}
+.tl-dot-pause{background:rgba(253,208,0,0.25);border:2px solid var(--orange)}
+.tl-body{flex:1}
+.tl-label{font-size:11px;font-weight:700;color:var(--black)}
+.tl-time{font-size:10px;color:var(--gray)}
+.tl-connector{width:2px;height:10px;background:var(--border);margin-left:14px;margin-bottom:2px}
+
+/* ── TOAST ───────────────────────────────────────────── */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--black);color:white;padding:11px 22px;border-radius:99px;font-size:12px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;max-width:90vw}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{background:#2D8A4E}
+.toast.error{background:var(--red)}
+.toast.warning{background:var(--orange)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SPLASH — SELECTOR DE ROL
+══════════════════════════════════════════ -->
+<div id="splash">
+  <div class="splash-logo">AP</div>
+  <div class="splash-title">Auditoría<br>de Pallets</div>
+  <div class="splash-sub">v23 · Created by Itzel Perez</div>
+
+  <div class="role-selector" id="role-selector">
+    <h3>Selecciona tu perfil</h3>
+    <div class="role-cards">
+      <div class="role-card" onclick="showLoginFor('auditor')">
+        <div class="role-card-icon auditor">🔴</div>
+        <div class="role-card-text">
+          <div class="role-card-name">Auditor</div>
+          <div class="role-card-desc">Recibo · Armados · Embarque · Pendientes</div>
+        </div>
+        <div class="role-card-arrow">›</div>
+      </div>
+      <div class="role-card" onclick="showLoginFor('mesa')">
+        <div class="role-card-icon mesa">🟣</div>
+        <div class="role-card-text">
+          <div class="role-card-name">Analista Mesa de Control</div>
+          <div class="role-card-desc">Cantidad Prime T1/T2, MC</div>
+        </div>
+        <div class="role-card-arrow">›</div>
+      </div>
+      <div class="role-card" onclick="showLoginFor('analista')">
+        <div class="role-card-icon analista">🔵</div>
+        <div class="role-card-text">
+          <div class="role-card-name">Analista Despacho</div>
+          <div class="role-card-desc">Cant. MC · Cant. Factura · Evidencia</div>
+        </div>
+        <div class="role-card-arrow">›</div>
+      </div>
+      <div class="role-card" onclick="showLoginFor('inventario')">
+        <div class="role-card-icon inventario">🟢</div>
+        <div class="role-card-text">
+          <div class="role-card-name">Inventario (Jaula)</div>
+          <div class="role-card-desc">Stock · Embarque de tarimas</div>
+        </div>
+        <div class="role-card-arrow">›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-panel" id="login-panel">
+    <div class="login-back" onclick="showRoleSelector()">← Volver</div>
+    <div class="login-card">
+      <div class="lc-header">
+        <div class="lc-icon" id="lc-icon">🔴</div>
+        <div>
+          <div class="lc-title" id="lc-title">Auditor</div>
+          <div class="lc-sub" id="lc-sub">Acceso al módulo de auditoría</div>
+        </div>
+      </div>
+      <div class="form-row-2" style="margin-bottom:13px">
+        <div>
+          <label>Cuadrilla <span class="req">*</span></label>
+          <select id="login-squad">
+            <option value="">—</option>
+            <option>A</option><option>B</option><option>C</option><option>D</option>
+          </select>
+        </div>
+        <div>
+          <label>Turno <span class="req">*</span></label>
+          <select id="login-shift">
+            <option value="">—</option>
+            <option>1RO</option><option>2DO</option><option>3RO</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:10px">
+        <label>Nombre <span class="req">*</span></label>
+        <select id="login-name" onchange="toggleOtroLogin()">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
+      <div class="form-row hidden" id="login-otro-row" style="margin-bottom:10px">
+        <label>Especificar nombre <span class="req">*</span></label>
+        <input type="text" id="login-name-otro" placeholder="Nombre completo">
+      </div>
+      <button class="btn btn-primary" id="btn-login" onclick="startSession()">
+        <span>✓</span> Iniciar Sesión
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP
+══════════════════════════════════════════ -->
+<div id="app" style="display:none">
+  <header id="app-header" class="role-auditor">
+    <div class="header-inner">
+      <div class="logo-sm">AP</div>
+      <div class="header-text">
+        <h1>Auditoría de Pallets</h1>
+        <div class="splash-sub">Created by Itzel Perez</div>
+        <span id="hdr-date">—</span>
+      </div>
+      <div class="header-user">
+        <div class="user-name" id="hdr-name">—</div>
+        <div class="user-shift" id="hdr-shift">—</div>
+        <div class="role-pill" id="hdr-role-pill">Auditor</div>
+      </div>
+    </div>
+    <nav class="nav-tabs" id="nav-tabs-container"></nav>
+  </header>
+  <main id="app-main"></main>
+</div>
+
+<!-- MODAL RECORDS -->
+<div class="modal-overlay" id="records-modal" onclick="closeModal('records-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Registros</div>
+    <div id="modal-records-list"></div>
+    <div style="height:10px"></div>
+    <button class="btn btn-ghost" onclick="closeModal('records-modal')">Cerrar</button>
+  </div>
+</div>
+
+<!-- MODAL DETALLE PENDIENTE -->
+<div class="modal-overlay" id="pendiente-detail-modal" onclick="closeModal('pendiente-detail-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="pd-modal-title">Detalle</div>
+    <div id="pd-modal-body"></div>
+    <div style="height:10px"></div>
+    <button class="btn btn-ghost" onclick="closeModal('pendiente-detail-modal')">Cerrar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const API_URL   = 'https://script.google.com/macros/s/AKfycbwLQb4rT_sZIvVM4PSna4xhF1xjPYGPAPXeTmAPfEiMKNvuBaw2jICjnjctOwu5D4U/exec';
+const API_URL_2 = 'https://script.google.com/macros/s/AKfycbxFSu0cSD13XTU-5mfXn0J8nXfytnKq4loVFOw64txE5hVKhacANAvNU_DhP0l7mu06/exec';
+
+// ══════════════════════════════════════════════════════
+//  PERSONAS POR ROL
+// ══════════════════════════════════════════════════════
+const PERSONAS = {
+  auditor: [
+    'Daniela Ortega Osorio','Cristopher Jonathan Paz Ledezma','Ana Karen Eluvia Gallardo Colin',
+    'Delfino Martinez Martinez','Carlos Axel Gonzalez Beltran','Miriam Gutierrez Santiago',
+    'Griselda Nolasco Campos','Angelica Lopez Guadalupe','Belén Sarahi Gomez Parra',
+    'Brenda Rosalino Polenciano','Paulina Stephanie Cruz Navarro',
+  ],
+  analista: [
+    'Ana Lilia Avalos Vazquez','Jose Salvador Segura Cruz','Luis Miguel Morales Alvarado','Aleyda Hernandez Bastida',
+  ],
+  mesa: [
+    'Pedro Luis Solis Mendoza','Juan Carlos Lopez Flores','José Roberto Garcia Acosta','Paulina Stephanie Cruz Navarro','Angel Rafael Viveros Rodriguez'
+  ],
+  inventario: [
+    'Aldo Felipe Hernandez Velazquez','Javier Arteaga Trejo','Israel Sanchez Lopez','Fidel Rojas Oliva'
+  ]
+};
+
+const ROL_CONFIG = {
+  auditor:    { icon:'🔴', label:'Auditor',              sub:'Módulo de auditoría',     headerClass:'role-auditor',   btnColor:'btn-primary' },
+  analista:   { icon:'🔵', label:'Analista Despacho',    sub:'Módulo de análisis',       headerClass:'role-analista',  btnColor:'btn-blue'    },
+  mesa:       { icon:'🟣', label:'Mesa de Control',      sub:'Cantidades Prime y MC',    headerClass:'role-mesa',      btnColor:'btn-purple'  },
+  inventario: { icon:'🟢', label:'Inventario (Jaula)',   sub:'Stock y embarque',         headerClass:'role-inventario',btnColor:'btn-green'   }
+};
+
+const TIPOS_TARIMA = ['CHEP Estándar','CHEP Fitosanitaria','Blanco Estándar','Blanco Fitosanitaria','GT Pallet','Roja Estándar','Merk Euro Fitosanitaria','None','PECO Estándar','PECO Fitosanitaria','SLEEP','Otra'];
+const PLANTAS_DESTINO = ['B777','C104','C108','Otra'];
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let session = { name:'', squad:'', shift:'', role:'', date:'' };
+let records = { recibo:[], armado:[], embarque:[] };
+let pendientes = [];
+let herenciasResueltas = [];
+let photos = { r:[], ae:[], ad:[], embarque_general:[], mc:[] };
+// Analista Despacho: un solo documento
+let analistaDoc = null;
+// Mesa de Control: una foto
+let mesaFoto = null;
+let analistaEmbarqueActual = null;
+let mesaEmbarqueActual = null;
+let offlineQueue = [];
+let currentRole = '';
+
+function loadState() {
+  try {
+    const s  = localStorage.getItem('ap_session_v23');
+    const r  = localStorage.getItem('ap_records_v23');
+    const p  = localStorage.getItem('ap_pendientes_global');
+    const hr = localStorage.getItem('ap_herencias_resueltas_global');
+    const q  = localStorage.getItem('ap_queue_v23');
+    if (s)  session            = JSON.parse(s);
+    if (r)  records            = JSON.parse(r);
+    if (p)  pendientes         = JSON.parse(p);
+    if (hr) herenciasResueltas = JSON.parse(hr);
+    if (q)  offlineQueue       = JSON.parse(q);
+  } catch(e){}
+}
+function saveState() {
+  try {
+    localStorage.setItem('ap_session_v23',               JSON.stringify(session));
+    localStorage.setItem('ap_records_v23',               JSON.stringify(records));
+    localStorage.setItem('ap_pendientes_global',         JSON.stringify(pendientes));
+    localStorage.setItem('ap_herencias_resueltas_global',JSON.stringify(herenciasResueltas));
+    localStorage.setItem('ap_queue_v23',                 JSON.stringify(offlineQueue));
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
+//  SPLASH
+// ══════════════════════════════════════════════════════
+function showLoginFor(role) {
+  currentRole = role;
+  const cfg = ROL_CONFIG[role];
+  const lcIcon = document.getElementById('lc-icon');
+  lcIcon.textContent = cfg.icon;
+  lcIcon.className = 'lc-icon ' + role;
+  document.getElementById('lc-title').textContent = cfg.label;
+  document.getElementById('lc-sub').textContent   = cfg.sub;
+
+  const sel = document.getElementById('login-name');
+  sel.innerHTML = '<option value="">— Seleccionar —</option>';
+  PERSONAS[role].forEach(n => {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n;
+    sel.appendChild(o);
+  });
+  const otro = document.createElement('option');
+  otro.value = 'Otro'; otro.textContent = 'Otro (especificar)';
+  sel.appendChild(otro);
+
+  document.getElementById('btn-login').className = 'btn ' + cfg.btnColor;
+  document.getElementById('role-selector').classList.add('hidden');
+  document.getElementById('login-panel').classList.add('visible');
+  document.getElementById('login-otro-row').classList.add('hidden');
+  document.getElementById('login-name-otro').value = '';
+}
+function showRoleSelector() {
+  document.getElementById('role-selector').classList.remove('hidden');
+  document.getElementById('login-panel').classList.remove('visible');
+  currentRole = '';
+}
+function toggleOtroLogin() {
+  const sel = document.getElementById('login-name');
+  const row = document.getElementById('login-otro-row');
+  row.classList.toggle('hidden', sel.value !== 'Otro');
+  if (sel.value !== 'Otro') document.getElementById('login-name-otro').value = '';
+}
+function startSession() {
+  const nameRaw  = document.getElementById('login-name').value.trim();
+  const nameOtro = document.getElementById('login-name-otro').value.trim();
+  const name     = nameRaw === 'Otro' ? nameOtro : nameRaw;
+  const squad    = document.getElementById('login-squad').value;
+  const shift    = document.getElementById('login-shift').value;
+  if (!nameRaw || !squad || !shift) { showToast('Completa todos los campos requeridos','error'); return; }
+  if (nameRaw === 'Otro' && !nameOtro) { showToast('Especifica tu nombre','error'); return; }
+
+  session = { name, squad, shift, role: currentRole, date: new Date().toISOString().slice(0,10) };
+  records = { recibo:[], armado:[], embarque:[] };
+  saveState();
+  hideSplash();
+  updateHeader();
+  buildApp();
+  showToast(`¡Bienvenido/a ${name}! — ${ROL_CONFIG[currentRole].label} · Turno ${shift}`,'success');
+  if (currentRole === 'auditor') setTimeout(() => syncPendientesDesdeNube(), 800);
+}
+function hideSplash() {
+  document.getElementById('splash').classList.add('hide');
+  document.getElementById('app').style.display = 'block';
+  setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 600);
+}
+function updateHeader() {
+  const cfg = ROL_CONFIG[session.role];
+  document.getElementById('app-header').className = cfg.headerClass;
+  document.getElementById('hdr-name').textContent  = session.name;
+  document.getElementById('hdr-shift').textContent = `${session.shift} · Cuad. ${session.squad}`;
+  document.getElementById('hdr-role-pill').textContent = cfg.label;
+  const d = session.date
+    ? new Date(session.date+'T12:00:00').toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'})
+    : '—';
+  document.getElementById('hdr-date').textContent = d;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD APP
+// ══════════════════════════════════════════════════════
+function buildApp() {
+  const nav  = document.getElementById('nav-tabs-container');
+  const main = document.getElementById('app-main');
+  nav.innerHTML  = '';
+  main.innerHTML = '';
+  if (session.role === 'auditor')     buildAuditorApp(nav, main);
+  else if (session.role === 'analista')   buildAnalistaApp(nav, main);
+  else if (session.role === 'mesa')       buildMesaApp(nav, main);
+  else if (session.role === 'inventario') buildInventarioApp(nav, main);
+}
+
+// ══════════════════════════════════════════════════════
+//  AUDITOR
+// ══════════════════════════════════════════════════════
+function buildAuditorApp(nav, main) {
+  const tabs = [
+    { id:'recibo',    icon:'📦', text:'Recibo'    },
+    { id:'armados',   icon:'🔧', text:'Armados'   },
+    { id:'embarque',  icon:'🚛', text:'Embarque'  },
+    { id:'pendientes',icon:'⏳', text:'Pendientes'},
+    { id:'logout',    icon:'🚪', text:'Salir'     }
+  ];
+  tabs.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'nav-tab' + (t.id === 'recibo' ? ' active' : '');
+    d.setAttribute('data-tab', t.id);
+    d.innerHTML = `<span class="tab-icon">${t.icon}</span>${t.text}`;
+    if (t.id === 'pendientes') d.innerHTML += `<span class="nav-badge hidden" id="nav-badge-pend">0</span>`;
+    d.onclick = () => switchTab(t.id);
+    nav.appendChild(d);
+  });
+  tabs.forEach(t => {
+    const div = document.createElement('div');
+    div.id = 'tab-' + t.id;
+    div.className = 'tab-content' + (t.id === 'recibo' ? ' active' : '');
+    main.appendChild(div);
+  });
+  fillReciboTab();
+  fillArmadosTab();
+  fillEmbarqueTab();
+  fillPendientesTab();
+  fillLogoutTab();
+  renderPendientes();
+}
+
+/* ─── RECIBO ─────────────────────────────────────────── */
+function fillReciboTab() {
+  const tab = document.getElementById('tab-recibo');
+  if (!tab) return;
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon">📦</div>
+    <div><div class="section-title">Recibo de Importados</div><div class="section-desc">Auditoría de descarga con evidencia fotográfica</div></div>
+  </div>
+  <div id="recibo-herencia-panel" class="hidden"></div>
+  <div class="card">
+    <div class="card-title">📋 Datos del Recibo</div>
+    <input type="hidden" id="r-herencia-id" value="">
+    <div class="form-row-2">
+      <div><label>STO <span class="req">*</span></label><input type="text" id="r-sto" placeholder="Núm. STO"></div>
+      <div><label>Master Receipt <span class="req">*</span></label><input type="text" id="r-master" placeholder="XXXXXXXXXX"></div>
+    </div>
+    <div class="form-row-2">
+      <div>
+        <label>Núm. Cortina <span class="req">*</span></label>
+        <div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="r-cortina" placeholder="000" min="1"></div>
+      </div>
+      <div>
+        <label>Planta Recibo <span class="req">*</span></label>
+        <select id="r-planta" onchange="togglePlantaOtro()">
+          <option value="">— Seleccionar —</option>
+          <option>B777</option><option>C104</option><option>C108</option><option value="Otro">Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row hidden" id="r-planta-otro-row">
+      <label>Nombre de la Planta <span class="req">*</span></label>
+      <input type="text" id="r-planta-otro" placeholder="Especificar planta">
+    </div>
+    <div class="form-row">
+      <label id="r-monta-label">Usuario Montacarguista <span class="req" id="r-monta-req">*</span><span id="r-monta-opt" style="display:none;font-size:10px;background:rgba(45,138,78,0.12);color:#2D8A4E;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:4px">Opcional</span></label>
+      <div class="prefix-group"><span class="prefix-label">SMO</span><input type="number" id="r-monta" placeholder="000" min="1"></div>
+    </div>
+    <div class="form-row">
+      <label>Tipo de Recibo <span class="req">*</span></label>
+      <div class="toggle-group" id="r-tipo">
+        <div class="toggle-option" onclick="toggleSelect(this,'r-tipo');onTipoReciboChange(this)">Paletizado</div>
+        <div class="toggle-option" onclick="toggleSelect(this,'r-tipo');onTipoReciboChange(this)">Granel</div>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div><label>Pallets CHEP <span class="req">*</span></label><input type="number" id="r-chep" min="0" placeholder="0"></div>
+      <div><label>Pallets Blancas <span class="req">*</span></label><input type="number" id="r-blancas" min="0" placeholder="0"></div>
+    </div>
+    <div class="form-row">
+      <label>Avance del Recibo <span class="req">*</span></label>
+      <select id="r-avance" onchange="onAvanceReciboChange()">
+        <option value="">— Seleccionar —</option>
+        <option>Inicio</option><option>25%</option><option>50%</option><option>75%</option><option>Completo</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Estado del Recibo <span class="req">*</span></label>
+      <div class="toggle-group" id="r-estado">
+        <div class="toggle-option" onclick="toggleEstadoRecibo(this)">✅ Finalizado</div>
+        <div class="toggle-option selected" onclick="toggleEstadoRecibo(this)">🔄 Herencia</div>
+      </div>
+    </div>
+    <div class="form-row warn-note" id="r-herencia-nota">⚠️ Este recibo quedará <strong>pendiente</strong> para el siguiente turno.</div>
+    <div class="form-row"><label>Notas</label><textarea id="r-notas" placeholder="Observaciones..."></textarea></div>
+  </div>
+  <div class="card" style="border:2px solid rgba(207,0,46,0.3);background:linear-gradient(135deg,#fff,#FFF5F5)">
+    <div class="card-title">📸 Evidencia Fotográfica <span class="req">*</span></div>
+    <div id="foto-r-req-msg" style="display:none" class="warn-note">⚠️ La evidencia fotográfica es <strong>obligatoria</strong>.</div>
+    <div class="photo-zone" id="photo-zone-r">
+      <div class="ph-icon">📷</div><p>Tomar foto / Seleccionar imagen</p><span>Evidencia del recibo</span>
+      <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'r')">
+    </div>
+    <div class="photo-previews" id="photos-r"></div>
+  </div>
+  <button class="btn btn-primary" onclick="saveRecord('recibo')"><span>✓</span> Guardar Registro de Recibo</button>
+  <div style="height:10px"></div>
+  <button class="btn btn-ghost" onclick="showRecords('recibo')"><span>📂</span> Ver Registros del Turno</button>`;
+}
+
+/* ─── ARMADOS ────────────────────────────────────────── */
+function fillArmadosTab() {
+  const tab = document.getElementById('tab-armados');
+  if (!tab) return;
+  const clientes = ['AMAZON','BODEGA AURRERA','CASA LEY','CHEDRAUI','CITY FRESKO','CONSUMO Z','EVSA',
+    'FARMACIAS GUADALAJARA','FARMACIAS SIMILARES','FIURI','GARIS','IRAPUATO','NADRO',
+    'ONEST ATIZAPAN','OXXO','OPERADORA CJ','PROPIMEX','SAMS','SORIANA','SUPERAMA',
+    'SUPERCENTER','TIENDAS 3B','VALLEJO','WALMART','ZORRO','Otro'];
+  const clienteOpts = clientes.map(c=>`<option value="${c}">${c}</option>`).join('');
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon">🔧</div>
+    <div><div class="section-title">Armados Especiales</div><div class="section-desc">Auditoría de armado especial y a detalle</div></div>
+  </div>
+  <div id="armado-herencia-panel" class="hidden"></div>
+  <div class="card">
+    <div class="card-title">🔀 Tipo de Armado</div>
+    <div class="toggle-group" id="a-subtipo">
+      <div class="toggle-option selected" onclick="toggleSelect(this,'a-subtipo');showArmadoSub()">Armado Especial</div>
+      <div class="toggle-option" onclick="toggleSelect(this,'a-subtipo');showArmadoSub()">A Detalle</div>
+    </div>
+  </div>
+  <div id="armado-especial-fields">
+    <div class="card">
+      <div class="card-title">📋 Armado Especial</div>
+      <input type="hidden" id="ae-herencia-id" value="">
+      <div class="form-row"><label>Unidad de Envío <span class="req">*</span></label><input type="text" id="ae-unidad" placeholder="Núm. unidad"></div>
+      <div class="form-row">
+        <label>Cliente <span class="req">*</span></label>
+        <select id="ae-cliente" onchange="toggleClienteAEOtro()"><option value="">— Seleccionar —</option>${clienteOpts}</select>
+      </div>
+      <div class="form-row hidden" id="ae-cliente-otro-row"><label>Especificar Cliente <span class="req">*</span></label><input type="text" id="ae-cliente-otro" placeholder="Nombre del cliente"></div>
+      <div class="form-row-2">
+        <div><label>Cortina <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="ae-cortina" placeholder="000" min="1"></div></div>
+        <div><label>Avance <span class="req">*</span></label><select id="ae-avance" onchange="toggleEstadoArmado()"><option value="">—</option><option>Inicio</option><option>25%</option><option>50%</option><option>75%</option><option>Completo</option></select></div>
+      </div>
+      <div class="form-row"><label>Montacarguista <span style="font-size:10px;background:rgba(45,138,78,0.12);color:#2D8A4E;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:4px">Opcional</span></label><div class="prefix-group"><span class="prefix-label">SMO</span><input type="number" id="ae-monta" placeholder="000" min="1"></div></div>
+      <div class="form-row-2">
+        <div><label>Pallets CHEP <span class="req">*</span></label><input type="number" id="ae-chep" min="0" placeholder="0"></div>
+        <div><label>Pallets Blancas <span class="req">*</span></label><input type="number" id="ae-blancas" min="0" placeholder="0"></div>
+      </div>
+      <div class="form-row"><label>Ubicación</label><input type="text" id="ae-ubicacion" placeholder="Plancha / área"></div>
+      <div class="form-row">
+        <label>Estado <span class="req">*</span></label>
+        <div class="toggle-group" id="ae-estado">
+          <div class="toggle-option" onclick="toggleSelect(this,'ae-estado');toggleEstadoArmado()">✅ Finalizado</div>
+          <div class="toggle-option selected" onclick="toggleSelect(this,'ae-estado');toggleEstadoArmado()">🔄 Herencia</div>
+        </div>
+      </div>
+      <div class="form-row warn-note" id="ae-pendiente-nota">⚠️ Este armado quedará pendiente para el siguiente turno.</div>
+      <div class="form-row">
+        <label>📸 Evidencia <span class="req">*</span></label>
+        <div class="photo-zone" id="photo-zone-ae">
+          <div class="ph-icon" style="font-size:28px">📷</div><p>Tomar foto / Seleccionar imagen</p>
+          <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'ae')">
+        </div>
+        <div class="photo-previews" id="photos-ae"></div>
+      </div>
+    </div>
+  </div>
+  <div id="armado-detalle-fields" class="hidden">
+    <div class="card">
+      <div class="card-title">🔍 Auditoría a Detalle</div>
+      <input type="hidden" id="ad-herencia-id" value="">
+      <div class="form-row"><label>Unidad de Envío <span class="req">*</span></label><input type="text" id="ad-unidad" placeholder="Núm. unidad"></div>
+      <div class="form-row-2">
+        <div><label>Cliente <span class="req">*</span></label><select id="ad-cliente-select" onchange="toggleClienteOtro()"><option value="">—</option>${clienteOpts}</select></div>
+        <div><label>Cortina <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="ad-cortina" placeholder="000" min="1"></div></div>
+      </div>
+      <div class="form-row hidden" id="ad-cliente-otro-row"><label>Especificar Cliente <span class="req">*</span></label><input type="text" id="ad-cliente-otro" placeholder="Nombre del cliente"></div>
+      <div class="form-row"><label>Montacarguista <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">SMO</span><input type="number" id="ad-monta" placeholder="000" min="1"></div></div>
+      <div class="form-row-2">
+        <div><label>Pallets CHEP <span class="req">*</span></label><input type="number" id="ad-pallets" min="0" placeholder="0"></div>
+        <div><label>Pallets Blancas <span class="req">*</span></label><input type="number" id="ad-blancas" min="0" placeholder="0"></div>
+      </div>
+      <div class="form-row-2">
+        <div><label>Etiquetas <span class="req">*</span></label><input type="number" id="ad-etiquetas" min="0" placeholder="0"></div>
+        <div><label>Avance <span class="req">*</span></label><select id="ad-avance" onchange="toggleEstadoArmadoDetalle()"><option value="">—</option><option>Inicio</option><option>25%</option><option>50%</option><option>75%</option><option>Completo</option></select></div>
+      </div>
+      <div class="form-row">
+        <label>Estatus <span class="req">*</span></label>
+        <div class="toggle-group" id="ad-estatus">
+          <div class="toggle-option" onclick="toggleSelect(this,'ad-estatus');toggleEstadoArmadoDetalle()">✅ Finalizado</div>
+          <div class="toggle-option" onclick="toggleSelect(this,'ad-estatus');toggleEstadoArmadoDetalle()">🔄 Herencia</div>
+        </div>
+      </div>
+      <div class="form-row hidden warn-note" id="ad-herencia-nota">⚠️ Este armado quedará pendiente para el siguiente turno.</div>
+      <div class="form-row">
+        <label>📸 Evidencia <span class="req">*</span></label>
+        <div class="photo-zone" id="photo-zone-ad">
+          <div class="ph-icon" style="font-size:28px">📷</div><p>Tomar foto / Seleccionar imagen</p>
+          <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'ad')">
+        </div>
+        <div class="photo-previews" id="photos-ad"></div>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="saveRecord('armado')"><span>✓</span> Guardar Registro de Armado</button>
+  <div style="height:10px"></div>
+  <button class="btn btn-ghost" onclick="showRecords('armado')"><span>📂</span> Ver Registros del Turno</button>`;
+}
+
+/* ─── EMBARQUE ───────────────────────────────────────── */
+function fillEmbarqueTab() {
+  const tab = document.getElementById('tab-embarque');
+  if (!tab) return;
+  const clientes = ['AMAZON','BODEGA AURRERA','CASA LEY','CHEDRAUI','CITY FRESKO','CONSUMO Z','EVSA',
+    'FARMACIAS GUADALAJARA','FARMACIAS SIMILARES','FIURI','GARIS','IRAPUATO','NADRO',
+    'ONEST ATIZAPAN','OXXO','OPERADORA CJ','PROPIMEX','SAMS','SORIANA','SUPERAMA',
+    'SUPERCENTER','TIENDAS 3B','VALLEJO','WALMART','ZORRO','Otro'];
+  const clienteOpts = clientes.map(c=>`<option value="${c}">${c}</option>`).join('');
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon">🚛</div>
+    <div><div class="section-title">Embarque de Pallets</div><div class="section-desc">Auditoría de cortinas de embarque</div></div>
+  </div>
+  <div id="embarque-herencia-panel" class="hidden"></div>
+  <div class="card">
+    <div class="card-title">📋 Datos del Embarque</div>
+    <input type="hidden" id="e-herencia-id" value="">
+    <div class="form-row"><label>Unidad de Envío <span class="req">*</span></label><input type="text" id="e-unidad" placeholder="Núm. unidad"></div>
+    <div class="form-row-2">
+      <div><label>Cliente <span class="req">*</span></label><select id="e-cliente" onchange="toggleClienteEmbarqueOtro()"><option value="">—</option>${clienteOpts}</select></div>
+      <div><label>Cortina <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="e-cortina" placeholder="000" min="1"></div></div>
+    </div>
+    <div class="form-row hidden" id="e-cliente-otro-row"><label>Especificar Cliente <span class="req">*</span></label><input type="text" id="e-cliente-otro" placeholder="Nombre del cliente"></div>
+    <div class="form-row"><label>Montacarguista <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">SMO</span><input type="number" id="e-monta" placeholder="000" min="1"></div></div>
+    <div class="form-row">
+      <label>Tipo de Embarque <span class="req">*</span></label>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:5px">Carga</div>
+      <div class="toggle-group" id="e-tipo-carga" style="margin-bottom:8px">
+        <div class="toggle-option" onclick="toggleSelect(this,'e-tipo-carga')">Paletizado</div>
+        <div class="toggle-option" onclick="toggleSelect(this,'e-tipo-carga')">Granel</div>
+      </div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:5px">Destino</div>
+      <div class="toggle-group" id="e-tipo-destino">
+        <div class="toggle-option" onclick="toggleSelect(this,'e-tipo-destino')">Exportación</div>
+        <div class="toggle-option" onclick="toggleSelect(this,'e-tipo-destino')">Local</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 Conteo de Pallets</div>
+    <div class="form-row-2">
+      <div><label>Pallets Blancas <span class="req">*</span></label><input type="number" id="e-blancas" min="0" placeholder="0"></div>
+      <div><label>Pallets CHEP <span class="req">*</span></label><input type="number" id="e-chep-embarque" min="0" placeholder="0"></div>
+    </div>
+    <div class="form-row">
+      <label>Etiqueta Consolidada</label>
+      <div class="toggle-group" id="e-etiqueta">
+        <div class="toggle-option" onclick="toggleSelect(this,'e-etiqueta')">✓ Sí</div>
+        <div class="toggle-option" onclick="toggleSelect(this,'e-etiqueta')">✗ No</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Datos MC <span class="req">*</span></label>
+      <div class="toggle-group" id="e-tiempo">
+        <div class="toggle-option" onclick="toggleSelect(this,'e-tiempo');toggleMCEvidencia(this)">✓ Correcto</div>
+        <div class="toggle-option" onclick="toggleSelect(this,'e-tiempo');toggleMCEvidencia(this)">✗ Incorrecto</div>
+      </div>
+    </div>
+    <div id="mc-incorrecto-panel" class="hidden" style="background:rgba(207,0,46,0.05);border:1.5px solid rgba(207,0,46,0.25);border-radius:10px;padding:13px;margin-top:4px">
+      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:8px">⚠️ Status MC Incorrecto</div>
+      <div class="form-row" style="margin-bottom:0"><label>Descripción del problema <span style="font-size:10px;background:rgba(45,138,78,0.12);color:#2D8A4E;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:4px">Opcional</span></label><textarea id="e-mc-desc" placeholder="Ej. Conteo incorrecto..." style="min-height:60px"></textarea></div>
+    </div>
+    <div class="form-row" style="margin-top:12px">
+      <label>Avance del Embarque <span class="req">*</span></label>
+      <select id="e-avance" onchange="toggleEstadoEmbarque()"><option value="">—</option><option>Inicio</option><option>25%</option><option>50%</option><option>75%</option><option>Completo</option></select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📸 Evidencia Obligatoria</div>
+    <div class="form-row">
+      <label>Evidencia del Embarque <span class="req">*</span></label>
+      <div class="photo-zone" id="photo-zone-embarque-general">
+        <div class="ph-icon">📷</div><p>Tomar foto / Seleccionar imagen (embarque)</p>
+        <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'embarque_general')">
+      </div>
+      <div class="photo-previews" id="photos-embarque_general"></div>
+    </div>
+    <div class="form-row">
+      <label>Evidencia del MC <span class="req">*</span></label>
+      <div class="photo-zone" id="photo-zone-mc">
+        <div class="ph-icon">📷</div><p>Tomar foto / Seleccionar imagen (MC)</p>
+        <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'mc')">
+      </div>
+      <div class="photo-previews" id="photos-mc"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📝 Observación</div>
+    <div class="form-row" style="margin-bottom:0"><label>Observación / Diferencia</label><textarea id="e-obs" placeholder="Ej. Discrepancia en conteo..."></textarea></div>
+  </div>
+  <div class="card">
+    <div class="card-title">✅ Estado Final</div>
+    <div class="form-row">
+      <label>Estado <span class="req">*</span></label>
+      <div class="toggle-group" id="e-estado">
+        <div class="toggle-option" onclick="toggleEstadoEmbarque(this)">✅ Finalizado</div>
+        <div class="toggle-option" onclick="toggleEstadoEmbarque(this)">🔄 Herencia</div>
+      </div>
+    </div>
+    <div class="form-row hidden warn-note" id="e-pendiente-nota">⚠️ Este embarque quedará <strong>pendiente (herencia)</strong> para el siguiente turno.</div>
+  </div>
+  <button class="btn btn-primary" onclick="saveRecord('embarque')"><span>✓</span> Guardar Registro de Embarque</button>
+  <div style="height:10px"></div>
+  <button class="btn btn-ghost" onclick="showRecords('embarque')"><span>📂</span> Ver Registros del Turno</button>`;
+}
+
+/* ─── PENDIENTES ─────────────────────────────────────── */
+function fillPendientesTab() {
+  const tab = document.getElementById('tab-pendientes');
+  if (!tab) return;
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon">⏳</div>
+    <div><div class="section-title">Herencias / Pendientes</div><div class="section-desc">Cortinas del turno anterior sin concluir</div></div>
+  </div>
+  <div style="background:linear-gradient(135deg,#EAF2FF,#D0E8FF);border:1.5px solid var(--blue);border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+    <div style="font-size:22px">☁️</div>
+    <div style="flex:1"><div style="font-size:11px;font-weight:700;color:var(--blue)">SINCRONIZACIÓN</div><div style="font-size:10px;color:var(--blue);opacity:.8;margin-top:2px">Los pendientes se guardan en el servidor — disponibles en cualquier dispositivo.</div></div>
+    <button onclick="syncPendientesDesdeNube()" style="background:var(--blue);color:white;border:none;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">🔄 Sincronizar</button>
+  </div>
+  <div class="info-note">ℹ️ Los <strong>pendientes/herencias</strong> se generan cuando un registro se guarda con estado <em>Herencia</em>. El siguiente turno puede <strong>continuar el registro</strong> desde aquí.</div>
+  <div id="pendientes-container">
+    <div style="text-align:center;padding:38px 20px;color:var(--gray)">
+      <div style="font-size:46px;margin-bottom:10px">✅</div>
+      <div style="font-weight:700;font-size:15px">Sin pendientes</div>
+      <div style="font-size:12px;margin-top:3px">Todos los registros están finalizados</div>
+    </div>
+  </div>`;
+}
+
+/* ─── LOGOUT ─────────────────────────────────────────── */
+function fillLogoutTab() {
+  const tab = document.getElementById('tab-logout');
+  if (!tab) return;
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon">🚪</div>
+    <div><div class="section-title">Cerrar Sesión</div><div class="section-desc">Finaliza tu turno o cambia de cuenta</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🔒 Finalizar Turno</div>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:16px">Podrás volver a iniciar sesión en cualquier momento.</p>
+    <button class="btn btn-primary" onclick="logout()"><span>🚪</span> Cerrar Sesión</button>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  ANALISTA DESPACHO — UN SOLO DOCUMENTO
+// ══════════════════════════════════════════════════════
+function buildAnalistaApp(nav, main) {
+  const tabs = [
+    { id:'analista', icon:'🔍', text:'Analista' },
+    { id:'logout',   icon:'🚪', text:'Salir'    }
+  ];
+  tabs.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'nav-tab' + (t.id === 'analista' ? ' active' : '');
+    d.setAttribute('data-tab', t.id);
+    d.innerHTML = `<span class="tab-icon">${t.icon}</span>${t.text}`;
+    d.onclick = () => switchTab(t.id);
+    nav.appendChild(d);
+  });
+  tabs.forEach(t => {
+    const div = document.createElement('div');
+    div.id = 'tab-' + t.id;
+    div.className = 'tab-content' + (t.id === 'analista' ? ' active' : '');
+    main.appendChild(div);
+  });
+  fillAnalistaTab();
+  fillLogoutTabGenerico('tab-logout');
+}
+
+function fillAnalistaTab() {
+  const tab = document.getElementById('tab-analista');
+  if (!tab) return;
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon" style="background:linear-gradient(160deg,#D6EAF8,#5DADE2)">🔍</div>
+    <div><div class="section-title">Despacho</div><div class="section-desc">Búsqueda de embarques · Evidencias · Datos</div></div>
+  </div>
+  <div class="card emb-col-despacho">
+    <div class="emb-tag-despacho">🔵 Analista Despacho</div>
+    <div class="card-title blue">🔎 Buscar Número de Envío</div>
+    <div class="form-row"><label>Número de Unidad / Envío <span class="req">*</span></label><input type="text" id="analista-buscar-unidad" placeholder=""></div>
+    <button class="btn btn-blue" onclick="analistaBuscar()"><span>🔍</span> Buscar</button>
+  </div>
+  <div id="analista-resultado" class="hidden">
+    <div class="card emb-col-despacho">
+      <div class="emb-tag-despacho">🔵 Analista Despacho</div>
+      <div class="card-title blue">✅ Embarque Encontrado</div>
+      <div id="analista-datos-embarque" style="font-size:12px;color:var(--black);line-height:1.8;margin-bottom:12px"></div>
+      <div class="accent-line"></div>
+
+      <!-- Datos Prime Despacho -->
+      <div class="card-title blue" style="margin-top:10px">📦 Datos Despacho</div>
+      <div class="form-row-2">
+        <div><label>Cantidad MC <span class="req">*</span></label><input type="number" id="analista-cant-mc" min="0" placeholder="0"></div>
+        <div><label>Cantidad Factura <span class="req">*</span></label><input type="number" id="analista-cant-factura" min="0" placeholder="0"></div>
+      </div>
+
+      <!-- UN SOLO CAMPO para documento PDF/Word -->
+      <div class="card-title blue" style="margin-top:10px">📄 Evidencia de Despacho</div>
+      <div class="ok-note">📌 Sube el documento de evidencia <strong>(PDF, Word)</strong> correspondiente a este embarque.</div>
+      <div class="doc-upload-zone" id="doc-zone-analista">
+        <div class="ph-icon">📄</div>
+        <p>Seleccionar archivo</p>
+        <span>PDF, DOC, DOCX aceptados</span>
+        <input type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onchange="handleAnalistaDoc(event)">
+      </div>
+      <div id="analista-doc-preview"></div>
+
+      <div style="height:12px"></div>
+      <button class="btn btn-blue" onclick="analistaGuardar()"><span>☁️</span> Guardar Datos y Subir Evidencia</button>
+      <div style="height:7px"></div>
+      <button class="btn btn-ghost" onclick="analistaCancelar()" style="margin-top:3px">Cancelar</button>
+    </div>
+  </div>
+  <div id="analista-sin-resultado" class="hidden" style="text-align:center;padding:28px 20px;color:var(--gray)">
+    <div style="font-size:44px;margin-bottom:10px">🔍</div>
+    <div style="font-weight:700;font-size:14px">Sin resultados</div>
+    <div style="font-size:11px;margin-top:3px">No se encontró ningún embarque con ese número de unidad</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  ANALISTA MESA DE CONTROL — DOS TARIMAS
+// ══════════════════════════════════════════════════════
+function buildMesaApp(nav, main) {
+  const tabs = [
+    { id:'mesa', icon:'🟣', text:'Mesa Control' },
+    { id:'logout', icon:'🚪', text:'Salir' }
+  ];
+  tabs.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'nav-tab' + (t.id === 'mesa' ? ' active' : '');
+    d.setAttribute('data-tab', t.id);
+    d.innerHTML = `<span class="tab-icon">${t.icon}</span>${t.text}`;
+    d.onclick = () => switchTab(t.id);
+    nav.appendChild(d);
+  });
+  tabs.forEach(t => {
+    const div = document.createElement('div');
+    div.id = 'tab-' + t.id;
+    div.className = 'tab-content' + (t.id === 'mesa' ? ' active' : '');
+    main.appendChild(div);
+  });
+  fillMesaTab();
+  fillLogoutTabGenerico('tab-logout');
+}
+
+function fillMesaTab() {
+  const tab = document.getElementById('tab-mesa');
+  if (!tab) return;
+  const tipoOpts = TIPOS_TARIMA.map(t=>`<option value="${t}">${t}</option>`).join('');
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon" style="background:linear-gradient(160deg,#E8DAEF,#C39BD3)">🟣</div>
+    <div><div class="section-title">Mesa de Control</div><div class="section-desc">Captura de cantidades y tipos de tarima</div></div>
+  </div>
+  <div class="card emb-col-mesa">
+    <div class="emb-tag-mesa">🟣 Mesa de Control</div>
+    <div class="card-title purple">🔎 Buscar Número de Envío</div>
+    <div class="form-row"><label>Número de Unidad / Envío <span class="req">*</span></label><input type="text" id="mesa-buscar-unidad" placeholder=""></div>
+    <button class="btn btn-purple" onclick="mesaBuscar()"><span>🔍</span> Buscar</button>
+  </div>
+
+  <div id="mesa-resultado" class="hidden">
+    <div class="card emb-col-mesa">
+      <div class="emb-tag-mesa">🟣 Mesa de Control</div>
+      <div class="card-title purple">✅ Embarque Encontrado</div>
+      <div id="mesa-datos-embarque" style="font-size:12px;color:var(--black);line-height:1.8;margin-bottom:12px"></div>
+      <div class="accent-line"></div>
+
+      <!-- TARIMA 1 — obligatoria -->
+      <div class="tarima-block">
+        <div class="tarima-block-title">🪵 Tarima 1 <span class="req" style="color:var(--red);margin-left:4px">*</span></div>
+        <div class="form-row-2">
+          <div>
+            <label>Cant. Prime T1 <span class="req">*</span></label>
+            <input type="number" id="mesa-prime-t1" min="0" placeholder="0">
+          </div>
+          <div>
+            <label>Tipo Tarima T1 <span class="req">*</span></label>
+            <select id="mesa-tipo-t1">
+              <option value="">— Tipo —</option>${tipoOpts}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- TARIMA 2 — opcional -->
+      <div class="tarima-block">
+        <div class="tarima-block-title">🪵 Tarima 2 <span class="tarima-optional">Opcional</span></div>
+        <div class="form-row-2">
+          <div>
+            <label>Cant. Prime T2</label>
+            <input type="number" id="mesa-prime-t2" min="0" placeholder="0">
+          </div>
+          <div>
+            <label>Tipo Tarima T2</label>
+            <select id="mesa-tipo-t2">
+              <option value="">— Tipo —</option>${tipoOpts}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cant. MC y Tipo Global -->
+      <div class="form-row-2">
+        <div>
+          <label>Cantidad MC <span class="req">*</span></label>
+          <input type="number" id="mesa-cant-mc" min="0" placeholder="0">
+        </div>
+        <div>
+          <label>Tipo Tarima Global <span style="font-size:10px;background:rgba(45,138,78,0.12);color:#2D8A4E;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:4px">Opcional</span></label>
+          <select id="mesa-tipo-global">
+            <option value="">— Tipo global —</option>${tipoOpts}
+          </select>
+        </div>
+      </div>
+
+      <!-- UNA FOTO DE EVIDENCIA -->
+      <div class="card-title purple" style="margin-top:10px">📸 Evidencia</div>
+      <div class="ok-note">📌 Sube la evidencia fotográfica correspondiente.</div>
+      <div class="photo-zone" id="photo-zone-mesa">
+        <div class="ph-icon" style="font-size:28px">📷</div><p>Tomar foto / Subir archivo</p>
+        <input type="file" accept="image/*,application/pdf" capture="environment" onchange="handleMesaFoto(event)">
+      </div>
+      <div id="mesa-foto-preview" style="margin-top:9px"></div>
+
+      <div style="height:12px"></div>
+      <button class="btn btn-purple" onclick="mesaGuardar()"><span>☁️</span> Guardar Datos Mesa de Control</button>
+      <div style="height:7px"></div>
+      <button class="btn btn-ghost" onclick="mesaCancelar()" style="margin-top:3px">Cancelar</button>
+    </div>
+  </div>
+  <div id="mesa-sin-resultado" class="hidden" style="text-align:center;padding:28px 20px;color:var(--gray)">
+    <div style="font-size:44px;margin-bottom:10px">🔍</div>
+    <div style="font-weight:700;font-size:14px">Sin resultados</div>
+    <div style="font-size:11px;margin-top:3px">No se encontró ningún embarque con ese número de unidad</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  INVENTARIO
+// ══════════════════════════════════════════════════════
+function buildInventarioApp(nav, main) {
+  const tabs = [
+    { id:'inv-embarque', icon:'🚛', text:'Embarque' },
+    { id:'inv-stock',    icon:'📦', text:'Stock'    },
+    { id:'logout',       icon:'🚪', text:'Salir'    }
+  ];
+  tabs.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'nav-tab' + (t.id === 'inv-embarque' ? ' active' : '');
+    d.setAttribute('data-tab', t.id);
+    d.innerHTML = `<span class="tab-icon">${t.icon}</span>${t.text}`;
+    d.onclick = () => switchTab(t.id);
+    nav.appendChild(d);
+  });
+  tabs.forEach(t => {
+    const div = document.createElement('div');
+    div.id = 'tab-' + t.id;
+    div.className = 'tab-content' + (t.id === 'inv-embarque' ? ' active' : '');
+    main.appendChild(div);
+  });
+  fillInvEmbarqueTab();
+  fillInvStockTab();
+  fillLogoutTabGenerico('tab-logout');
+}
+
+function fillInvEmbarqueTab() {
+  const tab = document.getElementById('tab-inv-embarque');
+  if (!tab) return;
+  const tipoOpts  = TIPOS_TARIMA.map(t=>`<option value="${t}">${t}</option>`).join('');
+  const plantaOpts = PLANTAS_DESTINO.map(p=>`<option value="${p}">${p}</option>`).join('');
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon">🚛</div>
+    <div><div class="section-title">Embarque de Tarimas</div><div class="section-desc">Registro de tarimas embarcadas</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title green">📋 Datos del Embarque</div>
+    <div class="form-row-2">
+      <div>
+        <label>Cortina (DOOR) <span class="req">*</span></label>
+        <div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="inv-e-cortina" placeholder="000" min="1"></div>
+      </div>
+      <div>
+        <label>Núm. Remolque <span class="req">*</span></label>
+        <input type="text" id="inv-e-remolque" placeholder="Núm. remolque">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Planta Destino <span class="req">*</span></label>
+      <select id="inv-e-planta" onchange="toggleInvPlantaOtra()">
+        <option value="">— Seleccionar planta —</option>${plantaOpts}
+      </select>
+    </div>
+    <div class="form-row hidden" id="inv-e-planta-otra-row">
+      <label>Especificar Planta <span class="req">*</span></label>
+      <input type="text" id="inv-e-planta-otra" placeholder="Nombre de la planta">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title green">🪵 Detalle de Tarima</div>
+    <div class="form-row-2">
+      <div>
+        <label>Cantidad de Tarimas <span class="req">*</span></label>
+        <input type="number" id="inv-e-cantidad" placeholder="0" min="0">
+      </div>
+      <div>
+        <label>Tipo de Tarima <span class="req">*</span></label>
+        <select id="inv-e-tipo-tarima">
+          <option value="">— Tipo —</option>${tipoOpts}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Estado <span class="req">*</span></label>
+      <div class="toggle-group" id="inv-e-estado-1">
+        <div class="toggle-option selected-green" onclick="toggleSelectInv(this,'inv-e-estado-1')">Buen Estado</div>
+        <div class="toggle-option" onclick="toggleSelectInv(this,'inv-e-estado-1')">Dañada</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title green">📝 Observaciones</div>
+    <div class="form-row" style="margin-bottom:0"><label>Observaciones generales</label><textarea id="inv-e-obs" placeholder="Notas adicionales..."></textarea></div>
+  </div>
+  <button class="btn btn-green" onclick="saveInvEmbarque()"><span>✓</span> Guardar Embarque de Tarimas</button>`;
+}
+
+/* ─── INV. STOCK — SIMPLIFICADO (sin Ini/Fin) ─────────── */
+function fillInvStockTab() {
+  const tab = document.getElementById('tab-inv-stock');
+  if (!tab) return;
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon">📦</div>
+    <div><div class="section-title">Stock de Tarimas</div><div class="section-desc">Inventario y movimientos por tipo</div></div>
+  </div>
+  ${buildStockSection('chep','CHEP','chep')}
+  ${buildStockSection('roja','ROJA','roja')}
+  ${buildStockSection('blanca','BLANCA','blanca')}
+  <div class="card">
+    <div class="card-title green">📝 Observaciones Generales</div>
+    <div class="form-row" style="margin-bottom:0">
+      <label>Notas</label>
+      <textarea id="inv-s-obs" placeholder="Observaciones generales del inventario..."></textarea>
+    </div>
+  </div>
+  <button class="btn btn-green" onclick="saveInvStock()"><span>✓</span> Guardar Inventario de Stock</button>`;
+}
+
+// Stock: solo Total + Buena + Dañada + Inspeccionar + movimientos (sin ini/fin)
+function buildStockSection(tipo, label, colorClass) {
+  return `
+  <div class="stock-section">
+    <div class="stock-section-header ${colorClass}">
+      <span style="font-size:18px">${colorClass==='chep'?'🔵':colorClass==='roja'?'🔴':'⬜'}</span>
+      <span class="stock-section-title ${colorClass}">Tarima ${label}</span>
+    </div>
+    <div class="stock-body">
+      <div class="stock-sub-label">Cantidad en Inventario</div>
+      <div class="stock-grid-4">
+        <div><label>Total</label><input type="number" id="inv-s-${tipo}-total" min="0" placeholder="0"></div>
+        <div><label>Buena</label><input type="number" id="inv-s-${tipo}-buena" min="0" placeholder="0"></div>
+        <div><label>Dañada</label><input type="number" id="inv-s-${tipo}-danada" min="0" placeholder="0"></div>
+        <div><label>A Inspeccionar</label><input type="number" id="inv-s-${tipo}-inspeccionar" min="0" placeholder="0"></div>
+      </div>
+      <div class="mov-block">
+        <div class="stock-sub-label">Movimientos</div>
+        <div class="mov-row">
+          <div class="mov-label">Entrada tarima blanca interna</div>
+          <input type="number" class="mov-input" id="inv-s-${tipo}-entrada-blanca" min="0" placeholder="0">
+        </div>
+        <div class="mov-row">
+          <div class="mov-label">Salida tarima blanca</div>
+          <input type="number" class="mov-input" id="inv-s-${tipo}-salida-blanca" min="0" placeholder="0">
+        </div>
+        <div class="mov-row">
+          <div class="mov-label">Salida tarima OP.SMO</div>
+          <input type="number" class="mov-input" id="inv-s-${tipo}-salida-opsmo" min="0" placeholder="0">
+        </div>
+        <div class="mov-row">
+          <div class="mov-label">Salida tarima fitosanitaria</div>
+          <input type="number" class="mov-input" id="inv-s-${tipo}-salida-fito" min="0" placeholder="0">
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function fillLogoutTabGenerico(tabId) {
+  const tab = document.getElementById(tabId);
+  if (!tab) return;
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon">🚪</div>
+    <div><div class="section-title">Cerrar Sesión</div><div class="section-desc">Finaliza tu turno o cambia de cuenta</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🔒 Finalizar Turno</div>
+    <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Podrás volver a iniciar sesión en cualquier momento.</p>
+    <button class="btn btn-primary" onclick="logout()"><span>🚪</span> Cerrar Sesión</button>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  TOGGLE HELPERS
+// ══════════════════════════════════════════════════════
+function toggleSelect(el, groupId) {
+  document.querySelectorAll(`#${groupId} .toggle-option`).forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleSelectInv(el, groupId) {
+  document.querySelectorAll(`#${groupId} .toggle-option`).forEach(o => o.classList.remove('selected','selected-green'));
+  el.classList.add('selected-green');
+}
+function getToggleValue(groupId) {
+  const sel = document.querySelector(`#${groupId} .toggle-option.selected, #${groupId} .toggle-option.selected-green`);
+  return sel ? sel.textContent.trim() : '';
+}
+function togglePlantaOtro() {
+  const sel = document.getElementById('r-planta');
+  const row = document.getElementById('r-planta-otro-row');
+  row.classList.toggle('hidden', sel.value !== 'Otro');
+  if (sel.value !== 'Otro') document.getElementById('r-planta-otro').value = '';
+}
+function toggleInvPlantaOtra() {
+  const sel = document.getElementById('inv-e-planta');
+  const row = document.getElementById('inv-e-planta-otra-row');
+  if (!row) return;
+  row.classList.toggle('hidden', sel.value !== 'Otra');
+  if (sel.value !== 'Otra') { const el = document.getElementById('inv-e-planta-otra'); if(el) el.value=''; }
+}
+function onTipoReciboChange(el) {
+  const esGranel = el.textContent.trim() === 'Granel';
+  const req = document.getElementById('r-monta-req');
+  const opt = document.getElementById('r-monta-opt');
+  if (req) req.style.display = esGranel ? 'none'   : 'inline';
+  if (opt) opt.style.display = esGranel ? 'inline' : 'none';
+}
+function onAvanceReciboChange() {
+  if (document.getElementById('r-avance').value === 'Completo') {
+    document.querySelectorAll('#r-estado .toggle-option').forEach(o => {
+      o.classList.toggle('selected', o.textContent.includes('Finalizado'));
+    });
+    toggleEstadoReciboState(true);
+  }
+}
+function toggleEstadoRecibo(el) {
+  toggleSelect(el, 'r-estado');
+  toggleEstadoReciboState(el.textContent.includes('Finalizado'));
+}
+function toggleEstadoReciboState(esFin) {
+  const n = document.getElementById('r-herencia-nota');
+  if (n) n.classList.toggle('hidden', esFin);
+}
+function toggleEstadoArmado() {
+  const avance = document.getElementById('ae-avance') ? document.getElementById('ae-avance').value : '';
+  if (avance === 'Completo') {
+    document.querySelectorAll('#ae-estado .toggle-option').forEach(o => {
+      o.classList.toggle('selected', o.textContent.includes('Finalizado'));
+    });
+  }
+  const estadoEl = document.querySelector('#ae-estado .toggle-option.selected');
+  const esHer = estadoEl && (estadoEl.textContent.includes('Herencia')||estadoEl.textContent.includes('Pendiente'));
+  const n = document.getElementById('ae-pendiente-nota');
+  if (n) n.classList.toggle('hidden', !esHer);
+}
+function toggleEstadoArmadoDetalle() {
+  const avance = document.getElementById('ad-avance') ? document.getElementById('ad-avance').value : '';
+  if (avance === 'Completo') {
+    document.querySelectorAll('#ad-estatus .toggle-option').forEach(o => {
+      o.classList.toggle('selected', o.textContent.includes('Finalizado'));
+    });
+  }
+  const estadoEl = document.querySelector('#ad-estatus .toggle-option.selected');
+  const esHer = estadoEl && (estadoEl.textContent.includes('Herencia')||estadoEl.textContent.includes('Pendiente'));
+  const n = document.getElementById('ad-herencia-nota');
+  if (n) n.classList.toggle('hidden', !esHer);
+}
+function toggleEstadoEmbarque(el) {
+  if (el) toggleSelect(el, 'e-estado');
+  const avance = document.getElementById('e-avance') ? document.getElementById('e-avance').value : '';
+  if (avance === 'Completo') {
+    document.querySelectorAll('#e-estado .toggle-option').forEach(o => {
+      o.classList.toggle('selected', o.textContent.includes('Finalizado'));
+    });
+  }
+  const estadoEl = document.querySelector('#e-estado .toggle-option.selected');
+  const esHer = estadoEl && (estadoEl.textContent.includes('Herencia')||estadoEl.textContent.includes('Pendiente'));
+  const n = document.getElementById('e-pendiente-nota');
+  if (n) n.classList.toggle('hidden', !esHer);
+}
+function showArmadoSub() {
+  const val = getToggleValue('a-subtipo');
+  const esp = document.getElementById('armado-especial-fields');
+  const det = document.getElementById('armado-detalle-fields');
+  if (esp) esp.classList.toggle('hidden', val !== 'Armado Especial');
+  if (det) det.classList.toggle('hidden', val !== 'A Detalle');
+}
+function toggleClienteOtro() {
+  const sel = document.getElementById('ad-cliente-select');
+  const row = document.getElementById('ad-cliente-otro-row');
+  if (row) { row.classList.toggle('hidden', sel.value !== 'Otro'); if (sel.value !== 'Otro') document.getElementById('ad-cliente-otro').value = ''; }
+}
+function toggleClienteEmbarqueOtro() {
+  const sel = document.getElementById('e-cliente');
+  const row = document.getElementById('e-cliente-otro-row');
+  if (row) { row.classList.toggle('hidden', sel.value !== 'Otro'); if (sel.value !== 'Otro') document.getElementById('e-cliente-otro').value = ''; }
+}
+function toggleClienteAEOtro() {
+  const sel = document.getElementById('ae-cliente');
+  const row = document.getElementById('ae-cliente-otro-row');
+  if (row) { row.classList.toggle('hidden', sel.value !== 'Otro'); if (sel.value !== 'Otro') document.getElementById('ae-cliente-otro').value = ''; }
+}
+function toggleMCEvidencia(el) {
+  const esInc = el.textContent.includes('Incorrecto');
+  const p = document.getElementById('mc-incorrecto-panel');
+  if (p) p.classList.toggle('hidden', !esInc);
+  if (!esInc) { const d = document.getElementById('e-mc-desc'); if(d) d.value=''; }
+}
+
+// ══════════════════════════════════════════════════════
+//  PHOTOS (AUDITOR)
+// ══════════════════════════════════════════════════════
+function handlePhotos(event, prefix) {
+  Array.from(event.target.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      if (!photos[prefix]) photos[prefix] = [];
+      photos[prefix].push({ name: file.name, data: e.target.result });
+      renderPhotos(prefix);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function renderPhotos(prefix) {
+  const c = document.getElementById('photos-' + prefix);
+  if (!c || !photos[prefix]) return;
+  c.innerHTML = photos[prefix].map((p, i) => `
+    <div class="photo-thumb">
+      <img src="${p.data}" alt="Foto ${i+1}">
+      <button class="del-btn" onclick="deletePhoto('${prefix}',${i})">×</button>
+    </div>`).join('');
+}
+function deletePhoto(prefix, idx) { photos[prefix].splice(idx, 1); renderPhotos(prefix); }
+
+// ══════════════════════════════════════════════════════
+//  ANALISTA DESPACHO — DOCUMENTO ÚNICO
+// ══════════════════════════════════════════════════════
+function handleAnalistaDoc(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    analistaDoc = { name: file.name, data: e.target.result, type: file.type, size: file.size };
+    renderAnalistaDocPreview();
+    showToast('✓ Documento cargado', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+function renderAnalistaDocPreview() {
+  const prev = document.getElementById('analista-doc-preview');
+  if (!prev) return;
+  if (!analistaDoc) { prev.innerHTML = ''; return; }
+  const ext = analistaDoc.name.split('.').pop().toUpperCase();
+  const icon = ext === 'PDF' ? '📕' : '📘';
+  const kb = Math.round(analistaDoc.size / 1024);
+  prev.innerHTML = `
+  <div class="doc-preview">
+    <div class="doc-preview-icon">${icon}</div>
+    <div class="doc-preview-info">
+      <div class="doc-preview-name">${analistaDoc.name}</div>
+      <div class="doc-preview-size">${kb} KB · ${ext}</div>
+    </div>
+    <button class="doc-preview-del" onclick="clearAnalistaDoc()">✕</button>
+  </div>`;
+}
+function clearAnalistaDoc() {
+  analistaDoc = null;
+  renderAnalistaDocPreview();
+  const zone = document.getElementById('doc-zone-analista');
+  if (zone) { const inp = zone.querySelector('input'); if(inp) inp.value = ''; }
+}
+
+async function analistaBuscar() {
+  const unidad = (document.getElementById('analista-buscar-unidad').value || '').trim();
+  if (!unidad) { showToast('Ingresa el número de unidad/envío','error'); return; }
+  showToast('🔄 Buscando en servidor...','');
+  const cbName = '_apAnCb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = API_URL + '?action=get_embarques&unidad=' + encodeURIComponent(unidad) + '&callback=' + cbName;
+  window[cbName] = function(data) {
+    delete window[cbName]; script.remove();
+    if (data && data.ok && data.embarques && data.embarques.length > 0) {
+      analistaEmbarqueActual = data.embarques[0];
+      analistaDoc = null;
+      mostrarResultadoAnalista(data.embarques[0]);
+    } else {
+      document.getElementById('analista-resultado').classList.add('hidden');
+      document.getElementById('analista-sin-resultado').classList.remove('hidden');
+    }
+  };
+  setTimeout(() => {
+    if (window[cbName]) { delete window[cbName]; script.remove();
+      document.getElementById('analista-resultado').classList.add('hidden');
+      document.getElementById('analista-sin-resultado').classList.remove('hidden');
+    }
+  }, 8000);
+  document.head.appendChild(script);
+}
+
+function mostrarResultadoAnalista(emb) {
+  document.getElementById('analista-sin-resultado').classList.add('hidden');
+  document.getElementById('analista-resultado').classList.remove('hidden');
+  const campos = [
+    ['Unidad de Envío', emb.unidad_envio || emb.id || '—'],
+    ['Cliente', emb.cliente || '—'],
+    ['Cortina', emb.cortina || '—'],
+    ['Fecha', emb.fecha || '—'],
+    ['Turno', emb.turno || '—'],
+    ['Cuadrilla', emb.cuadrilla || '—'],
+    ['Estado', emb.estado || '—'],
+  ];
+  document.getElementById('analista-datos-embarque').innerHTML = campos.map(c =>
+    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+      <span style="color:var(--gray);font-weight:700;font-size:11px">${c[0]}</span>
+      <span style="font-weight:600;font-size:12px">${c[1]}</span>
+    </div>`).join('');
+  renderAnalistaDocPreview();
+  const cm = document.getElementById('analista-cant-mc');     if(cm) cm.value='';
+  const cf = document.getElementById('analista-cant-factura');if(cf) cf.value='';
+  showToast('✅ Embarque encontrado','success');
+}
+
+async function analistaGuardar() {
+  if (!analistaEmbarqueActual) { showToast('No hay embarque seleccionado','error'); return; }
+  const cantMC      = parseInt(document.getElementById('analista-cant-mc').value) || 0;
+  const cantFactura = parseInt(document.getElementById('analista-cant-factura').value) || 0;
+  const embarqueId  = analistaEmbarqueActual.id || '';
+  const cuadrilla   = analistaEmbarqueActual.cuadrilla || session.squad || 'SIN_CUADRILLA';
+  const unidad      = analistaEmbarqueActual.unidad_envio || 'SIN_UNIDAD';
+  const cortina     = analistaEmbarqueActual.cortina || 'SIN_CORTINA';
+  showToast('⏳ Guardando datos...','');
+
+  // Guardar datos en el sheet (acción: update_analista_prime por compatibilidad)
+  try {
+    const primeBody = JSON.stringify({
+      action:        'update_analista_prime',
+      embarque_id:   embarqueId,
+      cant_mc:       cantMC,
+      cant_factura:  cantFactura,
+      analista:      session.name,
+      fecha_analista: new Date().toISOString()
+    });
+    await fetch(API_URL,   { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: primeBody });
+    if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: primeBody });
+  } catch(e) { console.warn('Error guardando Despacho:', e); }
+
+  // Subir documento único a carpeta Despacho/
+  if (analistaDoc) {
+    try {
+      const base64data = analistaDoc.data.split(',')[1];
+      const mimeType   = analistaDoc.data.split(';')[0].split(':')[1] || 'application/pdf';
+      const filename   = `despacho_${unidad}_${Date.now()}.${analistaDoc.name.split('.').pop()||'pdf'}`;
+      const body = JSON.stringify({
+        action:'upload_scan', embarque_id:embarqueId, filename, base64data, mimeType,
+        cuadrilla, unidad, cortina, subfolder:'Despacho'
+      });
+      await fetch(API_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+      if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+    } catch(e) { console.warn('Error subiendo documento despacho:', e); }
+  }
+
+  showToast(`✅ Datos Despacho guardados${analistaDoc?' · Documento subido':''}`, 'success');
+  analistaCancelar();
+}
+
+function analistaCancelar() {
+  analistaEmbarqueActual = null;
+  analistaDoc = null;
+  document.getElementById('analista-resultado').classList.add('hidden');
+  document.getElementById('analista-sin-resultado').classList.add('hidden');
+  const b = document.getElementById('analista-buscar-unidad'); if (b) b.value = '';
+  const prev = document.getElementById('analista-doc-preview'); if(prev) prev.innerHTML = '';
+}
+
+// ══════════════════════════════════════════════════════
+//  MESA DE CONTROL — DOS TARIMAS
+// ══════════════════════════════════════════════════════
+function handleMesaFoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    mesaFoto = { name: file.name, data: e.target.result, type: file.type };
+    const preview = document.getElementById('mesa-foto-preview');
+    if (!preview) return;
+    if (file.type.startsWith('image/')) {
+      preview.innerHTML = `<div style="border-radius:9px;overflow:hidden;max-height:160px;display:flex;justify-content:center;background:#000;margin-top:8px"><img src="${e.target.result}" style="max-width:100%;max-height:160px;object-fit:contain"></div><div style="font-size:10px;color:var(--purple);font-weight:700;margin-top:5px">✓ ${file.name}</div>`;
+    } else {
+      preview.innerHTML = `<div class="doc-preview" style="margin-top:8px"><div class="doc-preview-icon">📄</div><div class="doc-preview-info"><div class="doc-preview-name">${file.name}</div></div></div>`;
+    }
+    showToast('✓ Evidencia lista', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function mesaBuscar() {
+  const unidad = (document.getElementById('mesa-buscar-unidad').value || '').trim();
+  if (!unidad) { showToast('Ingresa el número de unidad/envío','error'); return; }
+  showToast('🔄 Buscando en servidor...','');
+  const cbName = '_apMesaCb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = API_URL + '?action=get_embarques&unidad=' + encodeURIComponent(unidad) + '&callback=' + cbName;
+  window[cbName] = function(data) {
+    delete window[cbName]; script.remove();
+    if (data && data.ok && data.embarques && data.embarques.length > 0) {
+      mesaEmbarqueActual = data.embarques[0];
+      mesaFoto = null;
+      mostrarResultadoMesa(data.embarques[0]);
+    } else {
+      document.getElementById('mesa-resultado').classList.add('hidden');
+      document.getElementById('mesa-sin-resultado').classList.remove('hidden');
+    }
+  };
+  setTimeout(() => {
+    if (window[cbName]) { delete window[cbName]; script.remove();
+      document.getElementById('mesa-resultado').classList.add('hidden');
+      document.getElementById('mesa-sin-resultado').classList.remove('hidden');
+    }
+  }, 8000);
+  document.head.appendChild(script);
+}
+
+function mostrarResultadoMesa(emb) {
+  document.getElementById('mesa-sin-resultado').classList.add('hidden');
+  document.getElementById('mesa-resultado').classList.remove('hidden');
+  const campos = [
+    ['Unidad de Envío', emb.unidad_envio || '—'],
+    ['Cliente', emb.cliente || '—'],
+    ['Cortina', emb.cortina || '—'],
+    ['Fecha', emb.fecha || '—'],
+    ['Turno', emb.turno || '—'],
+    ['Cuadrilla', emb.cuadrilla || '—'],
+    ['Estado', emb.estado || '—'],
+  ];
+  document.getElementById('mesa-datos-embarque').innerHTML = campos.map(c =>
+    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+      <span style="color:var(--gray);font-weight:700;font-size:11px">${c[0]}</span>
+      <span style="font-weight:600;font-size:12px">${c[1]}</span>
+    </div>`).join('');
+  // Limpiar campos
+  ['mesa-prime-t1','mesa-prime-t2','mesa-cant-mc'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['mesa-tipo-t1','mesa-tipo-t2','mesa-tipo-global'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  const prev = document.getElementById('mesa-foto-preview'); if(prev) prev.innerHTML='';
+  const zone = document.getElementById('photo-zone-mesa'); if(zone) { const i=zone.querySelector('input'); if(i) i.value=''; }
+  showToast('✅ Embarque encontrado','success');
+}
+
+async function mesaGuardar() {
+  if (!mesaEmbarqueActual) { showToast('No hay embarque seleccionado','error'); return; }
+
+  const cantPrimeT1  = parseInt(document.getElementById('mesa-prime-t1').value) || 0;
+  const tipoT1       = document.getElementById('mesa-tipo-t1').value || '';
+  const cantPrimeT2  = parseInt(document.getElementById('mesa-prime-t2').value) || 0;
+  const tipoT2       = document.getElementById('mesa-tipo-t2').value || '';
+  const cantMC       = parseInt(document.getElementById('mesa-cant-mc').value) || 0;
+  const tipoGlobal   = document.getElementById('mesa-tipo-global').value || '';
+
+  if (!cantPrimeT1 && cantPrimeT1 !== 0) { showToast('Ingresa la Cant. Prime T1','error'); return; }
+  if (!tipoT1) { showToast('Selecciona el Tipo de Tarima T1','error'); return; }
+
+  const embarqueId = mesaEmbarqueActual.id || '';
+  const cuadrilla  = mesaEmbarqueActual.cuadrilla || session.squad || 'SIN_CUADRILLA';
+  const unidad     = mesaEmbarqueActual.unidad_envio || 'SIN_UNIDAD';
+  const cortina    = mesaEmbarqueActual.cortina || 'SIN_CORTINA';
+  showToast('⏳ Guardando datos Mesa de Control...','');
+
+  try {
+    const body = JSON.stringify({
+      action:           'update_mesa_control',
+      embarque_id:      embarqueId,
+      cant_prime_t1:    cantPrimeT1,
+      tipo_tarima_t1:   tipoT1,
+      cant_prime_t2:    cantPrimeT2,
+      tipo_tarima_t2:   tipoT2,
+      cant_mc_mesa:     cantMC,
+      tipo_tarima_global: tipoGlobal,
+      analista_mesa:    session.name,
+      fecha_mesa:       new Date().toISOString()
+    });
+    await fetch(API_URL,   { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+    if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+  } catch(e) { console.warn('Error guardando Mesa Control:', e); }
+
+  // Subir foto de evidencia a Mesa de Control/
+  if (mesaFoto) {
+    try {
+      const base64data = mesaFoto.data.split(',')[1];
+      const mimeType   = mesaFoto.data.split(';')[0].split(':')[1] || 'image/jpeg';
+      const filename   = `mesa_${unidad}_${Date.now()}.${mesaFoto.name.split('.').pop()||'jpg'}`;
+      const body = JSON.stringify({
+        action:'upload_scan', embarque_id:embarqueId, filename, base64data, mimeType,
+        cuadrilla, unidad, cortina, subfolder:'Mesa de Control'
+      });
+      await fetch(API_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+      if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+    } catch(e) { console.warn('Error subiendo evidencia mesa:', e); }
+  }
+
+  showToast('✅ Datos Mesa de Control guardados', 'success');
+  mesaCancelar();
+}
+
+function mesaCancelar() {
+  mesaEmbarqueActual = null;
+  mesaFoto = null;
+  document.getElementById('mesa-resultado').classList.add('hidden');
+  document.getElementById('mesa-sin-resultado').classList.add('hidden');
+  const b = document.getElementById('mesa-buscar-unidad'); if(b) b.value = '';
+}
+
+// ══════════════════════════════════════════════════════
+//  INVENTARIO — GUARDAR
+// ══════════════════════════════════════════════════════
+// Stock: sin ini/fin
+function getStockTarima(tipo) {
+  const g = id => parseInt(document.getElementById(`inv-s-${tipo}-${id}`)?.value) || 0;
+  return {
+    total: g('total'), buena: g('buena'), danada: g('danada'), inspeccionar: g('inspeccionar'),
+    entrada_blanca: g('entrada-blanca'), salida_blanca: g('salida-blanca'),
+    salida_opsmo: g('salida-opsmo'), salida_fito: g('salida-fito')
+  };
+}
+
+function saveInvEmbarque() {
+  const cortinaNum = document.getElementById('inv-e-cortina')?.value.trim();
+  const remolque   = document.getElementById('inv-e-remolque')?.value.trim();
+  const plantaBase = document.getElementById('inv-e-planta')?.value || '';
+  const plantaOtra = document.getElementById('inv-e-planta-otra')?.value.trim() || '';
+  const planta     = plantaBase === 'Otra' ? plantaOtra : plantaBase;
+  const cantidad   = parseInt(document.getElementById('inv-e-cantidad')?.value) || 0;
+  const tipoGlobal = document.getElementById('inv-e-tipo-tarima')?.value || '';
+  const tarima1Est = getToggleValue('inv-e-estado-1') || 'Buen Estado';
+  const obs        = document.getElementById('inv-e-obs')?.value.trim() || '';
+
+  if (!cortinaNum) { showToast('Ingresa la Cortina','error'); return; }
+  if (!remolque)   { showToast('Ingresa el Número de Remolque','error'); return; }
+  if (!plantaBase) { showToast('Selecciona la Planta Destino','error'); return; }
+  if (plantaBase === 'Otra' && !plantaOtra) { showToast('Especifica el nombre de la planta','error'); return; }
+
+  const cortina = 'DOOR' + cortinaNum;
+  const now = new Date();
+  const data = {
+    action: 'save_inventario_embarque',
+    data: {
+      id: 'IE' + Date.now(), timestamp: now.toISOString(),
+      fecha: now.toISOString().slice(0,10),
+      turno: session.shift, cuadrilla: session.squad, nombre: session.name,
+      cortina, remolque, planta_destino: planta,
+      cantidad_tarimas: cantidad, tipo_tarima_global: tipoGlobal, obs,
+      tarima1_tipo: tipoGlobal, tarima1_estado: tarima1Est, tarima1_cant: cantidad,
+      unidad: remolque, cliente: planta,
+    }
+  };
+  sendPayload(data);
+  showToast('✅ Embarque de tarimas guardado','success');
+  clearInvEmbarque();
+}
+function clearInvEmbarque() {
+  ['inv-e-cortina','inv-e-remolque','inv-e-obs','inv-e-planta-otra','inv-e-cantidad'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
+  const p=document.getElementById('inv-e-planta'); if(p) p.value='';
+  const t=document.getElementById('inv-e-tipo-tarima'); if(t) t.value='';
+  const pr=document.getElementById('inv-e-planta-otra-row'); if(pr) pr.classList.add('hidden');
+  document.querySelectorAll('#inv-e-estado-1 .toggle-option').forEach(o => o.classList.remove('selected','selected-green'));
+  const first=document.querySelector('#inv-e-estado-1 .toggle-option'); if(first) first.classList.add('selected-green');
+}
+function saveInvStock() {
+  const now = new Date();
+  const data = {
+    action: 'save_inventario_stock',
+    data: {
+      id: 'IS' + Date.now(), timestamp: now.toISOString(),
+      fecha: now.toISOString().slice(0,10),
+      turno: session.shift, cuadrilla: session.squad, nombre: session.name,
+      obs: document.getElementById('inv-s-obs')?.value.trim() || '',
+      chep:   getStockTarima('chep'),
+      roja:   getStockTarima('roja'),
+      blanca: getStockTarima('blanca')
+    }
+  };
+  sendPayload(data);
+  showToast('✅ Stock de inventario guardado','success');
+}
+
+async function sendPayload(payload) {
+  try {
+    const body = JSON.stringify(payload);
+    await fetch(API_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+    if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+  } catch(e) { offlineQueue.push(payload); saveState(); }
+}
+
+// ══════════════════════════════════════════════════════
+//  DUPLICADOS
+// ══════════════════════════════════════════════════════
+function isUnitDuplicate(modulo, unit, excludeId = null) {
+  const list = records[modulo] || [];
+  if (list.some(rec => rec.unidad_envio === unit && (excludeId === null || rec.id !== excludeId))) return true;
+  return pendientes.some(p => p.modulo === modulo && p.datos.unidad_envio === unit && (excludeId === null || p.id !== excludeId));
+}
+
+// ══════════════════════════════════════════════════════
+//  GUARDAR REGISTROS (AUDITOR)
+// ══════════════════════════════════════════════════════
+function saveRecord(type) {
+  const _now = new Date();
+  const ts   = _now.toISOString();
+  let record = { id:'R'+Date.now(), timestamp:ts, auditor:session.name, cuadrilla:session.squad, turno:session.shift, fecha:session.date, tipo:type };
+
+  if (type === 'recibo') {
+    const sto=document.getElementById('r-sto').value.trim(), master=document.getElementById('r-master').value.trim(), cortinaNum=document.getElementById('r-cortina').value.trim();
+    if (!sto||!master||!cortinaNum) { showToast('Completa: STO, Master Receipt, Cortina','error'); return; }
+    const plantaBase=document.getElementById('r-planta').value, plantaOtro=document.getElementById('r-planta-otro').value.trim();
+    const planta=plantaBase==='Otro'?(plantaOtro||''):plantaBase;
+    if (!plantaBase) { showToast('Selecciona la Planta de Recibo','error'); return; }
+    if (plantaBase==='Otro'&&!plantaOtro) { showToast('Especifica el nombre de la planta','error'); return; }
+    const tipoRecibo=getToggleValue('r-tipo');
+    if (!tipoRecibo) { showToast('Selecciona el tipo de recibo','error'); return; }
+    const montaNum=document.getElementById('r-monta').value.trim();
+    if (tipoRecibo!=='Granel'&&!montaNum) { showToast('El Montacarguista es obligatorio para Paletizado','error'); return; }
+    const chep=document.getElementById('r-chep').value, blancas=document.getElementById('r-blancas').value;
+    if (chep==='') { showToast('Ingresa Pallets CHEP (0 si no hay)','error'); return; }
+    if (blancas==='') { showToast('Ingresa Pallets Blancas (0 si no hay)','error'); return; }
+    const avance=document.getElementById('r-avance').value;
+    if (!avance) { showToast('Selecciona el avance del recibo','error'); return; }
+    if (!photos['r']||photos['r'].length===0) { document.getElementById('foto-r-req-msg').style.display='block'; showToast('La evidencia fotográfica es obligatoria','error'); return; }
+    document.getElementById('foto-r-req-msg').style.display='none';
+    const estado=getToggleValue('r-estado');
+    if (!estado) { showToast('Selecciona el estado del recibo','error'); return; }
+    const herenciaId=document.getElementById('r-herencia-id').value;
+    record={...record,sto,master_receipt:master,cortina:'DOOR'+cortinaNum,planta_recibo:planta,tipo_recibo:tipoRecibo,usuario_monta:montaNum?'SMO'+montaNum:'',pallets_chep:parseInt(chep)||0,pallets_blancas:parseInt(blancas)||0,avance,estado,notas:document.getElementById('r-notas').value.trim(),fotos_count:(photos['r']||[]).length};
+    uploadPhotos([...(photos['r']||[])],sto,'DOOR'+cortinaNum,session.date,session.squad,'recibo');
+    clearReciboForm(); photos['r']=[]; renderPhotos('r');
+    if (herenciaId) resolveHerencia(herenciaId, record);
+    gestionarPendiente(record, herenciaId);
+  }
+  else if (type === 'armado') {
+    const subtype=getToggleValue('a-subtipo')||'Armado Especial';
+    if (subtype==='Armado Especial') {
+      const unidad=document.getElementById('ae-unidad').value.trim();
+      if (!unidad) { showToast('Ingresa la unidad de envío','error'); return; }
+      const herenciaId=document.getElementById('ae-herencia-id').value;
+      if (!herenciaId&&isUnitDuplicate('armado',unidad)) { showToast(`⚠️ La unidad ${unidad} ya está registrada.`,'error'); return; }
+      const clienteSel=document.getElementById('ae-cliente').value, clienteOtro=document.getElementById('ae-cliente-otro')?.value.trim()||'';
+      const cliente=clienteSel==='Otro'?clienteOtro:clienteSel;
+      if (!clienteSel) { showToast('Selecciona el Cliente','error'); return; }
+      if (clienteSel==='Otro'&&!clienteOtro) { showToast('Especifica el nombre del cliente','error'); return; }
+      const cortinaNum=document.getElementById('ae-cortina').value.trim();
+      if (!cortinaNum) { showToast('La Cortina es obligatoria','error'); return; }
+      const avance=document.getElementById('ae-avance').value;
+      if (!avance) { showToast('Selecciona el avance','error'); return; }
+      const chepVal=document.getElementById('ae-chep').value, blancasVal=document.getElementById('ae-blancas').value;
+      if (chepVal==='') { showToast('Ingresa Pallets CHEP (0 si no hay)','error'); return; }
+      if (blancasVal==='') { showToast('Ingresa Pallets Blancas (0 si no hay)','error'); return; }
+      const estado=getToggleValue('ae-estado');
+      if (!estado) { showToast('Selecciona el estado','error'); return; }
+      if (!photos['ae']||photos['ae'].length===0) { showToast('La evidencia es obligatoria','error'); return; }
+      const cortina='DOOR'+cortinaNum, montaNum=document.getElementById('ae-monta').value.trim();
+      record={...record,subtipo:'Armado Especial',unidad_envio:unidad,cliente,cortina,usuario_monta:montaNum?'SMO'+montaNum:'',avance,chep:parseInt(chepVal)||0,blancas:parseInt(blancasVal)||0,ubicacion:document.getElementById('ae-ubicacion').value.trim(),estado,fotos_count:(photos['ae']||[]).length};
+      uploadPhotos([...(photos['ae']||[])],unidad,cortina,session.date,session.squad,'armado_especial');
+      clearField(['ae-unidad','ae-cortina','ae-monta','ae-chep','ae-blancas','ae-ubicacion','ae-cliente-otro']);
+      const sel=document.getElementById('ae-cliente'); if(sel) sel.value='';
+      const row=document.getElementById('ae-cliente-otro-row'); if(row) row.classList.add('hidden');
+      document.getElementById('ae-avance').value='';
+      document.querySelectorAll('#ae-estado .toggle-option').forEach(o=>o.classList.remove('selected'));
+      document.querySelector('#ae-estado .toggle-option:last-child').classList.add('selected');
+      document.getElementById('ae-pendiente-nota').classList.remove('hidden');
+      document.getElementById('ae-herencia-id').value='';
+      photos['ae']=[]; renderPhotos('ae');
+      if (herenciaId) resolveHerencia(herenciaId, record);
+      gestionarPendiente(record, herenciaId);
+    } else {
+      const unidad=document.getElementById('ad-unidad').value.trim();
+      if (!unidad) { showToast('Ingresa la unidad de envío','error'); return; }
+      const herenciaId=document.getElementById('ad-herencia-id').value;
+      if (!herenciaId&&isUnitDuplicate('armado',unidad)) { showToast(`⚠️ La unidad ${unidad} ya está registrada.`,'error'); return; }
+      const clienteSel=document.getElementById('ad-cliente-select').value;
+      if (!clienteSel) { showToast('Selecciona el Cliente','error'); return; }
+      const clienteVal=clienteSel==='Otro'?(document.getElementById('ad-cliente-otro')?.value.trim()||''):clienteSel;
+      if (clienteSel==='Otro'&&!clienteVal) { showToast('Especifica el nombre del cliente','error'); return; }
+      const cortinaNum=document.getElementById('ad-cortina').value.trim();
+      if (!cortinaNum) { showToast('La Cortina es obligatoria','error'); return; }
+      const montaNum=document.getElementById('ad-monta').value.trim();
+      if (!montaNum) { showToast('El Montacarguista es obligatorio','error'); return; }
+      const palletsVal=document.getElementById('ad-pallets').value, blancasVal=document.getElementById('ad-blancas').value, etiqVal=document.getElementById('ad-etiquetas').value;
+      if (palletsVal==='') { showToast('Ingresa Pallets CHEP','error'); return; }
+      if (blancasVal==='') { showToast('Ingresa Pallets Blancas','error'); return; }
+      if (etiqVal==='') { showToast('Ingresa Etiquetas','error'); return; }
+      const avance=document.getElementById('ad-avance').value;
+      if (!avance) { showToast('Selecciona el avance','error'); return; }
+      const estado=getToggleValue('ad-estatus');
+      if (!estado) { showToast('Selecciona el estatus','error'); return; }
+      if (!photos['ad']||photos['ad'].length===0) { showToast('La evidencia es obligatoria','error'); return; }
+      const cortina='DOOR'+cortinaNum;
+      record={...record,subtipo:'A Detalle',unidad_envio:unidad,cliente:clienteVal,cortina,usuario_monta:'SMO'+montaNum,pallets:parseInt(palletsVal)||0,pallets_blancas:parseInt(blancasVal)||0,etiquetas:parseInt(etiqVal)||0,avance,estado,fotos_count:(photos['ad']||[]).length};
+      uploadPhotos([...(photos['ad']||[])],unidad,cortina,session.date,session.squad,'armado_a_detalle');
+      clearField(['ad-unidad','ad-cortina','ad-monta','ad-pallets','ad-blancas','ad-etiquetas','ad-cliente-otro']);
+      const sel2=document.getElementById('ad-cliente-select'); if(sel2) sel2.value='';
+      document.getElementById('ad-cliente-otro-row').classList.add('hidden');
+      document.getElementById('ad-avance').value='';
+      document.querySelectorAll('#ad-estatus .toggle-option').forEach(o=>o.classList.remove('selected'));
+      document.getElementById('ad-herencia-id').value='';
+      photos['ad']=[]; renderPhotos('ad');
+      if (herenciaId) resolveHerencia(herenciaId, record);
+      gestionarPendiente(record, herenciaId);
+    }
+  }
+  else if (type === 'embarque') {
+    const unidad=document.getElementById('e-unidad').value.trim();
+    if (!unidad) { showToast('Ingresa la Unidad de Envío','error'); return; }
+    const herenciaId=document.getElementById('e-herencia-id').value;
+    if (!herenciaId&&isUnitDuplicate('embarque',unidad)) { showToast(`⚠️ La unidad ${unidad} ya está registrada.`,'error'); return; }
+    const clienteSel=document.getElementById('e-cliente').value, clienteOtro=document.getElementById('e-cliente-otro')?.value.trim()||'';
+    const cliente=clienteSel==='Otro'?clienteOtro:clienteSel;
+    if (!clienteSel) { showToast('Selecciona el Cliente','error'); return; }
+    if (clienteSel==='Otro'&&!clienteOtro) { showToast('Especifica el nombre del cliente','error'); return; }
+    const cortinaNum=document.getElementById('e-cortina').value.trim();
+    if (!cortinaNum) { showToast('Ingresa la Cortina','error'); return; }
+    const montaNum=document.getElementById('e-monta').value.trim();
+    if (!montaNum) { showToast('El Montacarguista es obligatorio','error'); return; }
+    if (!getToggleValue('e-tipo-carga'))   { showToast('Selecciona tipo de carga','error'); return; }
+    if (!getToggleValue('e-tipo-destino')) { showToast('Selecciona destino','error'); return; }
+    if (!getToggleValue('e-tiempo'))       { showToast('Indica si el Status MC fue correcto','error'); return; }
+    const blancasVal=document.getElementById('e-blancas').value, chepVal=document.getElementById('e-chep-embarque').value;
+    if (blancasVal==='') { showToast('Ingresa Pallets Blancas','error'); return; }
+    if (chepVal==='')    { showToast('Ingresa Pallets CHEP','error'); return; }
+    const avance=document.getElementById('e-avance').value;
+    if (!avance) { showToast('Selecciona el avance','error'); return; }
+    const estado=getToggleValue('e-estado');
+    if (!estado) { showToast('Selecciona el Estado Final','error'); return; }
+    if (!photos['embarque_general']||photos['embarque_general'].length===0) { showToast('La evidencia del embarque es obligatoria','error'); return; }
+    if (!photos['mc']||photos['mc'].length===0) { showToast('La evidencia del MC es obligatoria','error'); return; }
+    const cortina='DOOR'+cortinaNum, tipoCarga=getToggleValue('e-tipo-carga'), tipoDest=getToggleValue('e-tipo-destino'), statusMC=getToggleValue('e-tiempo');
+    record={...record,unidad_envio:unidad,cliente,cortina,usuario_monta:'SMO'+montaNum,tipo_carga:tipoCarga,tipo_destino:tipoDest,status_mc:statusMC,mc_descripcion:statusMC.includes('Incorrecto')?document.getElementById('e-mc-desc')?.value.trim():'',etiqueta_consolidada:getToggleValue('e-etiqueta'),pallets_blancas:parseInt(blancasVal)||0,pallets_chep:parseInt(chepVal)||0,avance,observacion:document.getElementById('e-obs')?.value.trim()||'',estado,fotos_mc_count:(photos['mc']||[]).length,fotos_embarque_count:(photos['embarque_general']||[]).length};
+    uploadPhotos([...(photos['mc']||[])],unidad,cortina,session.date,session.squad,'mc',statusMC);
+    uploadPhotos([...(photos['embarque_general']||[])],unidad,cortina,session.date,session.squad,'embarque');
+    clearField(['e-unidad','e-cortina','e-monta','e-blancas','e-chep-embarque','e-obs','e-cliente-otro','e-mc-desc']);
+    const eClienteSel=document.getElementById('e-cliente'); if(eClienteSel) eClienteSel.value='';
+    const eRow=document.getElementById('e-cliente-otro-row'); if(eRow) eRow.classList.add('hidden');
+    document.querySelectorAll('#e-tipo-carga .toggle-option,#e-tipo-destino .toggle-option,#e-tiempo .toggle-option,#e-etiqueta .toggle-option,#e-estado .toggle-option').forEach(o=>o.classList.remove('selected'));
+    const pn=document.getElementById('e-pendiente-nota'); if(pn) pn.classList.add('hidden');
+    const mc=document.getElementById('mc-incorrecto-panel'); if(mc) mc.classList.add('hidden');
+    document.getElementById('e-herencia-id').value='';
+    photos['embarque_general']=[]; renderPhotos('embarque_general');
+    photos['mc']=[]; renderPhotos('mc');
+    if (herenciaId) resolveHerencia(herenciaId, record);
+    gestionarPendiente(record, herenciaId);
+  }
+
+  records[type==='recibo'?'recibo':type==='armado'?'armado':'embarque'].push(record);
+  saveState(); renderPendientes(); updateNavBadge();
+  const action = record._herencia_padre_id ? 'update_record' : 'save_record';
+  sendToSheets({ action, module:type, data:record })
+    .then(res => showToast(res&&res.success?'✓ Guardado en Google Sheets':'✓ Guardado local','success'))
+    .catch(()  => showToast('✓ Guardado local (sin conexión)','success'));
+}
+
+// ══════════════════════════════════════════════════════
+//  HERENCIAS / PENDIENTES
+// ══════════════════════════════════════════════════════
+function esPendiente(estado) {
+  if (!estado) return false;
+  return estado.includes('Pendiente')||estado.includes('Herencia')||estado.includes('Proceso');
+}
+function gestionarPendiente(record, herenciaIdPadre) {
+  const estadoActual = record.estado || '';
+  if (herenciaIdPadre && !esPendiente(estadoActual)) return;
+  if (esPendiente(estadoActual)) {
+    const pendiente = { id:'P'+Date.now(), herencia_padre:herenciaIdPadre||null, modulo:record.tipo, subtipo:record.subtipo||'', sto:record.sto||'', unidad_envio:record.unidad_envio||'', cortina:record.cortina||'', cliente:record.cliente||'', ultimo_registro_id:record.id, ultimo_auditor:record.auditor, ultimo_turno:record.turno, fecha_creacion:record.fecha, turnos:buildTurnosAcum(herenciaIdPadre, record), avance:record.avance||'', datos:record };
+    pendientes.push(pendiente);
+    cloudSavePendiente(pendiente);
+    showToast('⏳ Herencia creada — aparece en pestaña Pendientes','warning');
+    setTimeout(() => flashPendienteItems(), 600);
+  }
+}
+function buildTurnosAcum(herenciaIdPadre, record) {
+  let prev = [];
+  if (herenciaIdPadre) { const p=pendientes.find(p=>p.id===herenciaIdPadre); if(p) prev=p.turnos||[]; }
+  return [...prev, { turno:record.turno, auditor:record.auditor, cuadrilla:record.cuadrilla }];
+}
+function resolveHerencia(herenciaId, record) {
+  const idx = pendientes.findIndex(p=>p.id===herenciaId);
+  if (idx===-1) return;
+  const padre = pendientes[idx];
+  herenciasResueltas.push({...padre, estado_final:record.estado, fecha_resolucion:session.date, registro_final_id:record.id});
+  const listaKey = padre.modulo==='recibo'?'recibo':padre.modulo==='armado'?'armado':'embarque';
+  const rIdx = records[listaKey].findIndex(r=>r.id===padre.ultimo_registro_id);
+  if (rIdx!==-1) records[listaKey].splice(rIdx,1);
+  record._herencia_padre_id = padre.ultimo_registro_id || null;
+  pendientes.splice(idx,1);
+  cloudDeletePendiente(padre.id);
+  showToast('✅ Herencia resuelta y cerrada','success');
+}
+function continuarHerencia(pendienteId) {
+  const pend = pendientes.find(p=>p.id===pendienteId);
+  if (!pend) return;
+  const d=pend.datos, modulo=pend.modulo;
+  if (modulo==='recibo') {
+    switchTab('recibo');
+    setTimeout(()=>{
+      document.getElementById('r-herencia-id').value=pendienteId;
+      if(d.sto) document.getElementById('r-sto').value=d.sto;
+      if(d.master_receipt) document.getElementById('r-master').value=d.master_receipt;
+      if(d.cortina) document.getElementById('r-cortina').value=d.cortina.replace(/^DOOR/i,'');
+      if(d.planta_recibo){const s=document.getElementById('r-planta');if([...s.options].some(o=>o.value===d.planta_recibo)){s.value=d.planta_recibo;}else{s.value='Otro';document.getElementById('r-planta-otro').value=d.planta_recibo;document.getElementById('r-planta-otro-row').classList.remove('hidden');}}
+      if(d.usuario_monta) document.getElementById('r-monta').value=d.usuario_monta.replace(/^SMO/i,'');
+      if(d.tipo_recibo) document.querySelectorAll('#r-tipo .toggle-option').forEach(o=>{if(o.textContent.trim()===d.tipo_recibo){o.classList.add('selected');onTipoReciboChange(o);}});
+      if(d.pallets_chep!==undefined) document.getElementById('r-chep').value=d.pallets_chep;
+      if(d.pallets_blancas!==undefined) document.getElementById('r-blancas').value=d.pallets_blancas;
+      if(d.avance) document.getElementById('r-avance').value=d.avance;
+      document.querySelectorAll('#r-estado .toggle-option').forEach(o=>o.classList.toggle('selected',o.textContent.includes('Finalizado')));
+      document.getElementById('r-herencia-nota').classList.add('hidden');
+      showHerenciaBanner('recibo-herencia-panel',pend);
+    },300);
+  } else if (modulo==='armado') {
+    switchTab('armados');
+    const isEsp=(pend.subtipo||d.subtipo||'Armado Especial')==='Armado Especial';
+    setTimeout(()=>{
+      document.querySelectorAll('#a-subtipo .toggle-option').forEach(o=>o.classList.toggle('selected',isEsp?o.textContent.includes('Armado Especial'):o.textContent.includes('A Detalle')));
+      showArmadoSub();
+      if(isEsp){
+        document.getElementById('ae-herencia-id').value=pendienteId;
+        if(d.unidad_envio) document.getElementById('ae-unidad').value=d.unidad_envio;
+        if(d.cliente){const s=document.getElementById('ae-cliente');if([...s.options].some(o=>o.value===d.cliente)){s.value=d.cliente;}else{s.value='Otro';document.getElementById('ae-cliente-otro').value=d.cliente;document.getElementById('ae-cliente-otro-row').classList.remove('hidden');}}
+        if(d.cortina) document.getElementById('ae-cortina').value=d.cortina.replace(/^DOOR/i,'');
+        if(d.usuario_monta) document.getElementById('ae-monta').value=d.usuario_monta.replace(/^SMO/i,'');
+        if(d.chep!==undefined) document.getElementById('ae-chep').value=d.chep;
+        if(d.blancas!==undefined) document.getElementById('ae-blancas').value=d.blancas;
+        if(d.ubicacion) document.getElementById('ae-ubicacion').value=d.ubicacion;
+        if(d.avance) document.getElementById('ae-avance').value=d.avance;
+        document.querySelectorAll('#ae-estado .toggle-option').forEach(o=>o.classList.toggle('selected',o.textContent.includes('Finalizado')));
+        document.getElementById('ae-pendiente-nota').classList.add('hidden');
+        showHerenciaBanner('armado-herencia-panel',pend);
+      } else {
+        document.getElementById('ad-herencia-id').value=pendienteId;
+        if(d.unidad_envio) document.getElementById('ad-unidad').value=d.unidad_envio;
+        if(d.cliente){const s=document.getElementById('ad-cliente-select');if([...s.options].some(o=>o.value===d.cliente)){s.value=d.cliente;}else{s.value='Otro';document.getElementById('ad-cliente-otro').value=d.cliente;document.getElementById('ad-cliente-otro-row').classList.remove('hidden');}}
+        if(d.cortina) document.getElementById('ad-cortina').value=d.cortina.replace(/^DOOR/i,'');
+        if(d.usuario_monta) document.getElementById('ad-monta').value=d.usuario_monta.replace(/^SMO/i,'');
+        if(d.pallets!==undefined) document.getElementById('ad-pallets').value=d.pallets;
+        if(d.pallets_blancas!==undefined) document.getElementById('ad-blancas').value=d.pallets_blancas;
+        if(d.etiquetas!==undefined) document.getElementById('ad-etiquetas').value=d.etiquetas;
+        if(d.avance) document.getElementById('ad-avance').value=d.avance;
+        document.querySelectorAll('#ad-estatus .toggle-option').forEach(o=>o.classList.toggle('selected',o.textContent.includes('Finalizado')));
+        const hn=document.getElementById('ad-herencia-nota'); if(hn) hn.classList.add('hidden');
+        showHerenciaBanner('armado-herencia-panel',pend);
+      }
+    },300);
+  } else if (modulo==='embarque') {
+    switchTab('embarque');
+    setTimeout(()=>{
+      document.getElementById('e-herencia-id').value=pendienteId;
+      if(d.unidad_envio) document.getElementById('e-unidad').value=d.unidad_envio;
+      if(d.cliente){const s=document.getElementById('e-cliente');if([...s.options].some(o=>o.value===d.cliente)){s.value=d.cliente;}else{s.value='Otro';document.getElementById('e-cliente-otro').value=d.cliente;document.getElementById('e-cliente-otro-row').classList.remove('hidden');}}
+      if(d.cortina) document.getElementById('e-cortina').value=d.cortina.replace(/^DOOR/i,'');
+      if(d.usuario_monta) document.getElementById('e-monta').value=d.usuario_monta.replace(/^SMO/i,'');
+      if(d.tipo_carga) document.querySelectorAll('#e-tipo-carga .toggle-option').forEach(o=>{if(o.textContent.includes(d.tipo_carga))o.classList.add('selected');});
+      if(d.tipo_destino) document.querySelectorAll('#e-tipo-destino .toggle-option').forEach(o=>{if(o.textContent.includes(d.tipo_destino))o.classList.add('selected');});
+      if(d.pallets_blancas!==undefined) document.getElementById('e-blancas').value=d.pallets_blancas;
+      if(d.pallets_chep!==undefined) document.getElementById('e-chep-embarque').value=d.pallets_chep;
+      if(d.avance) document.getElementById('e-avance').value=d.avance;
+      if(d.observacion) document.getElementById('e-obs').value=d.observacion;
+      document.querySelectorAll('#e-estado .toggle-option').forEach(o=>o.classList.toggle('selected',o.textContent.includes('Finalizado')));
+      const pn=document.getElementById('e-pendiente-nota'); if(pn) pn.classList.add('hidden');
+      showHerenciaBanner('embarque-herencia-panel',pend);
+    },300);
+  }
+  closeModal('pendiente-detail-modal');
+}
+function showHerenciaBanner(panelId, pend) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  panel.classList.remove('hidden');
+  panel.innerHTML = `
+  <div class="continuar-card">
+    <div class="cc-header"><div class="cc-icon">🔄</div><div class="cc-title">Continuando Herencia</div></div>
+    <div class="cc-meta"><strong>Turno origen:</strong> ${pend.ultimo_turno} · ${pend.ultimo_auditor}<br><strong>Cortina:</strong> ${pend.datos.cortina||'—'} &nbsp;|&nbsp; <strong>Unidad:</strong> ${pend.datos.unidad_envio||pend.datos.sto||'—'}</div>
+    <div style="font-size:11px;color:var(--green);font-weight:700">✓ Campos prellenados. Completa la auditoría y guarda para cerrar la herencia.</div>
+  </div>`;
+  showToast('📋 Formulario prellenado con datos de herencia','success');
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER PENDIENTES
+// ══════════════════════════════════════════════════════
+function renderPendientes() {
+  const container = document.getElementById('pendientes-container');
+  if (!container) return;
+  updateNavBadge();
+  if (!pendientes.length) {
+    container.innerHTML = `<div style="text-align:center;padding:38px 20px;color:var(--gray)"><div style="font-size:46px;margin-bottom:10px">✅</div><div style="font-weight:700;font-size:15px">Sin pendientes</div><div style="font-size:12px;margin-top:3px">Todos los registros están finalizados</div></div>`;
+    return;
+  }
+  const grupos = { recibo:[], armado:[], embarque:[] };
+  pendientes.forEach(p=>{ (grupos[p.modulo]||grupos.embarque).push(p); });
+  const iconMod  = { recibo:'📦', armado:'🔧', embarque:'🚛' };
+  const labelMod = { recibo:'Recibo', armado:'Armado', embarque:'Embarque' };
+  let html = '';
+  Object.entries(grupos).forEach(([mod, lista])=>{
+    if (!lista.length) return;
+    html += `<div class="pendientes-panel"><div class="pendientes-header"><div class="ph-title">${iconMod[mod]} ${labelMod[mod]}</div><div class="pendientes-count">${lista.length}</div></div>`;
+    lista.forEach((p,idx)=>{
+      const d=p.datos, id=d.unidad_envio||d.sto||'—', cortina=d.cortina||'—', avance=p.avance||d.avance||'—';
+      const isNew=idx===lista.length-1;
+      html += `<div class="pendiente-item${isNew?' pendiente-flash':''}" id="pendiente-item-${p.id}"><div class="pi-icon">${iconMod[mod]}</div><div class="pi-body"><div class="pi-title">${id} · Cortina ${cortina}</div><div class="pi-meta">Turno: <strong>${p.ultimo_turno}</strong> · ${p.ultimo_auditor}<br>Avance: <strong>${avance}</strong></div><div class="pi-actions"><button class="pi-btn pi-btn-continuar" onclick="continuarHerencia('${p.id}')">🔄 Continuar</button><button class="pi-btn pi-btn-ver" onclick="verDetallePendiente('${p.id}')">👁 Ver</button></div></div></div>`;
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+  setTimeout(flashPendienteItems, 8000);
+}
+function flashPendienteItems() { document.querySelectorAll('.pendiente-flash').forEach(el=>el.classList.remove('pendiente-flash')); }
+function updateNavBadge() {
+  const badge=document.getElementById('nav-badge-pend'); if(!badge) return;
+  badge.textContent=pendientes.length; badge.classList.toggle('hidden',pendientes.length===0);
+}
+function verDetallePendiente(id) {
+  const pend=pendientes.find(p=>p.id===id); if(!pend) return;
+  const d=pend.datos, titulo=d.unidad_envio||d.sto||id;
+  const campos=[['Módulo',pend.modulo.toUpperCase()],['Subtipo',d.subtipo||'—'],['STO',d.sto||'—'],['Unidad',d.unidad_envio||'—'],['Cortina',d.cortina||'—'],['Cliente',d.cliente||'—'],['Avance',d.avance||'—']];
+  let html=`<div class="card" style="margin-bottom:10px"><div class="card-title">📋 Datos</div>`;
+  html+=campos.filter(c=>c[1]&&c[1]!=='—').map(c=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--gray);font-weight:700">${c[0]}</span><span style="font-weight:600">${c[1]}</span></div>`).join('');
+  html+='</div>';
+  if(pend.turnos&&pend.turnos.length){html+=`<div class="card" style="margin-bottom:10px"><div class="card-title">⏱ Historial</div><div>`;pend.turnos.forEach((t,i)=>{html+=`<div class="tl-item"><div class="tl-dot ${i===0?'tl-dot-start':'tl-dot-pause'}">${i===0?'▶':'🔄'}</div><div class="tl-body"><div class="tl-label">Turno ${t.turno} · ${t.auditor}</div></div></div>${i<pend.turnos.length-1?'<div class="tl-connector"></div>':''}`;});html+='</div></div>';}
+  html+=`<button class="btn btn-green" onclick="continuarHerencia('${id}')">🔄 Continuar esta Herencia</button>`;
+  document.getElementById('pd-modal-title').textContent=`📂 ${titulo}`;
+  document.getElementById('pd-modal-body').innerHTML=html;
+  document.getElementById('pendiente-detail-modal').classList.add('open');
+}
+
+// ══════════════════════════════════════════════════════
+//  RECORDS MODAL
+// ══════════════════════════════════════════════════════
+function showRecords(type) {
+  const list=records[type]||[];
+  document.getElementById('modal-title').textContent=`📂 ${getTypeLabel(type)} (${list.length} registros)`;
+  const c=document.getElementById('modal-records-list');
+  if(!list.length){c.innerHTML='<div style="text-align:center;padding:28px;color:var(--gray)">Sin registros en este turno</div>';}
+  else{c.innerHTML=list.slice().reverse().map(r=>{const isPend=esPendiente(r.estado||'');const badge=isPend?`<span class="record-badge badge-pendiente">⏳ Pendiente</span>`:`<span class="record-badge badge-ok">✅ OK</span>`;const hora=new Date(r.timestamp).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});return`<div class="record-item ${isPend?'pending':''}"><div class="record-icon">${type==='recibo'?'📦':type==='armado'?'🔧':'🚛'}</div><div class="record-content"><div class="record-title">${r.sto||r.unidad_envio||'—'}</div><div class="record-meta">${hora} · ${r.cortina||'—'}</div></div>${badge}</div>`;}).join('');}
+  document.getElementById('records-modal').classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function getTypeLabel(t){return{recibo:'Recibo',armado:'Armado',embarque:'Embarque'}[t]||t;}
+
+// ══════════════════════════════════════════════════════
+//  CLEAR HELPERS
+// ══════════════════════════════════════════════════════
+function clearReciboForm(){
+  clearField(['r-sto','r-master','r-cortina','r-monta','r-chep','r-blancas','r-notas','r-planta-otro']);
+  document.getElementById('r-planta').value='';
+  document.getElementById('r-planta-otro-row').classList.add('hidden');
+  document.getElementById('r-avance').value='';
+  document.querySelectorAll('#r-tipo .toggle-option,#r-estado .toggle-option').forEach(o=>o.classList.remove('selected'));
+  const herOpt=document.querySelector('#r-estado .toggle-option:last-child'); if(herOpt) herOpt.classList.add('selected');
+  const rn=document.getElementById('r-herencia-nota'); if(rn) rn.classList.remove('hidden');
+  document.getElementById('r-herencia-id').value='';
+  const rhp=document.getElementById('recibo-herencia-panel'); if(rhp){rhp.classList.add('hidden');rhp.innerHTML='';}
+  const req=document.getElementById('r-monta-req'); if(req) req.style.display='inline';
+  const opt=document.getElementById('r-monta-opt'); if(opt) opt.style.display='none';
+}
+function clearField(ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+
+// ══════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════
+function switchTab(tab){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  const tabEl=document.getElementById('tab-'+tab); if(tabEl) tabEl.classList.add('active');
+  const navEl=document.querySelector(`.nav-tab[data-tab="${tab}"]`); if(navEl) navEl.classList.add('active');
+  if(tab==='pendientes') renderPendientes();
+}
+
+// ══════════════════════════════════════════════════════
+//  LOGOUT
+// ══════════════════════════════════════════════════════
+function logout(){
+  if(confirm('¿Cerrar sesión? Los datos locales se conservarán.')){
+    session={}; records={recibo:[],armado:[],embarque:[]}; pendientes=[]; herenciasResueltas=[];
+    saveState();
+    document.getElementById('splash').style.display='flex';
+    document.getElementById('splash').classList.remove('hide');
+    document.getElementById('app').style.display='none';
+    showRoleSelector();
+    ['login-squad','login-shift','login-name'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    document.getElementById('login-name-otro').value='';
+    document.getElementById('login-otro-row').classList.add('hidden');
+    showToast('Sesión cerrada','success');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type;
+  void t.offsetWidth; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ══════════════════════════════════════════════════════
+//  API / DRIVE
+// ══════════════════════════════════════════════════════
+async function sendToSheets(payload){
+  try{
+    await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    if(API_URL_2) await fetch(API_URL_2,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    return{success:true};
+  }catch(e){offlineQueue.push(payload);saveState();throw e;}
+}
+
+async function uploadPhotos(photoList,identificador,cortina,fecha,cuadrilla,proceso,statusMC){
+  for(const photo of photoList){
+    try{
+      const base64data=photo.data.split(',')[1];
+      const mimeType=photo.data.split(';')[0].split(':')[1]||'image/jpeg';
+      const body=JSON.stringify({action:'save_photo',filename:photo.name||('foto_'+Date.now()+'.jpg'),base64data,mimeType,identificador:identificador||'SIN_ID',cortina:cortina||'SIN_CORTINA',cuadrilla:cuadrilla||'SIN_CUADRILLA',proceso:proceso||'general',status_mc:statusMC||''});
+      await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});
+      if(API_URL_2) await fetch(API_URL_2,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});
+    }catch(e){}
+  }
+}
+
+async function syncPendientesDesdeNube(){
+  showToast('🔄 Sincronizando pendientes...','');
+  const cbName='_apCb_'+Date.now();
+  const oldScript=document.getElementById('jsonp-pendientes'); if(oldScript) oldScript.remove();
+  let timeoutId;
+  window[cbName]=function(data){
+    clearTimeout(timeoutId);
+    const s=document.getElementById('jsonp-pendientes'); if(s) s.remove();
+    delete window[cbName];
+    if(data&&data.ok&&Array.isArray(data.pendientes)){
+      pendientes=data.pendientes; saveState(); renderPendientes(); updateNavBadge();
+      showToast(pendientes.length>0?`⚠️ ${pendientes.length} herencia(s) activa(s)`:'✅ Sin pendientes activos',pendientes.length>0?'warning':'success');
+    }else{showToast('⚠️ Respuesta inesperada del servidor','warning');}
+  };
+  timeoutId=setTimeout(()=>{const s=document.getElementById('jsonp-pendientes');if(s)s.remove();delete window[cbName];showToast(pendientes.length>0?`⚠️ ${pendientes.length} herencia(s) en caché local`:'Sin conexión','');},10000);
+  const script=document.createElement('script');
+  script.id='jsonp-pendientes';
+  script.src=API_URL+'?action=get_pendientes&callback='+cbName;
+  script.onerror=()=>{clearTimeout(timeoutId);script.remove();delete window[cbName];};
+  document.head.appendChild(script);
+}
+async function cloudSavePendiente(pendiente){
+  try{const body=JSON.stringify({action:'save_pendiente',pendiente});await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});if(API_URL_2)await fetch(API_URL_2,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});}catch(e){}
+}
+async function cloudDeletePendiente(pendienteId){
+  try{const body=JSON.stringify({action:'delete_pendiente',pendiente_id:pendienteId});await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});if(API_URL_2)await fetch(API_URL_2,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});}catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+window.onload = () => {
+  loadState();
+  if(session.name&&session.role){hideSplash();updateHeader();buildApp();if(session.role==='auditor'){renderPendientes();setTimeout(()=>syncPendientesDesdeNube(),800);}}
+  document.addEventListener('input',function(e){
+    const el=e.target,tag=el.tagName,type=(el.type||'').toLowerCase();
+    if(tag==='TEXTAREA'||(tag==='INPUT'&&type==='text')){
+      const s=el.selectionStart,en=el.selectionEnd;
+      el.value=el.value.toUpperCase();
+      try{el.setSelectionRange(s,en);}catch(_){}
+    }
+  });
+};
+</script>
+</body>
+</html>

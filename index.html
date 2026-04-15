@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#CF002E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Auditoría de Pallets v23</title>
+<title>Auditoría de Pallets v27</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,700;1,300&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
 <style>
@@ -52,6 +52,35 @@ body{font-family:'Barlow',sans-serif;background:var(--light);color:var(--black);
 .role-card-icon.analista{background:rgba(26,82,118,0.4)}
 .role-card-icon.mesa{background:rgba(108,52,131,0.4)}
 .role-card-icon.inventario{background:rgba(45,138,78,0.35)}
+.role-card-icon.supervisor{background:rgba(14,102,85,0.35)}
+.lc-icon.supervisor{background:rgba(14,102,85,0.1)}
+.asignacion-card{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border:2px solid #E07000;border-radius:var(--radius);overflow:hidden;margin-bottom:9px}
+.asignacion-header{background:#E07000;padding:10px 14px;display:flex;align-items:center;gap:7px}
+.asignacion-header .ah-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:white;text-transform:uppercase;flex:1;letter-spacing:.5px}
+.asignacion-item{padding:11px 14px;border-bottom:1px solid rgba(224,112,0,0.2);display:flex;align-items:flex-start;gap:9px}
+.asignacion-item:last-child{border-bottom:none}
+.ai-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.ai-body{flex:1;min-width:0}
+.ai-title{font-size:13px;font-weight:700;color:var(--black)}
+.ai-meta{font-size:10px;color:#7A4500;margin-top:2px;line-height:1.5}
+.ai-badge{padding:2px 8px;border-radius:99px;font-size:9px;font-weight:800;text-transform:uppercase;background:#E07000;color:white;flex-shrink:0;align-self:center;white-space:nowrap}
+.pendiente-asignacion{background:linear-gradient(135deg,#FFF8F0,#FFF3E0)!important;border:2px solid #E07000!important}
+.pa-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:800;text-transform:uppercase;background:#E07000;color:white;margin-bottom:5px}
+.excel-zone{border:2.5px dashed rgba(14,102,85,0.4);border-radius:12px;padding:22px 18px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(14,102,85,0.03);margin-bottom:12px}
+.excel-zone:focus,.excel-zone.active{outline:none;border-color:#0E6655;background:rgba(14,102,85,0.08)}
+.excel-zone-icon{font-size:38px;margin-bottom:8px}
+.excel-zone p{font-size:13px;font-weight:700;color:#0E6655}
+.excel-zone span{font-size:10px;color:var(--gray);display:block;margin-top:3px}
+.preview-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
+.preview-table th{background:#0E6655;color:white;padding:6px 10px;text-align:left;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:9px}
+.preview-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--black);font-weight:600}
+.preview-table tr:nth-child(even) td{background:#F5F5F5}
+.preview-table tr.row-error td{background:#FFF0F0;color:var(--red)}
+.preview-table tr.row-ok td{background:#F0FFF6}
+.col-status{font-size:9px;font-weight:800;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.col-status.ok{background:rgba(45,138,78,0.15);color:var(--green)}
+.col-status.dup{background:rgba(253,208,0,0.3);color:#8B6B00}
+.col-status.err{background:rgba(207,0,46,0.12);color:var(--red)}
 .role-card-text{flex:1}
 .role-card-name{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.5px}
 .role-card-desc{font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px}
@@ -78,6 +107,7 @@ header.role-auditor{background:var(--grad-header)}
 header.role-analista{background:var(--grad-header-blue)}
 header.role-mesa{background:var(--grad-header-purple)}
 header.role-inventario{background:var(--grad-header-green)}
+header.role-supervisor{background:linear-gradient(135deg,#0E6655 0%,#07453A 100%)}
 .header-inner{display:flex;align-items:center;padding:13px 16px;gap:10px}
 .logo-sm{width:36px;height:36px;background:var(--yellow);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--red);flex-shrink:0}
 .header-text{flex:1}
@@ -135,6 +165,7 @@ main{padding:14px;max-width:640px;margin:0 auto}
 .form-row{margin-bottom:13px}
 .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px}
 .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:13px}
+.form-row-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:13px}
 label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:5px}
 label span.req{color:var(--red)}
 input[type="text"],input[type="number"],input[type="date"],input[type="time"],select,textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--black);background:#FAFAFA;transition:border-color .2s,box-shadow .2s;appearance:none;-webkit-appearance:none}
@@ -165,6 +196,16 @@ input:disabled,select:disabled{opacity:.5;cursor:not-allowed;background-color:#F
 .photo-thumb img{width:100%;height:100%;object-fit:cover}
 .photo-thumb .del-btn{position:absolute;top:3px;right:3px;width:20px;height:20px;background:var(--red);color:white;border-radius:50%;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
 
+/* ── FOTO OPCIONAL BADGE ──────────────────────────────── */
+.foto-opcional-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:9px;font-weight:800;text-transform:uppercase;background:rgba(45,138,78,0.12);color:var(--green);margin-bottom:8px;letter-spacing:.5px}
+.photo-zone.opcional{border-color:rgba(45,138,78,0.4);background:rgba(45,138,78,0.02)}
+.photo-zone.opcional:hover{border-color:var(--green);background:rgba(45,138,78,0.05)}
+
+/* ── UPLOAD PROGRESS ──────────────────────────────────── */
+.upload-progress-bar{height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:6px;display:none}
+.upload-progress-bar.visible{display:block}
+.upload-progress-inner{height:100%;background:var(--green);border-radius:99px;transition:width .3s;width:0%}
+
 /* ── DOC UPLOAD (Despacho) ─────────────────────────── */
 .doc-upload-zone{border:2px dashed rgba(26,82,118,0.4);border-radius:11px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:rgba(26,82,118,0.03)}
 .doc-upload-zone:hover{border-color:var(--blue);background:rgba(26,82,118,0.06)}
@@ -193,7 +234,10 @@ input:disabled,select:disabled{opacity:.5;cursor:not-allowed;background-color:#F
 .btn-green{background:var(--green);color:white;box-shadow:0 4px 16px rgba(45,138,78,0.3)}
 .btn-blue{background:var(--blue);color:white;box-shadow:0 4px 14px rgba(26,82,118,0.3)}
 .btn-purple{background:var(--purple);color:white;box-shadow:0 4px 14px rgba(108,52,131,0.3)}
+.btn-supervisor{background:#0E6655;color:white;box-shadow:0 4px 14px rgba(14,102,85,0.3)}
+.btn-danger{background:#C0392B;color:white;box-shadow:0 4px 14px rgba(192,57,43,0.3)}
 .btn-sm{padding:9px 14px;font-size:12px;width:auto}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 
 /* ── RECORDS LIST ────────────────────────────────────── */
 .record-item{background:white;border-radius:11px;padding:13px 15px;margin-bottom:9px;border-left:4px solid var(--red);box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;align-items:center;gap:10px;cursor:pointer;transition:box-shadow .2s}
@@ -252,6 +296,13 @@ input:disabled,select:disabled{opacity:.5;cursor:not-allowed;background-color:#F
 .mov-label{flex:1;font-size:12px;font-weight:600;color:var(--black);line-height:1.3}
 .mov-input{width:100px;flex-shrink:0}
 
+/* ── CANCELACION EN CARGA ────────────────────────────── */
+.cancelar-embarque-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:linear-gradient(135deg,#FFF0EE,#FADBD8);border:1.5px solid rgba(192,57,43,0.3);border-radius:9px;cursor:pointer;transition:all .2s;margin-bottom:6px}
+.cancelar-embarque-row:hover{border-color:#C0392B;background:linear-gradient(135deg,#FADBD8,#F5B7B1)}
+.cancelar-embarque-row .cer-icon{font-size:16px;flex-shrink:0}
+.cancelar-embarque-row .cer-unidad{font-size:12px;font-weight:700;color:#C0392B;flex:1}
+.cancelar-embarque-row .cer-badge{padding:2px 8px;border-radius:99px;font-size:9px;font-weight:800;background:#C0392B;color:white;flex-shrink:0}
+
 /* ── MISC ────────────────────────────────────────────── */
 .accent-line{height:3px;background:linear-gradient(90deg,var(--red),var(--yellow));border-radius:99px;margin:14px 0}
 .hidden{display:none!important}
@@ -287,7 +338,7 @@ input:disabled,select:disabled{opacity:.5;cursor:not-allowed;background-color:#F
 <div id="splash">
   <div class="splash-logo">AP</div>
   <div class="splash-title">Auditoría<br>de Pallets</div>
-  <div class="splash-sub">v23 · Created by Itzel Perez</div>
+  <div class="splash-sub">v27 · Created by Itzel Perez</div>
 
   <div class="role-selector" id="role-selector">
     <h3>Selecciona tu perfil</h3>
@@ -304,7 +355,7 @@ input:disabled,select:disabled{opacity:.5;cursor:not-allowed;background-color:#F
         <div class="role-card-icon mesa">🟣</div>
         <div class="role-card-text">
           <div class="role-card-name">Analista Mesa de Control</div>
-          <div class="role-card-desc">Cantidad Prime T1/T2, MC</div>
+          <div class="role-card-desc">Carga de embarques · Cantidad Prime T1/T2 · MC</div>
         </div>
         <div class="role-card-arrow">›</div>
       </div>
@@ -379,7 +430,7 @@ input:disabled,select:disabled{opacity:.5;cursor:not-allowed;background-color:#F
       <div class="logo-sm">AP</div>
       <div class="header-text">
         <h1>Auditoría de Pallets</h1>
-        <div class="splash-sub">Created by Itzel Perez</div>
+        <div class="splash-sub">v27 · Created by Itzel Perez</div>
         <span id="hdr-date">—</span>
       </div>
       <div class="header-user">
@@ -415,14 +466,25 @@ input:disabled,select:disabled{opacity:.5;cursor:not-allowed;background-color:#F
   </div>
 </div>
 
+<!-- MODAL CANCELAR EMBARQUE -->
+<div class="modal-overlay" id="cancelar-modal" onclick="closeModal('cancelar-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="color:#C0392B">🚫 Cancelar Embarque</div>
+    <div id="cancelar-modal-body"></div>
+    <div style="height:10px"></div>
+    <button class="btn btn-ghost" onclick="closeModal('cancelar-modal')" style="color:var(--gray);border-color:var(--border)">Cerrar</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // ══════════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════════
-const API_URL   = 'https://script.google.com/macros/s/AKfycbwLQb4rT_sZIvVM4PSna4xhF1xjPYGPAPXeTmAPfEiMKNvuBaw2jICjnjctOwu5D4U/exec';
-const API_URL_2 = 'https://script.google.com/macros/s/AKfycbxFSu0cSD13XTU-5mfXn0J8nXfytnKq4loVFOw64txE5hVKhacANAvNU_DhP0l7mu06/exec';
+const API_URL   = 'https://script.google.com/macros/s/AKfycbxlC0tSisFO6IjAtQu-HGwmg1MGEAJAURVeqNW9zx1tyY7X_XcafdFulPSL7xtUOTw/exec';
+const API_URL_2 = 'https://script.google.com/macros/s/AKfycby8Ni7jJgTBNxZhKx4ziFET4MU_rqNkLuQtl83tHkkUXnKihWTBHYy6K6M3EiWzhP0t/exec';
 
 // ══════════════════════════════════════════════════════
 //  PERSONAS POR ROL
@@ -442,14 +504,16 @@ const PERSONAS = {
   ],
   inventario: [
     'Aldo Felipe Hernandez Velazquez','Javier Arteaga Trejo','Israel Sanchez Lopez','Fidel Rojas Oliva'
-  ]
+  ],
+  supervisor: [' 1',' 2','3',' 4']
 };
 
 const ROL_CONFIG = {
   auditor:    { icon:'🔴', label:'Auditor',              sub:'Módulo de auditoría',     headerClass:'role-auditor',   btnColor:'btn-primary' },
   analista:   { icon:'🔵', label:'Analista Despacho',    sub:'Módulo de análisis',       headerClass:'role-analista',  btnColor:'btn-blue'    },
   mesa:       { icon:'🟣', label:'Mesa de Control',      sub:'Cantidades Prime y MC',    headerClass:'role-mesa',      btnColor:'btn-purple'  },
-  inventario: { icon:'🟢', label:'Inventario (Jaula)',   sub:'Stock y embarque',         headerClass:'role-inventario',btnColor:'btn-green'   }
+  inventario: { icon:'🟢', label:'Inventario (Jaula)',   sub:'Stock y embarque',         headerClass:'role-inventario',btnColor:'btn-green'   },
+  supervisor: { icon:'🟠', label:'Supervisor',           sub:'Carga y asignación',       headerClass:'role-supervisor',btnColor:'btn-supervisor'}
 };
 
 const TIPOS_TARIMA = ['ZP7/PECO estándar HT','ZP6/Merk White Pallet Euro HT','ZP5/GT PALLET','ZP4/CHEP estándar HT','ZP1/NAFTA Pallet Blanco','PCO/PECO estándar Regular','SLEEP/SLIP SHEEP','SMART estándar regular','A14/NATFA WP estándar HT','A11/CHEP  estándar Regular','None ','Otra'];
@@ -463,9 +527,7 @@ let records = { recibo:[], armado:[], embarque:[] };
 let pendientes = [];
 let herenciasResueltas = [];
 let photos = { r:[], ae:[], ad:[], embarque_general:[], mc:[] };
-// Analista Despacho: un solo documento
 let analistaDoc = null;
-// Mesa de Control: una foto
 let mesaFoto = null;
 let analistaEmbarqueActual = null;
 let mesaEmbarqueActual = null;
@@ -474,11 +536,11 @@ let currentRole = '';
 
 function loadState() {
   try {
-    const s  = localStorage.getItem('ap_session_v23');
-    const r  = localStorage.getItem('ap_records_v23');
+    const s  = localStorage.getItem('ap_session_v25');
+    const r  = localStorage.getItem('ap_records_v25');
     const p  = localStorage.getItem('ap_pendientes_global');
     const hr = localStorage.getItem('ap_herencias_resueltas_global');
-    const q  = localStorage.getItem('ap_queue_v23');
+    const q  = localStorage.getItem('ap_queue_v25');
     if (s)  session            = JSON.parse(s);
     if (r)  records            = JSON.parse(r);
     if (p)  pendientes         = JSON.parse(p);
@@ -488,12 +550,42 @@ function loadState() {
 }
 function saveState() {
   try {
-    localStorage.setItem('ap_session_v23',               JSON.stringify(session));
-    localStorage.setItem('ap_records_v23',               JSON.stringify(records));
+    localStorage.setItem('ap_session_v25',               JSON.stringify(session));
+    localStorage.setItem('ap_records_v25',               JSON.stringify(records));
     localStorage.setItem('ap_pendientes_global',         JSON.stringify(pendientes));
     localStorage.setItem('ap_herencias_resueltas_global',JSON.stringify(herenciasResueltas));
-    localStorage.setItem('ap_queue_v23',                 JSON.stringify(offlineQueue));
+    localStorage.setItem('ap_queue_v25',                 JSON.stringify(offlineQueue));
   } catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
+//  IMAGE COMPRESSION
+// ══════════════════════════════════════════════════════
+function compressImage(file, maxWidth, maxHeight, quality) {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => resolve({ name: file.name, data: e.target.result });
+      reader.readAsDataURL(file);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxWidth)  { h = Math.round(h * maxWidth  / w); w = maxWidth; }
+        if (h > maxHeight) { w = Math.round(w * maxHeight / h); h = maxHeight; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve({ name: file.name, data: canvas.toDataURL('image/jpeg', quality) });
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ══════════════════════════════════════════════════════
@@ -579,10 +671,11 @@ function buildApp() {
   const main = document.getElementById('app-main');
   nav.innerHTML  = '';
   main.innerHTML = '';
-  if (session.role === 'auditor')     buildAuditorApp(nav, main);
+  if (session.role === 'auditor')         buildAuditorApp(nav, main);
   else if (session.role === 'analista')   buildAnalistaApp(nav, main);
   else if (session.role === 'mesa')       buildMesaApp(nav, main);
   else if (session.role === 'inventario') buildInventarioApp(nav, main);
+  else if (session.role === 'supervisor') buildSupervisorApp(nav, main);
 }
 
 // ══════════════════════════════════════════════════════
@@ -692,6 +785,7 @@ function fillReciboTab() {
       <div class="ph-icon">📷</div><p>Tomar foto / Seleccionar imagen</p><span>Evidencia del recibo</span>
       <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'r')">
     </div>
+    <div class="upload-progress-bar" id="progress-r"><div class="upload-progress-inner" id="progress-r-inner"></div></div>
     <div class="photo-previews" id="photos-r"></div>
   </div>
   <button class="btn btn-primary" onclick="saveRecord('recibo')"><span>✓</span> Guardar Registro de Recibo</button>
@@ -703,11 +797,6 @@ function fillReciboTab() {
 function fillArmadosTab() {
   const tab = document.getElementById('tab-armados');
   if (!tab) return;
-  const clientes = ['AMAZON','BODEGA AURRERA','CASA LEY','CHEDRAUI','CITY FRESKO','CONSUMO Z','EVSA',
-    'FARMACIAS GUADALAJARA','FARMACIAS SIMILARES','FIURI','GARIS','IRAPUATO','NADRO',
-    'ONEST ATIZAPAN','OXXO','OPERADORA CJ','PROPIMEX','SAMS','SORIANA','SUPERAMA',
-    'SUPERCENTER','TIENDAS 3B','VALLEJO','WALMART','ZORRO','Otro'];
-  const clienteOpts = clientes.map(c=>`<option value="${c}">${c}</option>`).join('');
   tab.innerHTML = `
   <div class="section-header">
     <div class="section-icon">🔧</div>
@@ -726,11 +815,7 @@ function fillArmadosTab() {
       <div class="card-title">📋 Armado Especial</div>
       <input type="hidden" id="ae-herencia-id" value="">
       <div class="form-row"><label>Unidad de Envío <span class="req">*</span></label><input type="text" id="ae-unidad" placeholder="Núm. unidad"></div>
-      <div class="form-row">
-        <label>Cliente <span class="req">*</span></label>
-        <select id="ae-cliente" onchange="toggleClienteAEOtro()"><option value="">— Seleccionar —</option>${clienteOpts}</select>
-      </div>
-      <div class="form-row hidden" id="ae-cliente-otro-row"><label>Especificar Cliente <span class="req">*</span></label><input type="text" id="ae-cliente-otro" placeholder="Nombre del cliente"></div>
+      <div class="form-row"><label>Cliente <span class="req">*</span></label><input type="text" id="ae-cliente-txt" placeholder="Nombre del cliente"></div>
       <div class="form-row-2">
         <div><label>Cortina <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="ae-cortina" placeholder="000" min="1"></div></div>
         <div><label>Avance <span class="req">*</span></label><select id="ae-avance" onchange="toggleEstadoArmado()"><option value="">—</option><option>Inicio</option><option>25%</option><option>50%</option><option>75%</option><option>Completo</option></select></div>
@@ -749,12 +834,13 @@ function fillArmadosTab() {
         </div>
       </div>
       <div class="form-row warn-note" id="ae-pendiente-nota">⚠️ Este armado quedará pendiente para el siguiente turno.</div>
-      <div class="form-row">
+      <div class="form-row" id="ae-foto-wrap">
         <label>📸 Evidencia <span class="req">*</span></label>
         <div class="photo-zone" id="photo-zone-ae">
           <div class="ph-icon" style="font-size:28px">📷</div><p>Tomar foto / Seleccionar imagen</p>
           <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'ae')">
         </div>
+        <div class="upload-progress-bar" id="progress-ae"><div class="upload-progress-inner" id="progress-ae-inner"></div></div>
         <div class="photo-previews" id="photos-ae"></div>
       </div>
     </div>
@@ -765,10 +851,9 @@ function fillArmadosTab() {
       <input type="hidden" id="ad-herencia-id" value="">
       <div class="form-row"><label>Unidad de Envío <span class="req">*</span></label><input type="text" id="ad-unidad" placeholder="Núm. unidad"></div>
       <div class="form-row-2">
-        <div><label>Cliente <span class="req">*</span></label><select id="ad-cliente-select" onchange="toggleClienteOtro()"><option value="">—</option>${clienteOpts}</select></div>
+        <div><label>Cliente <span class="req">*</span></label><input type="text" id="ad-cliente-txt" placeholder="Nombre del cliente"></div>
         <div><label>Cortina <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="ad-cortina" placeholder="000" min="1"></div></div>
       </div>
-      <div class="form-row hidden" id="ad-cliente-otro-row"><label>Especificar Cliente <span class="req">*</span></label><input type="text" id="ad-cliente-otro" placeholder="Nombre del cliente"></div>
       <div class="form-row"><label>Montacarguista <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">SMO</span><input type="number" id="ad-monta" placeholder="000" min="1"></div></div>
       <div class="form-row-2">
         <div><label>Pallets CHEP <span class="req">*</span></label><input type="number" id="ad-pallets" min="0" placeholder="0"></div>
@@ -786,12 +871,13 @@ function fillArmadosTab() {
         </div>
       </div>
       <div class="form-row hidden warn-note" id="ad-herencia-nota">⚠️ Este armado quedará pendiente para el siguiente turno.</div>
-      <div class="form-row">
+      <div class="form-row" id="ad-foto-wrap">
         <label>📸 Evidencia <span class="req">*</span></label>
         <div class="photo-zone" id="photo-zone-ad">
           <div class="ph-icon" style="font-size:28px">📷</div><p>Tomar foto / Seleccionar imagen</p>
           <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'ad')">
         </div>
+        <div class="upload-progress-bar" id="progress-ad"><div class="upload-progress-inner" id="progress-ad-inner"></div></div>
         <div class="photo-previews" id="photos-ad"></div>
       </div>
     </div>
@@ -801,47 +887,33 @@ function fillArmadosTab() {
   <button class="btn btn-ghost" onclick="showRecords('armado')"><span>📂</span> Ver Registros del Turno</button>`;
 }
 
-/* ─── EMBARQUE ───────────────────────────────────────── */
+/* ─── EMBARQUE ── */
 function fillEmbarqueTab() {
   const tab = document.getElementById('tab-embarque');
   if (!tab) return;
-  const clientes = ['AMAZON','BODEGA AURRERA','CASA LEY','CHEDRAUI','CITY FRESKO','CONSUMO Z','EVSA',
-    'FARMACIAS GUADALAJARA','FARMACIAS SIMILARES','FIURI','GARIS','IRAPUATO','NADRO',
-    'ONEST ATIZAPAN','OXXO','OPERADORA CJ','PROPIMEX','SAMS','SORIANA','SUPERAMA',
-    'SUPERCENTER','TIENDAS 3B','VALLEJO','WALMART','ZORRO','Otro'];
-  const clienteOpts = clientes.map(c=>`<option value="${c}">${c}</option>`).join('');
   tab.innerHTML = `
   <div class="section-header">
     <div class="section-icon">🚛</div>
-    <div><div class="section-title">Embarque de Pallets</div><div class="section-desc">Auditoría de cortinas de embarque</div></div>
+    <div><div class="section-title">Embarque de Pallets</div><div class="section-desc">Las unidades se asignan desde mesa de control</div></div>
   </div>
   <div id="embarque-herencia-panel" class="hidden"></div>
-  <div class="card">
-    <div class="card-title">📋 Datos del Embarque</div>
-    <input type="hidden" id="e-herencia-id" value="">
-    <div class="form-row"><label>Unidad de Envío <span class="req">*</span></label><input type="text" id="e-unidad" placeholder="Núm. unidad"></div>
-    <div class="form-row-2">
-      <div><label>Cliente <span class="req">*</span></label><select id="e-cliente" onchange="toggleClienteEmbarqueOtro()"><option value="">—</option>${clienteOpts}</select></div>
-      <div><label>Cortina <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="e-cortina" placeholder="000" min="1"></div></div>
-    </div>
-    <div class="form-row hidden" id="e-cliente-otro-row"><label>Especificar Cliente <span class="req">*</span></label><input type="text" id="e-cliente-otro" placeholder="Nombre del cliente"></div>
-    <div class="form-row"><label>Montacarguista <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">SMO</span><input type="number" id="e-monta" placeholder="000" min="1"></div></div>
-    <div class="form-row">
-      <label>Tipo de Embarque <span class="req">*</span></label>
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:5px">Carga</div>
-      <div class="toggle-group" id="e-tipo-carga" style="margin-bottom:8px">
-        <div class="toggle-option" onclick="toggleSelect(this,'e-tipo-carga')">Paletizado</div>
-        <div class="toggle-option" onclick="toggleSelect(this,'e-tipo-carga')">Granel</div>
-      </div>
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:5px">Destino</div>
-      <div class="toggle-group" id="e-tipo-destino">
-        <div class="toggle-option" onclick="toggleSelect(this,'e-tipo-destino')">Exportación</div>
-        <div class="toggle-option" onclick="toggleSelect(this,'e-tipo-destino')">Local</div>
-      </div>
-    </div>
+
+  <div id="embarque-asignacion-info" class="hidden card" style="background:linear-gradient(135deg,#FFF8F0,#FFF3E0);border:2px solid #E07000">
+    <div class="emb-tag-despacho" style="background:#E07000">📤 Datos del Embarque (desde Excel)</div>
+    <div id="embarque-asig-detalle" style="font-size:12px;line-height:1.9"></div>
   </div>
+
   <div class="card">
-    <div class="card-title">📊 Conteo de Pallets</div>
+    <div class="card-title">📋 Datos de Auditoría</div>
+    <input type="hidden" id="e-herencia-id" value="">
+    <input type="hidden" id="e-unidad" value="">
+    <input type="hidden" id="e-cliente" value="">
+    <input type="hidden" id="e-tipo-carga-val" value="">
+    <input type="hidden" id="e-tipo-destino-val" value="">
+    <div class="form-row-2">
+      <div><label>Cortina <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="e-cortina" placeholder="000" min="1"></div></div>
+      <div><label>Montacarguista <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">SMO</span><input type="number" id="e-monta" placeholder="000" min="1"></div></div>
+    </div>
     <div class="form-row-2">
       <div><label>Pallets Blancas <span class="req">*</span></label><input type="number" id="e-blancas" min="0" placeholder="0"></div>
       <div><label>Pallets CHEP <span class="req">*</span></label><input type="number" id="e-chep-embarque" min="0" placeholder="0"></div>
@@ -869,25 +941,31 @@ function fillEmbarqueTab() {
       <select id="e-avance" onchange="toggleEstadoEmbarque()"><option value="">—</option><option>Inicio</option><option>25%</option><option>50%</option><option>75%</option><option>Completo</option></select>
     </div>
   </div>
+
   <div class="card">
     <div class="card-title">📸 Evidencia Obligatoria</div>
     <div class="form-row">
-      <label>Evidencia del Embarque <span class="req">*</span></label>
+      <label id="lbl-foto-embarque">Evidencia del Embarque <span class="req" id="req-foto-embarque">*</span></label>
+      <div id="herencia-foto-embarque-badge" class="hidden"><div class="foto-opcional-badge">✦ Opcional en herencia</div></div>
       <div class="photo-zone" id="photo-zone-embarque-general">
         <div class="ph-icon">📷</div><p>Tomar foto / Seleccionar imagen (embarque)</p>
         <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'embarque_general')">
       </div>
+      <div class="upload-progress-bar" id="progress-embarque_general"><div class="upload-progress-inner" id="progress-embarque_general-inner"></div></div>
       <div class="photo-previews" id="photos-embarque_general"></div>
     </div>
     <div class="form-row">
-      <label>Evidencia del MC <span class="req">*</span></label>
+      <label id="lbl-foto-mc">Evidencia del MC <span class="req" id="req-foto-mc">*</span></label>
+      <div id="herencia-foto-mc-badge" class="hidden"><div class="foto-opcional-badge">✦ Opcional en herencia</div></div>
       <div class="photo-zone" id="photo-zone-mc">
         <div class="ph-icon">📷</div><p>Tomar foto / Seleccionar imagen (MC)</p>
         <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'mc')">
       </div>
+      <div class="upload-progress-bar" id="progress-mc"><div class="upload-progress-inner" id="progress-mc-inner"></div></div>
       <div class="photo-previews" id="photos-mc"></div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-title">📝 Observación</div>
     <div class="form-row" style="margin-bottom:0"><label>Observación / Diferencia</label><textarea id="e-obs" placeholder="Ej. Discrepancia en conteo..."></textarea></div>
@@ -901,7 +979,7 @@ function fillEmbarqueTab() {
         <div class="toggle-option" onclick="toggleEstadoEmbarque(this)">🔄 Herencia</div>
       </div>
     </div>
-    <div class="form-row hidden warn-note" id="e-pendiente-nota">⚠️ Este embarque quedará <strong>pendiente (herencia)</strong> para el siguiente turno.</div>
+    <div class="form-row hidden warn-note" id="e-pendiente-nota">⚠️ Este embarque quedará <strong>pendiente (herencia)</strong> para el siguiente turno. La evidencia fotográfica pasa a ser opcional.</div>
   </div>
   <button class="btn btn-primary" onclick="saveRecord('embarque')"><span>✓</span> Guardar Registro de Embarque</button>
   <div style="height:10px"></div>
@@ -915,14 +993,14 @@ function fillPendientesTab() {
   tab.innerHTML = `
   <div class="section-header">
     <div class="section-icon">⏳</div>
-    <div><div class="section-title">Herencias / Pendientes</div><div class="section-desc">Cortinas del turno anterior sin concluir</div></div>
+    <div><div class="section-title">Herencias / Pendientes</div><div class="section-desc">Disponibles para cualquier auditor del siguiente turno</div></div>
   </div>
   <div style="background:linear-gradient(135deg,#EAF2FF,#D0E8FF);border:1.5px solid var(--blue);border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
     <div style="font-size:22px">☁️</div>
-    <div style="flex:1"><div style="font-size:11px;font-weight:700;color:var(--blue)">SINCRONIZACIÓN</div><div style="font-size:10px;color:var(--blue);opacity:.8;margin-top:2px">Los pendientes se guardan en el servidor — disponibles en cualquier dispositivo.</div></div>
+    <div style="flex:1"><div style="font-size:11px;font-weight:700;color:var(--blue)">SINCRONIZACIÓN</div><div style="font-size:10px;color:var(--blue);opacity:.8;margin-top:2px">Cualquier auditor puede tomarlos.</div></div>
     <button onclick="syncPendientesDesdeNube()" style="background:var(--blue);color:white;border:none;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">🔄 Sincronizar</button>
   </div>
-  <div class="info-note">ℹ️ Los <strong>pendientes/herencias</strong> se generan cuando un registro se guarda con estado <em>Herencia</em>. El siguiente turno puede <strong>continuar el registro</strong> desde aquí.</div>
+  <div class="info-note">ℹ️ Los <strong>pendientes/herencias</strong> se generan cuando un registro se guarda como <em>Herencia</em>. Las <strong>asignaciones</strong> son embarques cargados desde Excel por el analista — cualquier auditor puede iniciarlos.</div>
   <div id="pendientes-container">
     <div style="text-align:center;padding:38px 20px;color:var(--gray)">
       <div style="font-size:46px;margin-bottom:10px">✅</div>
@@ -949,7 +1027,7 @@ function fillLogoutTab() {
 }
 
 // ══════════════════════════════════════════════════════
-//  ANALISTA DESPACHO — UN SOLO DOCUMENTO
+//  ANALISTA DESPACHO
 // ══════════════════════════════════════════════════════
 function buildAnalistaApp(nav, main) {
   const tabs = [
@@ -994,27 +1072,23 @@ function fillAnalistaTab() {
       <div class="card-title blue">✅ Embarque Encontrado</div>
       <div id="analista-datos-embarque" style="font-size:12px;color:var(--black);line-height:1.8;margin-bottom:12px"></div>
       <div class="accent-line"></div>
-
-      <!-- Datos Prime Despacho -->
       <div class="card-title blue" style="margin-top:10px">📦 Datos Despacho</div>
       <div class="form-row-2">
         <div><label>Cantidad MC <span class="req">*</span></label><input type="number" id="analista-cant-mc" min="0" placeholder="0"></div>
         <div><label>Cantidad Factura <span class="req">*</span></label><input type="number" id="analista-cant-factura" min="0" placeholder="0"></div>
       </div>
-
-      <!-- UN SOLO CAMPO para documento PDF/Word -->
       <div class="card-title blue" style="margin-top:10px">📄 Evidencia de Despacho</div>
-      <div class="ok-note">📌 Sube el documento de evidencia <strong>(PDF, Word)</strong> correspondiente a este embarque.</div>
+      <div class="ok-note">📌 Sube el documento de evidencia <strong>(PDF, Word, o imagen)</strong>.</div>
       <div class="doc-upload-zone" id="doc-zone-analista">
         <div class="ph-icon">📄</div>
         <p>Seleccionar archivo</p>
-        <span>PDF, DOC, DOCX aceptados</span>
-        <input type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onchange="handleAnalistaDoc(event)">
+        <span>PDF, DOC, DOCX, imagen aceptados</span>
+        <input type="file" accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onchange="handleAnalistaDoc(event)">
       </div>
+      <div class="upload-progress-bar" id="progress-analista-doc"><div class="upload-progress-inner" id="progress-analista-doc-inner"></div></div>
       <div id="analista-doc-preview"></div>
-
       <div style="height:12px"></div>
-      <button class="btn btn-blue" onclick="analistaGuardar()"><span>☁️</span> Guardar Datos y Subir Evidencia</button>
+      <button class="btn btn-blue" id="btn-analista-guardar" onclick="analistaGuardar()"><span>☁️</span> Guardar Datos y Subir Evidencia</button>
       <div style="height:7px"></div>
       <button class="btn btn-ghost" onclick="analistaCancelar()" style="margin-top:3px">Cancelar</button>
     </div>
@@ -1027,16 +1101,17 @@ function fillAnalistaTab() {
 }
 
 // ══════════════════════════════════════════════════════
-//  ANALISTA MESA DE CONTROL — DOS TARIMAS
+//  MESA DE CONTROL
 // ══════════════════════════════════════════════════════
 function buildMesaApp(nav, main) {
   const tabs = [
-    { id:'mesa', icon:'🟣', text:'Mesa Control' },
-    { id:'logout', icon:'🚪', text:'Salir' }
+    { id:'mesa-carga',   icon:'📋', text:'Carga'   },
+    { id:'mesa',         icon:'🟣', text:'MC'       },
+    { id:'logout',       icon:'🚪', text:'Salir'    }
   ];
   tabs.forEach(t => {
     const d = document.createElement('div');
-    d.className = 'nav-tab' + (t.id === 'mesa' ? ' active' : '');
+    d.className = 'nav-tab' + (t.id === 'mesa-carga' ? ' active' : '');
     d.setAttribute('data-tab', t.id);
     d.innerHTML = `<span class="tab-icon">${t.icon}</span>${t.text}`;
     d.onclick = () => switchTab(t.id);
@@ -1045,13 +1120,492 @@ function buildMesaApp(nav, main) {
   tabs.forEach(t => {
     const div = document.createElement('div');
     div.id = 'tab-' + t.id;
-    div.className = 'tab-content' + (t.id === 'mesa' ? ' active' : '');
+    div.className = 'tab-content' + (t.id === 'mesa-carga' ? ' active' : '');
     main.appendChild(div);
   });
+  fillMesaCargaTab();
   fillMesaTab();
   fillLogoutTabGenerico('tab-logout');
 }
 
+// ══════════════════════════════════════════════════════
+//  MESA — CARGA DE EMBARQUES (con cancelación integrada)
+// ══════════════════════════════════════════════════════
+function fillMesaCargaTab() {
+  const tab = document.getElementById('tab-mesa-carga');
+  if (!tab) return;
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon" style="background:linear-gradient(160deg,#E8DAEF,#C39BD3)">📋</div>
+    <div>
+      <div class="section-title">Carga de Embarques</div>
+      <div class="section-desc">Cualquier auditor puede tomar los pendientes</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title purple">📊 Pegar desde Excel</div>
+    <div style="font-size:11px;color:var(--gray);margin-bottom:8px">
+      Copia las columnas <strong>Tipo de Embarque · Unidad de Envío · Cliente · Destino</strong> (Tab entre columnas, Enter entre filas)
+    </div>
+    <textarea id="mesa-paste-area" rows="7"
+      placeholder="Exportación&#9;UE-45821&#9;WALMART&#9;B777&#10;Local&#9;UE-45822&#9;OXXO&#9;C104&#10;Exportación&#9;UE-45823&#9;SAMS&#9;C108"
+      style="font-family:monospace;font-size:12px;border:2px solid rgba(108,52,131,0.35);resize:vertical;background:#FAF5FF"
+      oninput="mesaParsePaste()"></textarea>
+    <div style="height:8px"></div>
+    
+  </div>
+
+  <div class="card">
+    <div class="card-title purple">✏️ Agregar Fila Manual</div>
+    <div class="form-row-4" style="margin-bottom:10px">
+      <div>
+        <label>Tipo <span class="req">*</span></label>
+        <select id="mesa-manual-tipo">
+          <option value="">—</option>
+          <option>Exportación</option><option>Local</option>
+          <option>Paletizado</option><option>Granel</option><option>Especial</option>
+        </select>
+      </div>
+      <div>
+        <label>Unidad <span class="req">*</span></label>
+        <input type="text" id="mesa-manual-unidad" placeholder="UE-00000">
+      </div>
+      <div>
+        <label>Cliente <span class="req">*</span></label>
+        <input type="text" id="mesa-manual-cliente" placeholder="WALMART">
+      </div>
+      <div>
+        <label>Destino</label>
+        <input type="text" id="mesa-manual-destino" placeholder="B777">
+      </div>
+    </div>
+    <button class="btn btn-purple btn-sm" style="width:auto" onclick="mesaAgregarManual()">+ Agregar Fila</button>
+  </div>
+
+  <div id="mesa-preview-card" class="hidden card">
+    <div class="card-title purple">
+      👁 Previsualización —
+      <span id="mesa-preview-count">0</span> fila(s) ·
+      <span id="mesa-preview-nuevas" style="color:var(--green)">0 nuevas</span> ·
+      <span id="mesa-preview-hechas" style="color:var(--gray)">0 ya completadas</span>
+    </div>
+    <div id="mesa-preview-table-wrap" style="overflow-x:auto;margin-bottom:12px"></div>
+
+    <div class="form-row" style="margin-bottom:12px">
+      <label>Nota para auditores</label>
+      <textarea id="mesa-carga-nota" placeholder="Instrucciones adicionales (opcional)..." style="min-height:50px"></textarea>
+    </div>
+
+    <button class="btn btn-purple" onclick="mesaEnviarAsignaciones()">
+      <span>📤</span> Enviar Pendientes
+    </button>
+    <div style="height:6px"></div>
+    <button class="btn btn-ghost" onclick="mesaLimpiarCarga()" style="margin-top:4px;color:var(--purple);border-color:var(--purple)">
+      🗑 Limpiar
+    </button>
+  </div>
+
+  <!-- CANCELACIÓN DE EMBARQUES — integrada en Carga -->
+  <div id="mesa-cancelar-section" class="card" style="border:2px solid rgba(192,57,43,0.3);background:linear-gradient(135deg,#fff,#FFF5F5)">
+    <div class="card-title" style="color:#C0392B;border-bottom-color:#C0392B">🚫 Cancelar Embarque</div>
+    <div style="font-size:11px;color:var(--gray);margin-bottom:10px">Selecciona un embarque activo para cancelarlo.</div>
+    <div id="mesa-cancelar-lista">
+      <div style="text-align:center;padding:18px;color:var(--gray);font-size:12px">Sin embarques activos cargados hoy.</div>
+    </div>
+  </div>
+
+  <div id="mesa-enviados-section" style="margin-top:4px"></div>`;
+
+  mesaRenderEnviados();
+  mesaRenderCancelarLista();
+}
+
+// ── Render lista de embarques cancelables ─────────────
+function mesaRenderCancelarLista() {
+  const sec = document.getElementById('mesa-cancelar-lista');
+  if (!sec) return;
+  const db = mesaGetEmbarquesDB();
+  const activos = Object.entries(db).filter(([,v]) => v.estado === 'pendiente');
+  if (!activos.length) {
+    sec.innerHTML = `<div style="text-align:center;padding:18px;color:var(--gray);font-size:12px">Sin embarques activos cargados hoy.</div>`;
+    return;
+  }
+  sec.innerHTML = activos.map(([unidad, rec]) => `
+    <div class="cancelar-embarque-row" onclick="abrirModalCancelar('${unidad}')">
+      <div class="cer-icon">🚛</div>
+      <div class="cer-unidad">${unidad} · ${rec.cliente||'—'}</div>
+      <div style="font-size:10px;color:#7A4500;margin-right:6px">${rec.tipo||'—'}</div>
+      <div class="cer-badge">Cancelar</div>
+    </div>`).join('');
+}
+
+function abrirModalCancelar(unidad) {
+  const db  = mesaGetEmbarquesDB();
+  const rec = db[unidad];
+  if (!rec) return;
+
+  document.getElementById('cancelar-modal-body').innerHTML = `
+    <div style="background:linear-gradient(135deg,#FFF8F0,#FFF3E0);border:1.5px solid #E07000;border-radius:10px;padding:12px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--black)">${unidad}</div>
+      <div style="font-size:11px;color:#7A4500;margin-top:3px">${rec.tipo||'—'} · ${rec.cliente||'—'}</div>
+    </div>
+    <div class="form-row">
+      <label style="color:#C0392B">Razón de Cancelación <span class="req">*</span></label>
+      <select id="modal-cancel-razon">
+        <option value="">— Seleccionar razón —</option>
+        <option>Unidad no se presentó</option>
+         <option>Unidad ineficiente</option>
+        <option>Cliente canceló</option>
+        <option>Problema con la mercancía</option>
+        <option>Error de planeación</option>
+        <option>Otra razón</option>
+      </select>
+    </div>
+    <div class="form-row" style="margin-bottom:14px">
+      <label style="color:#C0392B">Observaciones adicionales</label>
+      <textarea id="modal-cancel-obs" placeholder="Detalla la razón de la cancelación..." style="min-height:60px;border-color:rgba(192,57,43,0.4)"></textarea>
+    </div>
+    <button class="btn btn-danger" onclick="mesaConfirmarCancelacionModal('${unidad}')">
+      <span>🚫</span> Confirmar Cancelación
+    </button>`;
+
+  document.getElementById('cancelar-modal').classList.add('open');
+}
+
+async function mesaConfirmarCancelacionModal(unidad) {
+  const razon = document.getElementById('modal-cancel-razon')?.value || '';
+  if (!razon) { showToast('Selecciona una razón de cancelación','error'); return; }
+  const obs = (document.getElementById('modal-cancel-obs')?.value || '').trim();
+
+  // Find embarque id from pendientes or db
+  const db  = mesaGetEmbarquesDB();
+  const rec = db[unidad];
+  const pendiente = pendientes.find(p => {
+    const ue = p.unidad_envio || p.datos?.unidad_envio || '';
+    return ue.toUpperCase() === unidad.toUpperCase();
+  });
+  const embarqueId = pendiente?.id || rec?.pendiente_id || '';
+
+  const cancelBody = JSON.stringify({
+    action: 'cancel_embarque',
+    embarque_id: embarqueId,
+    razon_cancelacion: razon,
+    obs_cancelacion: obs,
+    analista_mesa: session.name,
+    fecha_cancelacion: new Date().toISOString()
+  });
+
+  showToast('⏳ Registrando cancelación...','');
+  try {
+    await fetch(API_URL,   { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: cancelBody });
+    if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: cancelBody });
+  } catch(e) { console.warn('Error cancelando embarque:', e); }
+
+  // Remove from pendientes
+  const pIdx = pendientes.findIndex(p => {
+    const ue = p.unidad_envio || p.datos?.unidad_envio || '';
+    return ue.toUpperCase() === unidad.toUpperCase();
+  });
+  if (pIdx !== -1) {
+    cloudDeletePendiente(pendientes[pIdx].id);
+    pendientes.splice(pIdx, 1);
+    saveState();
+    renderPendientes();
+  }
+
+  // Mark as cancelled in mesa DB
+  if (db[unidad]) {
+    db[unidad].estado = 'cancelado';
+    db[unidad].razon_cancelacion = razon;
+    mesaSetEmbarquesDB(db);
+  }
+
+  closeModal('cancelar-modal');
+  showToast(`🚫 Embarque ${unidad} cancelado — "${razon}"`, 'success');
+  mesaRenderEnviados();
+  mesaRenderCancelarLista();
+}
+
+// ══════════════════════════════════════════════════════
+//  ESTADO de embarques cargados por Mesa
+// ══════════════════════════════════════════════════════
+function mesaGetEmbarquesDB() {
+  try { return JSON.parse(localStorage.getItem('ap_mesa_embarques') || '{}'); } catch(e) { return {}; }
+}
+function mesaSetEmbarquesDB(db) {
+  localStorage.setItem('ap_mesa_embarques', JSON.stringify(db));
+}
+
+let mesaCargaFilas = [];
+
+function mesaParsePaste() {
+  const raw = (document.getElementById('mesa-paste-area')?.value || '').trim();
+  if (!raw) { mesaCargaFilas = []; mesaRenderPreview(); return; }
+  const db = mesaGetEmbarquesDB();
+  const nuevasFilas = [];
+  raw.split('\n').forEach((line) => {
+    const parts = line.split('\t').map(s => s.trim()).filter(Boolean);
+    if (!parts.length) return;
+    let tipo = '', unidad = '', cliente = '', destino = '';
+    if (parts.length === 1) { unidad = parts[0]; }
+    else if (parts.length === 2) { tipo = parts[0]; unidad = parts[1]; }
+    else if (parts.length === 3) { tipo = parts[0]; unidad = parts[1]; cliente = parts[2]; }
+    else { tipo = parts[0]; unidad = parts[1]; cliente = parts[2]; destino = parts[3]; }
+    unidad  = unidad.toUpperCase();
+    cliente = cliente.toUpperCase();
+    destino = destino.toUpperCase();
+    if (!unidad) return;
+    const rec = db[unidad];
+    const estado = rec ? rec.estado : 'nueva';
+    nuevasFilas.push({ tipo, unidad, cliente, destino, estado });
+  });
+  mesaCargaFilas = nuevasFilas;
+  mesaRenderPreview();
+}
+
+function mesaAgregarManual() {
+  const tipo    = document.getElementById('mesa-manual-tipo')?.value || '';
+  const unidad  = (document.getElementById('mesa-manual-unidad')?.value || '').trim().toUpperCase();
+  const cliente = (document.getElementById('mesa-manual-cliente')?.value || '').trim().toUpperCase();
+  const destino = (document.getElementById('mesa-manual-destino')?.value || '').trim().toUpperCase();
+  if (!unidad) { showToast('Ingresa la Unidad de Envío', 'error'); return; }
+  if (!tipo)   { showToast('Selecciona el Tipo de Embarque', 'error'); return; }
+  const db  = mesaGetEmbarquesDB();
+  const rec = db[unidad];
+  const estado = rec ? rec.estado : 'nueva';
+  mesaCargaFilas.push({ tipo, unidad, cliente, destino, estado });
+  mesaRenderPreview();
+  if (document.getElementById('mesa-manual-tipo'))    document.getElementById('mesa-manual-tipo').value   = '';
+  if (document.getElementById('mesa-manual-unidad'))  document.getElementById('mesa-manual-unidad').value = '';
+  if (document.getElementById('mesa-manual-cliente')) document.getElementById('mesa-manual-cliente').value= '';
+  if (document.getElementById('mesa-manual-destino')) document.getElementById('mesa-manual-destino').value= '';
+  showToast('✓ Fila agregada', 'success');
+}
+
+function mesaEliminarFila(idx) {
+  mesaCargaFilas.splice(idx, 1);
+  mesaRenderPreview();
+}
+
+function mesaRenderPreview() {
+  const card  = document.getElementById('mesa-preview-card');
+  const wrap  = document.getElementById('mesa-preview-table-wrap');
+  if (!card || !wrap) return;
+  if (!mesaCargaFilas.length) { card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+
+  const seenUnidades = new Set();
+  let nuevas = 0, completadas = 0, pendientes_act = 0, duplicadas = 0;
+  mesaCargaFilas.forEach(f => {
+    const isDup = seenUnidades.has(f.unidad);
+    if (!isDup) seenUnidades.add(f.unidad);
+    if (isDup) duplicadas++;
+    else if (f.estado === 'completado') completadas++;
+    else if (f.estado === 'pendiente')  pendientes_act++;
+    else nuevas++;
+  });
+
+  document.getElementById('mesa-preview-count').textContent  = mesaCargaFilas.length;
+  document.getElementById('mesa-preview-nuevas').textContent = `${nuevas + pendientes_act} por enviar`;
+  document.getElementById('mesa-preview-hechas').textContent = `${completadas} ya completadas`;
+
+  const seenRender = new Set();
+  let html = `<table class="preview-table">
+    <thead><tr>
+      <th>#</th><th>Tipo</th><th>Unidad de Envío</th><th>Cliente</th><th>Destino</th><th>Estado</th><th></th>
+    </tr></thead><tbody>`;
+
+  mesaCargaFilas.forEach((f, i) => {
+    const isDup = seenRender.has(f.unidad);
+    if (!isDup) seenRender.add(f.unidad);
+
+    let rowClass = '', statusHtml = '';
+    if (isDup) {
+      rowClass   = 'row-dup';
+      statusHtml = `<span class="col-status dup">Duplicado</span>`;
+    } else if (f.estado === 'completado') {
+      statusHtml = `<span class="col-status ok">✅ Completado</span>`;
+    } else if (f.estado === 'pendiente') {
+      rowClass   = 'row-ok';
+      statusHtml = `<span class="col-status" style="background:rgba(253,208,0,0.3);color:#8B6B00">⏳ Activo</span>`;
+    } else {
+      rowClass   = 'row-ok';
+      statusHtml = `<span class="col-status ok">✦ Nueva</span>`;
+    }
+
+    const delBtn = f.estado === 'completado'
+      ? `<span style="font-size:9px;color:var(--gray)">—</span>`
+      : `<button onclick="mesaEliminarFila(${i})" style="background:var(--red);color:white;border:none;border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer">✕</button>`;
+
+    html += `<tr class="${rowClass}">
+      <td>${i+1}</td>
+      <td>${f.tipo || '<em style="color:var(--gray)">—</em>'}</td>
+      <td><strong>${f.unidad}</strong></td>
+      <td>${f.cliente || '—'}</td>
+      <td>${f.destino || '—'}</td>
+      <td>${statusHtml}</td>
+      <td>${delBtn}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+async function mesaEnviarAsignaciones() {
+  const nota = document.getElementById('mesa-carga-nota')?.value.trim() || '';
+
+  const db = mesaGetEmbarquesDB();
+  const seenUnidades = new Set();
+  const paraEnviar = [];
+  mesaCargaFilas.forEach(f => {
+    if (seenUnidades.has(f.unidad)) return;
+    seenUnidades.add(f.unidad);
+    if (f.estado === 'completado') return;
+    paraEnviar.push(f);
+  });
+
+  if (!paraEnviar.length) {
+    showToast('No hay embarques nuevos para enviar', 'warning');
+    return;
+  }
+
+  const now     = new Date();
+  const batchId = 'BATCH-' + Date.now();
+
+  const nuevasPendientes = paraEnviar.map(f => {
+    const id = db[f.unidad]?.pendiente_id || ('AS' + Date.now() + Math.random().toString(36).slice(2,5));
+    return {
+      id,
+      batch_id:          batchId,
+      tipo_asignacion:   'embarque_externo',
+      modulo:            'embarque',
+      tipo_embarque:     f.tipo,
+      unidad_envio:      f.unidad,
+      cliente:           f.cliente,
+      destino:           f.destino || '',   // ← nuevo campo destino
+      turno_destino:     '',
+      cuadrilla_destino: '',
+      nota_supervisor:   nota,
+      supervisor:        session.name,
+      timestamp:         now.toISOString(),
+      fecha:             now.toISOString().slice(0, 10),
+      estado:            'Pendiente',
+      ultimo_turno:      'Global',
+      ultimo_auditor:    'Mesa: ' + session.name,
+      avance:            'Sin iniciar',
+      datos: { unidad_envio: f.unidad, cliente: f.cliente, tipo_carga: f.tipo, destino: f.destino||'', cortina: '', avance: 'Sin iniciar' }
+    };
+  });
+
+  paraEnviar.forEach((f, i) => {
+    db[f.unidad] = {
+      tipo:         f.tipo,
+      cliente:      f.cliente,
+      destino:      f.destino || '',
+      turno:        'Global',
+      cuadrilla:    'Global',
+      estado:       'pendiente',
+      pendiente_id: nuevasPendientes[i].id,
+      timestamp:    now.toISOString()
+    };
+  });
+  mesaSetEmbarquesDB(db);
+
+  const globalPend = JSON.parse(localStorage.getItem('ap_pendientes_global') || '[]');
+  const pendIds    = new Set(globalPend.map(p => p.id));
+  const merged     = [...globalPend];
+  nuevasPendientes.forEach(p => { if (!pendIds.has(p.id)) merged.push(p); });
+  localStorage.setItem('ap_pendientes_global', JSON.stringify(merged));
+
+  showToast('⏳ Enviando a la nube...', '');
+
+  for (const pend of nuevasPendientes) {
+    try {
+      const body = JSON.stringify({ action: 'save_pendiente', pendiente: pend });
+      await fetch(API_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+      if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+    } catch(e) {}
+  }
+
+  showToast(`✅ ${nuevasPendientes.length} embarque(s) publicados`, 'success');
+  mesaLimpiarCarga();
+  mesaRenderEnviados();
+  mesaRenderCancelarLista();
+}
+
+function mesaLimpiarCarga() {
+  mesaCargaFilas = [];
+  const pa = document.getElementById('mesa-paste-area');     if (pa) pa.value = '';
+  const pc = document.getElementById('mesa-preview-card');   if (pc) pc.classList.add('hidden');
+  const nt = document.getElementById('mesa-carga-nota');     if (nt) nt.value = '';
+}
+
+function mesaRenderEnviados() {
+  const sec = document.getElementById('mesa-enviados-section');
+  if (!sec) return;
+  const db = mesaGetEmbarquesDB();
+  const entries = Object.entries(db);
+  if (!entries.length) { sec.innerHTML = ''; return; }
+
+  const pendientes_count  = entries.filter(([,v]) => v.estado === 'pendiente').length;
+  const completados_count = entries.filter(([,v]) => v.estado === 'completado').length;
+  const cancelados_count  = entries.filter(([,v]) => v.estado === 'cancelado').length;
+
+  let html = `
+  <div style="background:white;border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid rgba(108,52,131,0.15)">
+    <div style="background:var(--purple);padding:11px 15px;display:flex;align-items:center;gap:8px">
+      <div style="font-size:16px">📊</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:white;text-transform:uppercase;flex:1">Embarques del Día</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.8)">
+        <span style="background:rgba(255,255,255,0.25);padding:2px 7px;border-radius:99px;margin-right:4px">⏳ ${pendientes_count}</span>
+        <span style="background:rgba(45,138,78,0.5);padding:2px 7px;border-radius:99px;margin-right:4px">✅ ${completados_count}</span>
+        ${cancelados_count ? `<span style="background:rgba(192,57,43,0.6);padding:2px 7px;border-radius:99px">🚫 ${cancelados_count}</span>` : ''}
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="preview-table" style="margin-top:0">
+        <thead><tr>
+          <th>Unidad</th><th>Cliente</th><th>Tipo</th><th>Destino</th><th>Estado</th>
+        </tr></thead><tbody>`;
+
+  const sorted = entries.sort((a, b) => a[1].estado === b[1].estado ? 0 : a[1].estado === 'completado' ? 1 : -1);
+
+  sorted.forEach(([unidad, rec]) => {
+    const esComp   = rec.estado === 'completado';
+    const esCan    = rec.estado === 'cancelado';
+    const statusHtml = esComp
+      ? `<span class="col-status ok">✅ Completado</span>`
+      : esCan
+        ? `<span class="col-status err">🚫 Cancelado${rec.razon_cancelacion ? '<br><span style="font-size:8px">'+rec.razon_cancelacion+'</span>' : ''}</span>`
+        : `<span class="col-status" style="background:rgba(253,208,0,0.3);color:#8B6B00">⏳ Pendiente</span>`;
+    html += `<tr style="${(esComp||esCan) ? 'opacity:0.6' : ''}">
+      <td><strong>${unidad}</strong></td>
+      <td>${rec.cliente || '—'}</td>
+      <td>${rec.tipo || '—'}</td>
+      <td>${rec.destino || '—'}</td>
+      <td>${statusHtml}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>
+  <div style="padding:10px 14px;border-top:1px solid rgba(108,52,131,0.1);display:flex;gap:8px;justify-content:flex-end">
+    <button class="btn btn-ghost btn-sm" style="color:var(--purple);border-color:var(--purple);width:auto" onclick="mesaLimpiarHistorial()">🗑 Limpiar historial</button>
+  </div></div>`;
+  sec.innerHTML = html;
+}
+
+function mesaLimpiarHistorial() {
+  if (!confirm('¿Limpiar todo el historial de embarques del día?')) return;
+  localStorage.removeItem('ap_mesa_embarques');
+  mesaRenderEnviados();
+  mesaRenderCancelarLista();
+  showToast('Historial limpiado', 'success');
+}
+
+// ══════════════════════════════════════════════════════
+//  MESA — TAB MC (sin campos de tipo/unidad/cliente/destino)
+// ══════════════════════════════════════════════════════
 function fillMesaTab() {
   const tab = document.getElementById('tab-mesa');
   if (!tab) return;
@@ -1075,67 +1629,38 @@ function fillMesaTab() {
       <div id="mesa-datos-embarque" style="font-size:12px;color:var(--black);line-height:1.8;margin-bottom:12px"></div>
       <div class="accent-line"></div>
 
-      <!-- TARIMA 1 — obligatoria -->
-      <div class="tarima-block">
+      <div class="card-title purple" style="margin-top:8px">📋 Cantidades (Mesa)</div>
+
+      <div class="tarima-block" style="margin-top:10px">
         <div class="tarima-block-title">🪵 Tarima 1 <span class="req" style="color:var(--red);margin-left:4px">*</span></div>
         <div class="form-row-2">
-          <div>
-            <label>Cant. Prime T1 <span class="req">*</span></label>
-            <input type="number" id="mesa-prime-t1" min="0" placeholder="0">
-          </div>
-          <div>
-            <label>Tipo Tarima T1 <span class="req">*</span></label>
-            <select id="mesa-tipo-t1">
-              <option value="">— Tipo —</option>${tipoOpts}
-            </select>
-          </div>
+          <div><label>Cant. Prime T1 <span class="req">*</span></label><input type="number" id="mesa-prime-t1" min="0" placeholder="0"></div>
+          <div><label>Tipo Tarima T1 <span class="req">*</span></label><select id="mesa-tipo-t1"><option value="">— Tipo —</option>${tipoOpts}</select></div>
         </div>
       </div>
-
-      <!-- TARIMA 2 — opcional -->
       <div class="tarima-block">
         <div class="tarima-block-title">🪵 Tarima 2 <span class="tarima-optional">Opcional</span></div>
         <div class="form-row-2">
-          <div>
-            <label>Cant. Prime T2</label>
-            <input type="number" id="mesa-prime-t2" min="0" placeholder="0">
-          </div>
-          <div>
-            <label>Tipo Tarima T2</label>
-            <select id="mesa-tipo-t2">
-              <option value="">— Tipo —</option>${tipoOpts}
-            </select>
-          </div>
+          <div><label>Cant. Prime T2</label><input type="number" id="mesa-prime-t2" min="0" placeholder="0"></div>
+          <div><label>Tipo Tarima T2</label><select id="mesa-tipo-t2"><option value="">— Tipo —</option>${tipoOpts}</select></div>
         </div>
       </div>
-
-      <!-- Cant. MC y Tipo Global -->
       <div class="form-row-2">
-        <div>
-          <label>Cantidad MC <span class="req">*</span></label>
-          <input type="number" id="mesa-cant-mc" min="0" placeholder="0">
-        </div>
-        <div>
-          <label>Tipo Tarima Global <span style="font-size:10px;background:rgba(45,138,78,0.12);color:#2D8A4E;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:4px">Opcional</span></label>
-          <select id="mesa-tipo-global">
-            <option value="">— Tipo global —</option>${tipoOpts}
-          </select>
-        </div>
+        <div><label>Cantidad MC <span class="req">*</span></label><input type="number" id="mesa-cant-mc" min="0" placeholder="0"></div>
+        <div><label>Tipo Tarima Global <span style="font-size:10px;background:rgba(45,138,78,0.12);color:#2D8A4E;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:4px">Opcional</span></label><select id="mesa-tipo-global"><option value="">— Tipo global —</option>${tipoOpts}</select></div>
       </div>
-
-      <!-- UNA FOTO DE EVIDENCIA -->
       <div class="card-title purple" style="margin-top:10px">📸 Evidencia</div>
-      <div class="ok-note">📌 Sube la evidencia fotográfica correspondiente.</div>
+      <div class="ok-note">📌 Se comprime automáticamente antes de subir para mayor velocidad.</div>
       <div class="photo-zone" id="photo-zone-mesa">
         <div class="ph-icon" style="font-size:28px">📷</div><p>Tomar foto / Subir archivo</p>
         <input type="file" accept="image/*,application/pdf" capture="environment" onchange="handleMesaFoto(event)">
       </div>
+      <div class="upload-progress-bar" id="progress-mesa-foto"><div class="upload-progress-inner" id="progress-mesa-foto-inner"></div></div>
       <div id="mesa-foto-preview" style="margin-top:9px"></div>
-
       <div style="height:12px"></div>
-      <button class="btn btn-purple" onclick="mesaGuardar()"><span>☁️</span> Guardar Datos Mesa de Control</button>
+      <button class="btn btn-purple" id="btn-mesa-guardar" onclick="mesaGuardar()"><span>☁️</span> Guardar Datos Mesa de Control</button>
       <div style="height:7px"></div>
-      <button class="btn btn-ghost" onclick="mesaCancelar()" style="margin-top:3px">Cancelar</button>
+      <button class="btn btn-ghost" onclick="mesaCancelar()" style="margin-top:3px">Cerrar</button>
     </div>
   </div>
   <div id="mesa-sin-resultado" class="hidden" style="text-align:center;padding:28px 20px;color:var(--gray)">
@@ -1176,7 +1701,7 @@ function buildInventarioApp(nav, main) {
 function fillInvEmbarqueTab() {
   const tab = document.getElementById('tab-inv-embarque');
   if (!tab) return;
-  const tipoOpts  = TIPOS_TARIMA.map(t=>`<option value="${t}">${t}</option>`).join('');
+  const tipoOpts   = TIPOS_TARIMA.map(t=>`<option value="${t}">${t}</option>`).join('');
   const plantaOpts = PLANTAS_DESTINO.map(p=>`<option value="${p}">${p}</option>`).join('');
   tab.innerHTML = `
   <div class="section-header">
@@ -1186,14 +1711,8 @@ function fillInvEmbarqueTab() {
   <div class="card">
     <div class="card-title green">📋 Datos del Embarque</div>
     <div class="form-row-2">
-      <div>
-        <label>Cortina (DOOR) <span class="req">*</span></label>
-        <div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="inv-e-cortina" placeholder="000" min="1"></div>
-      </div>
-      <div>
-        <label>Núm. Remolque <span class="req">*</span></label>
-        <input type="text" id="inv-e-remolque" placeholder="Núm. remolque">
-      </div>
+      <div><label>Cortina (DOOR) <span class="req">*</span></label><div class="prefix-group"><span class="prefix-label">DOOR</span><input type="number" id="inv-e-cortina" placeholder="000" min="1"></div></div>
+      <div><label>Núm. Remolque <span class="req">*</span></label><input type="text" id="inv-e-remolque" placeholder="Núm. remolque"></div>
     </div>
     <div class="form-row">
       <label>Planta Destino <span class="req">*</span></label>
@@ -1209,16 +1728,8 @@ function fillInvEmbarqueTab() {
   <div class="card">
     <div class="card-title green">🪵 Detalle de Tarima</div>
     <div class="form-row-2">
-      <div>
-        <label>Cantidad de Tarimas <span class="req">*</span></label>
-        <input type="number" id="inv-e-cantidad" placeholder="0" min="0">
-      </div>
-      <div>
-        <label>Tipo de Tarima <span class="req">*</span></label>
-        <select id="inv-e-tipo-tarima">
-          <option value="">— Tipo —</option>${tipoOpts}
-        </select>
-      </div>
+      <div><label>Cantidad de Tarimas <span class="req">*</span></label><input type="number" id="inv-e-cantidad" placeholder="0" min="0"></div>
+      <div><label>Tipo de Tarima <span class="req">*</span></label><select id="inv-e-tipo-tarima"><option value="">— Tipo —</option>${tipoOpts}</select></div>
     </div>
     <div class="form-row">
       <label>Estado <span class="req">*</span></label>
@@ -1235,7 +1746,6 @@ function fillInvEmbarqueTab() {
   <button class="btn btn-green" onclick="saveInvEmbarque()"><span>✓</span> Guardar Embarque de Tarimas</button>`;
 }
 
-/* ─── INV. STOCK — SIMPLIFICADO (sin Ini/Fin) ─────────── */
 function fillInvStockTab() {
   const tab = document.getElementById('tab-inv-stock');
   if (!tab) return;
@@ -1249,15 +1759,11 @@ function fillInvStockTab() {
   ${buildStockSection('blanca','BLANCA','blanca')}
   <div class="card">
     <div class="card-title green">📝 Observaciones Generales</div>
-    <div class="form-row" style="margin-bottom:0">
-      <label>Notas</label>
-      <textarea id="inv-s-obs" placeholder="Observaciones generales del inventario..."></textarea>
-    </div>
+    <div class="form-row" style="margin-bottom:0"><label>Notas</label><textarea id="inv-s-obs" placeholder="Observaciones generales del inventario..."></textarea></div>
   </div>
   <button class="btn btn-green" onclick="saveInvStock()"><span>✓</span> Guardar Inventario de Stock</button>`;
 }
 
-// Stock: solo Total + Buena + Dañada + Inspeccionar + movimientos (sin ini/fin)
 function buildStockSection(tipo, label, colorClass) {
   return `
   <div class="stock-section">
@@ -1275,22 +1781,10 @@ function buildStockSection(tipo, label, colorClass) {
       </div>
       <div class="mov-block">
         <div class="stock-sub-label">Movimientos</div>
-        <div class="mov-row">
-          <div class="mov-label">Entrada tarima blanca interna</div>
-          <input type="number" class="mov-input" id="inv-s-${tipo}-entrada-blanca" min="0" placeholder="0">
-        </div>
-        <div class="mov-row">
-          <div class="mov-label">Salida tarima blanca</div>
-          <input type="number" class="mov-input" id="inv-s-${tipo}-salida-blanca" min="0" placeholder="0">
-        </div>
-        <div class="mov-row">
-          <div class="mov-label">Salida tarima OP.SMO</div>
-          <input type="number" class="mov-input" id="inv-s-${tipo}-salida-opsmo" min="0" placeholder="0">
-        </div>
-        <div class="mov-row">
-          <div class="mov-label">Salida tarima fitosanitaria</div>
-          <input type="number" class="mov-input" id="inv-s-${tipo}-salida-fito" min="0" placeholder="0">
-        </div>
+        <div class="mov-row"><div class="mov-label">Entrada tarima blanca interna</div><input type="number" class="mov-input" id="inv-s-${tipo}-entrada-blanca" min="0" placeholder="0"></div>
+        <div class="mov-row"><div class="mov-label">Salida tarima blanca</div><input type="number" class="mov-input" id="inv-s-${tipo}-salida-blanca" min="0" placeholder="0"></div>
+        <div class="mov-row"><div class="mov-label">Salida tarima OP.SMO</div><input type="number" class="mov-input" id="inv-s-${tipo}-salida-opsmo" min="0" placeholder="0"></div>
+        <div class="mov-row"><div class="mov-label">Salida tarima fitosanitaria</div><input type="number" class="mov-input" id="inv-s-${tipo}-salida-fito" min="0" placeholder="0"></div>
       </div>
     </div>
   </div>`;
@@ -1398,6 +1892,29 @@ function toggleEstadoEmbarque(el) {
   const esHer = estadoEl && (estadoEl.textContent.includes('Herencia')||estadoEl.textContent.includes('Pendiente'));
   const n = document.getElementById('e-pendiente-nota');
   if (n) n.classList.toggle('hidden', !esHer);
+
+  const reqEmbarque = document.getElementById('req-foto-embarque');
+  const reqMC       = document.getElementById('req-foto-mc');
+  const badgeEmb    = document.getElementById('herencia-foto-embarque-badge');
+  const badgeMC     = document.getElementById('herencia-foto-mc-badge');
+  const zoneEmb     = document.getElementById('photo-zone-embarque-general');
+  const zoneMC      = document.getElementById('photo-zone-mc');
+
+  if (esHer) {
+    if (reqEmbarque) reqEmbarque.style.display = 'none';
+    if (reqMC)       reqMC.style.display       = 'none';
+    if (badgeEmb)    badgeEmb.classList.remove('hidden');
+    if (badgeMC)     badgeMC.classList.remove('hidden');
+    if (zoneEmb)     zoneEmb.classList.add('opcional');
+    if (zoneMC)      zoneMC.classList.add('opcional');
+  } else {
+    if (reqEmbarque) reqEmbarque.style.display = 'inline';
+    if (reqMC)       reqMC.style.display       = 'inline';
+    if (badgeEmb)    badgeEmb.classList.add('hidden');
+    if (badgeMC)     badgeMC.classList.add('hidden');
+    if (zoneEmb)     zoneEmb.classList.remove('opcional');
+    if (zoneMC)      zoneMC.classList.remove('opcional');
+  }
 }
 function showArmadoSub() {
   const val = getToggleValue('a-subtipo');
@@ -1405,21 +1922,6 @@ function showArmadoSub() {
   const det = document.getElementById('armado-detalle-fields');
   if (esp) esp.classList.toggle('hidden', val !== 'Armado Especial');
   if (det) det.classList.toggle('hidden', val !== 'A Detalle');
-}
-function toggleClienteOtro() {
-  const sel = document.getElementById('ad-cliente-select');
-  const row = document.getElementById('ad-cliente-otro-row');
-  if (row) { row.classList.toggle('hidden', sel.value !== 'Otro'); if (sel.value !== 'Otro') document.getElementById('ad-cliente-otro').value = ''; }
-}
-function toggleClienteEmbarqueOtro() {
-  const sel = document.getElementById('e-cliente');
-  const row = document.getElementById('e-cliente-otro-row');
-  if (row) { row.classList.toggle('hidden', sel.value !== 'Otro'); if (sel.value !== 'Otro') document.getElementById('e-cliente-otro').value = ''; }
-}
-function toggleClienteAEOtro() {
-  const sel = document.getElementById('ae-cliente');
-  const row = document.getElementById('ae-cliente-otro-row');
-  if (row) { row.classList.toggle('hidden', sel.value !== 'Otro'); if (sel.value !== 'Otro') document.getElementById('ae-cliente-otro').value = ''; }
 }
 function toggleMCEvidencia(el) {
   const esInc = el.textContent.includes('Incorrecto');
@@ -1429,19 +1931,32 @@ function toggleMCEvidencia(el) {
 }
 
 // ══════════════════════════════════════════════════════
-//  PHOTOS (AUDITOR)
+//  PHOTOS — with compression + progress bar
 // ══════════════════════════════════════════════════════
-function handlePhotos(event, prefix) {
-  Array.from(event.target.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      if (!photos[prefix]) photos[prefix] = [];
-      photos[prefix].push({ name: file.name, data: e.target.result });
-      renderPhotos(prefix);
-    };
-    reader.readAsDataURL(file);
-  });
+function showProgress(prefix, pct) {
+  const bar   = document.getElementById('progress-' + prefix);
+  const inner = document.getElementById('progress-' + prefix + '-inner');
+  if (!bar || !inner) return;
+  bar.classList.toggle('visible', pct < 100);
+  inner.style.width = pct + '%';
 }
+
+async function handlePhotos(event, prefix) {
+  const files = Array.from(event.target.files);
+  if (!photos[prefix]) photos[prefix] = [];
+  let done = 0;
+  showProgress(prefix, 0);
+  for (const file of files) {
+    const compressed = await compressImage(file, 1200, 1200, 0.75);
+    photos[prefix].push(compressed);
+    done++;
+    showProgress(prefix, Math.round(done / files.length * 90));
+  }
+  renderPhotos(prefix);
+  showProgress(prefix, 100);
+  setTimeout(() => showProgress(prefix, 101), 800);
+}
+
 function renderPhotos(prefix) {
   const c = document.getElementById('photos-' + prefix);
   if (!c || !photos[prefix]) return;
@@ -1454,25 +1969,25 @@ function renderPhotos(prefix) {
 function deletePhoto(prefix, idx) { photos[prefix].splice(idx, 1); renderPhotos(prefix); }
 
 // ══════════════════════════════════════════════════════
-//  ANALISTA DESPACHO — DOCUMENTO ÚNICO
+//  ANALISTA DOC
 // ══════════════════════════════════════════════════════
-function handleAnalistaDoc(event) {
+async function handleAnalistaDoc(event) {
   const file = event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    analistaDoc = { name: file.name, data: e.target.result, type: file.type, size: file.size };
-    renderAnalistaDocPreview();
-    showToast('✓ Documento cargado', 'success');
-  };
-  reader.readAsDataURL(file);
+  showProgress('analista-doc', 10);
+  const result = await compressImage(file, 1400, 1400, 0.80);
+  analistaDoc = { name: file.name, data: result.data, type: file.type, size: file.size };
+  showProgress('analista-doc', 100);
+  setTimeout(() => showProgress('analista-doc', 101), 800);
+  renderAnalistaDocPreview();
+  showToast('✓ Documento listo', 'success');
 }
 function renderAnalistaDocPreview() {
   const prev = document.getElementById('analista-doc-preview');
   if (!prev) return;
   if (!analistaDoc) { prev.innerHTML = ''; return; }
   const ext = analistaDoc.name.split('.').pop().toUpperCase();
-  const icon = ext === 'PDF' ? '📕' : '📘';
+  const icon = ext === 'PDF' ? '📕' : analistaDoc.type.startsWith('image/') ? '🖼️' : '📘';
   const kb = Math.round(analistaDoc.size / 1024);
   prev.innerHTML = `
   <div class="doc-preview">
@@ -1492,27 +2007,36 @@ function clearAnalistaDoc() {
 }
 
 async function analistaBuscar() {
-  const unidad = (document.getElementById('analista-buscar-unidad').value || '').trim();
+  const unidad = (document.getElementById('analista-buscar-unidad').value || '').trim().toUpperCase();
   if (!unidad) { showToast('Ingresa el número de unidad/envío','error'); return; }
   showToast('🔄 Buscando en servidor...','');
   const cbName = '_apAnCb_' + Date.now();
   const script = document.createElement('script');
-  script.src = API_URL + '?action=get_embarques&unidad=' + encodeURIComponent(unidad) + '&callback=' + cbName;
+  script.src = API_URL + '?action=get_embarques&callback=' + cbName;
   window[cbName] = function(data) {
     delete window[cbName]; script.remove();
-    if (data && data.ok && data.embarques && data.embarques.length > 0) {
-      analistaEmbarqueActual = data.embarques[0];
-      analistaDoc = null;
-      mostrarResultadoAnalista(data.embarques[0]);
+    if (data && data.ok && data.embarques) {
+      const exact = data.embarques.find(e => e.unidad_envio && e.unidad_envio.toString().toUpperCase() === unidad);
+      if (exact) {
+        analistaEmbarqueActual = exact;
+        analistaDoc = null;
+        mostrarResultadoAnalista(exact);
+      } else {
+        document.getElementById('analista-resultado').classList.add('hidden');
+        document.getElementById('analista-sin-resultado').classList.remove('hidden');
+        showToast('⚠️ Esta unidad no existe en el sistema','error');
+      }
     } else {
       document.getElementById('analista-resultado').classList.add('hidden');
       document.getElementById('analista-sin-resultado').classList.remove('hidden');
+      showToast('⚠️ Esta unidad no existe en el sistema','error');
     }
   };
   setTimeout(() => {
     if (window[cbName]) { delete window[cbName]; script.remove();
       document.getElementById('analista-resultado').classList.add('hidden');
       document.getElementById('analista-sin-resultado').classList.remove('hidden');
+      showToast('⚠️ Esta unidad no existe en el sistema','error');
     }
   }, 8000);
   document.head.appendChild(script);
@@ -1549,28 +2073,27 @@ async function analistaGuardar() {
   const cuadrilla   = analistaEmbarqueActual.cuadrilla || session.squad || 'SIN_CUADRILLA';
   const unidad      = analistaEmbarqueActual.unidad_envio || 'SIN_UNIDAD';
   const cortina     = analistaEmbarqueActual.cortina || 'SIN_CORTINA';
+
+  const btn = document.getElementById('btn-analista-guardar');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...'; }
   showToast('⏳ Guardando datos...','');
 
-  // Guardar datos en el sheet (acción: update_analista_prime por compatibilidad)
   try {
     const primeBody = JSON.stringify({
-      action:        'update_analista_prime',
-      embarque_id:   embarqueId,
-      cant_mc:       cantMC,
-      cant_factura:  cantFactura,
-      analista:      session.name,
-      fecha_analista: new Date().toISOString()
+      action:'update_analista_prime', embarque_id:embarqueId,
+      cant_mc:cantMC, cant_factura:cantFactura,
+      analista:session.name, fecha_analista: new Date().toISOString()
     });
     await fetch(API_URL,   { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: primeBody });
     if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: primeBody });
   } catch(e) { console.warn('Error guardando Despacho:', e); }
 
-  // Subir documento único a carpeta Despacho/
   if (analistaDoc) {
+    showToast('⏳ Subiendo evidencia...','');
     try {
       const base64data = analistaDoc.data.split(',')[1];
       const mimeType   = analistaDoc.data.split(';')[0].split(':')[1] || 'application/pdf';
-      const filename   = `despacho_${unidad}_${Date.now()}.${analistaDoc.name.split('.').pop()||'pdf'}`;
+      const filename   = `despacho_${unidad}_${Date.now()}.${analistaDoc.name.split('.').pop()||'jpg'}`;
       const body = JSON.stringify({
         action:'upload_scan', embarque_id:embarqueId, filename, base64data, mimeType,
         cuadrilla, unidad, cortina, subfolder:'Despacho'
@@ -1580,7 +2103,8 @@ async function analistaGuardar() {
     } catch(e) { console.warn('Error subiendo documento despacho:', e); }
   }
 
-  showToast(`✅ Datos Despacho guardados${analistaDoc?' · Documento subido':''}`, 'success');
+  if (btn) { btn.disabled = false; btn.innerHTML = '<span>☁️</span> Guardar Datos y Subir Evidencia'; }
+  showToast(`✅ Datos Despacho guardados${analistaDoc?' · Evidencia subida':''}`, 'success');
   analistaCancelar();
 }
 
@@ -1594,48 +2118,57 @@ function analistaCancelar() {
 }
 
 // ══════════════════════════════════════════════════════
-//  MESA DE CONTROL — DOS TARIMAS
+//  MESA DE CONTROL — foto comprimida
 // ══════════════════════════════════════════════════════
-function handleMesaFoto(event) {
+async function handleMesaFoto(event) {
   const file = event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    mesaFoto = { name: file.name, data: e.target.result, type: file.type };
-    const preview = document.getElementById('mesa-foto-preview');
-    if (!preview) return;
-    if (file.type.startsWith('image/')) {
-      preview.innerHTML = `<div style="border-radius:9px;overflow:hidden;max-height:160px;display:flex;justify-content:center;background:#000;margin-top:8px"><img src="${e.target.result}" style="max-width:100%;max-height:160px;object-fit:contain"></div><div style="font-size:10px;color:var(--purple);font-weight:700;margin-top:5px">✓ ${file.name}</div>`;
-    } else {
-      preview.innerHTML = `<div class="doc-preview" style="margin-top:8px"><div class="doc-preview-icon">📄</div><div class="doc-preview-info"><div class="doc-preview-name">${file.name}</div></div></div>`;
-    }
-    showToast('✓ Evidencia lista', 'success');
-  };
-  reader.readAsDataURL(file);
+  showProgress('mesa-foto', 10);
+  const compressed = await compressImage(file, 1200, 1200, 0.75);
+  mesaFoto = { name: file.name, data: compressed.data, type: file.type };
+  showProgress('mesa-foto', 100);
+  setTimeout(() => showProgress('mesa-foto', 101), 800);
+  const preview = document.getElementById('mesa-foto-preview');
+  if (!preview) return;
+  if (file.type.startsWith('image/')) {
+    preview.innerHTML = `<div style="border-radius:9px;overflow:hidden;max-height:160px;display:flex;justify-content:center;background:#000;margin-top:8px"><img src="${compressed.data}" style="max-width:100%;max-height:160px;object-fit:contain"></div><div style="font-size:10px;color:var(--purple);font-weight:700;margin-top:5px">✓ ${file.name}</div>`;
+  } else {
+    preview.innerHTML = `<div class="doc-preview" style="margin-top:8px"><div class="doc-preview-icon">📄</div><div class="doc-preview-info"><div class="doc-preview-name">${file.name}</div></div></div>`;
+  }
+  showToast('✓ Evidencia lista', 'success');
 }
 
 async function mesaBuscar() {
-  const unidad = (document.getElementById('mesa-buscar-unidad').value || '').trim();
+  const unidad = (document.getElementById('mesa-buscar-unidad').value || '').trim().toUpperCase();
   if (!unidad) { showToast('Ingresa el número de unidad/envío','error'); return; }
   showToast('🔄 Buscando en servidor...','');
   const cbName = '_apMesaCb_' + Date.now();
   const script = document.createElement('script');
-  script.src = API_URL + '?action=get_embarques&unidad=' + encodeURIComponent(unidad) + '&callback=' + cbName;
+  script.src = API_URL + '?action=get_embarques&callback=' + cbName;
   window[cbName] = function(data) {
     delete window[cbName]; script.remove();
-    if (data && data.ok && data.embarques && data.embarques.length > 0) {
-      mesaEmbarqueActual = data.embarques[0];
-      mesaFoto = null;
-      mostrarResultadoMesa(data.embarques[0]);
+    if (data && data.ok && data.embarques) {
+      const exact = data.embarques.find(e => e.unidad_envio && e.unidad_envio.toString().toUpperCase() === unidad);
+      if (exact) {
+        mesaEmbarqueActual = exact;
+        mesaFoto = null;
+        mostrarResultadoMesa(exact);
+      } else {
+        document.getElementById('mesa-resultado').classList.add('hidden');
+        document.getElementById('mesa-sin-resultado').classList.remove('hidden');
+        showToast('⚠️ Esta unidad no existe en el sistema','error');
+      }
     } else {
       document.getElementById('mesa-resultado').classList.add('hidden');
       document.getElementById('mesa-sin-resultado').classList.remove('hidden');
+      showToast('⚠️ Esta unidad no existe en el sistema','error');
     }
   };
   setTimeout(() => {
     if (window[cbName]) { delete window[cbName]; script.remove();
       document.getElementById('mesa-resultado').classList.add('hidden');
       document.getElementById('mesa-sin-resultado').classList.remove('hidden');
+      showToast('⚠️ Esta unidad no existe en el sistema','error');
     }
   }, 8000);
   document.head.appendChild(script);
@@ -1658,7 +2191,7 @@ function mostrarResultadoMesa(emb) {
       <span style="color:var(--gray);font-weight:700;font-size:11px">${c[0]}</span>
       <span style="font-weight:600;font-size:12px">${c[1]}</span>
     </div>`).join('');
-  // Limpiar campos
+
   ['mesa-prime-t1','mesa-prime-t2','mesa-cant-mc'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   ['mesa-tipo-t1','mesa-tipo-t2','mesa-tipo-global'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   const prev = document.getElementById('mesa-foto-preview'); if(prev) prev.innerHTML='';
@@ -1676,34 +2209,31 @@ async function mesaGuardar() {
   const cantMC       = parseInt(document.getElementById('mesa-cant-mc').value) || 0;
   const tipoGlobal   = document.getElementById('mesa-tipo-global').value || '';
 
-  if (!cantPrimeT1 && cantPrimeT1 !== 0) { showToast('Ingresa la Cant. Prime T1','error'); return; }
   if (!tipoT1) { showToast('Selecciona el Tipo de Tarima T1','error'); return; }
 
   const embarqueId = mesaEmbarqueActual.id || '';
   const cuadrilla  = mesaEmbarqueActual.cuadrilla || session.squad || 'SIN_CUADRILLA';
   const unidad     = mesaEmbarqueActual.unidad_envio || 'SIN_UNIDAD';
   const cortina    = mesaEmbarqueActual.cortina || 'SIN_CORTINA';
+
+  const btn = document.getElementById('btn-mesa-guardar');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...'; }
   showToast('⏳ Guardando datos Mesa de Control...','');
 
   try {
     const body = JSON.stringify({
-      action:           'update_mesa_control',
-      embarque_id:      embarqueId,
-      cant_prime_t1:    cantPrimeT1,
-      tipo_tarima_t1:   tipoT1,
-      cant_prime_t2:    cantPrimeT2,
-      tipo_tarima_t2:   tipoT2,
-      cant_mc_mesa:     cantMC,
-      tipo_tarima_global: tipoGlobal,
-      analista_mesa:    session.name,
-      fecha_mesa:       new Date().toISOString()
+      action:'update_mesa_control', embarque_id:embarqueId,
+      cant_prime_t1:cantPrimeT1, tipo_tarima_t1:tipoT1,
+      cant_prime_t2:cantPrimeT2, tipo_tarima_t2:tipoT2,
+      cant_mc_mesa:cantMC, tipo_tarima_global:tipoGlobal,
+      analista_mesa:session.name, fecha_mesa:new Date().toISOString()
     });
     await fetch(API_URL,   { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
     if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
   } catch(e) { console.warn('Error guardando Mesa Control:', e); }
 
-  // Subir foto de evidencia a Mesa de Control/
   if (mesaFoto) {
+    showToast('⏳ Subiendo evidencia...','');
     try {
       const base64data = mesaFoto.data.split(',')[1];
       const mimeType   = mesaFoto.data.split(';')[0].split(':')[1] || 'image/jpeg';
@@ -1717,6 +2247,7 @@ async function mesaGuardar() {
     } catch(e) { console.warn('Error subiendo evidencia mesa:', e); }
   }
 
+  if (btn) { btn.disabled = false; btn.innerHTML = '<span>☁️</span> Guardar Datos Mesa de Control'; }
   showToast('✅ Datos Mesa de Control guardados', 'success');
   mesaCancelar();
 }
@@ -1732,7 +2263,6 @@ function mesaCancelar() {
 // ══════════════════════════════════════════════════════
 //  INVENTARIO — GUARDAR
 // ══════════════════════════════════════════════════════
-// Stock: sin ini/fin
 function getStockTarima(tipo) {
   const g = id => parseInt(document.getElementById(`inv-s-${tipo}-${id}`)?.value) || 0;
   return {
@@ -1816,7 +2346,7 @@ async function sendPayload(payload) {
 function isUnitDuplicate(modulo, unit, excludeId = null) {
   const list = records[modulo] || [];
   if (list.some(rec => rec.unidad_envio === unit && (excludeId === null || rec.id !== excludeId))) return true;
-  return pendientes.some(p => p.modulo === modulo && p.datos.unidad_envio === unit && (excludeId === null || p.id !== excludeId));
+  return pendientes.some(p => p.modulo === modulo && p.datos?.unidad_envio === unit && (excludeId === null || p.id !== excludeId));
 }
 
 // ══════════════════════════════════════════════════════
@@ -1861,10 +2391,8 @@ function saveRecord(type) {
       if (!unidad) { showToast('Ingresa la unidad de envío','error'); return; }
       const herenciaId=document.getElementById('ae-herencia-id').value;
       if (!herenciaId&&isUnitDuplicate('armado',unidad)) { showToast(`⚠️ La unidad ${unidad} ya está registrada.`,'error'); return; }
-      const clienteSel=document.getElementById('ae-cliente').value, clienteOtro=document.getElementById('ae-cliente-otro')?.value.trim()||'';
-      const cliente=clienteSel==='Otro'?clienteOtro:clienteSel;
-      if (!clienteSel) { showToast('Selecciona el Cliente','error'); return; }
-      if (clienteSel==='Otro'&&!clienteOtro) { showToast('Especifica el nombre del cliente','error'); return; }
+      const cliente=(document.getElementById('ae-cliente-txt')?.value||'').trim();
+      if (!cliente) { showToast('Ingresa el nombre del cliente','error'); return; }
       const cortinaNum=document.getElementById('ae-cortina').value.trim();
       if (!cortinaNum) { showToast('La Cortina es obligatoria','error'); return; }
       const avance=document.getElementById('ae-avance').value;
@@ -1878,9 +2406,7 @@ function saveRecord(type) {
       const cortina='DOOR'+cortinaNum, montaNum=document.getElementById('ae-monta').value.trim();
       record={...record,subtipo:'Armado Especial',unidad_envio:unidad,cliente,cortina,usuario_monta:montaNum?'SMO'+montaNum:'',avance,chep:parseInt(chepVal)||0,blancas:parseInt(blancasVal)||0,ubicacion:document.getElementById('ae-ubicacion').value.trim(),estado,fotos_count:(photos['ae']||[]).length};
       uploadPhotos([...(photos['ae']||[])],unidad,cortina,session.date,session.squad,'armado_especial');
-      clearField(['ae-unidad','ae-cortina','ae-monta','ae-chep','ae-blancas','ae-ubicacion','ae-cliente-otro']);
-      const sel=document.getElementById('ae-cliente'); if(sel) sel.value='';
-      const row=document.getElementById('ae-cliente-otro-row'); if(row) row.classList.add('hidden');
+      clearField(['ae-unidad','ae-cortina','ae-monta','ae-chep','ae-blancas','ae-ubicacion','ae-cliente-txt']);
       document.getElementById('ae-avance').value='';
       document.querySelectorAll('#ae-estado .toggle-option').forEach(o=>o.classList.remove('selected'));
       document.querySelector('#ae-estado .toggle-option:last-child').classList.add('selected');
@@ -1894,10 +2420,8 @@ function saveRecord(type) {
       if (!unidad) { showToast('Ingresa la unidad de envío','error'); return; }
       const herenciaId=document.getElementById('ad-herencia-id').value;
       if (!herenciaId&&isUnitDuplicate('armado',unidad)) { showToast(`⚠️ La unidad ${unidad} ya está registrada.`,'error'); return; }
-      const clienteSel=document.getElementById('ad-cliente-select').value;
-      if (!clienteSel) { showToast('Selecciona el Cliente','error'); return; }
-      const clienteVal=clienteSel==='Otro'?(document.getElementById('ad-cliente-otro')?.value.trim()||''):clienteSel;
-      if (clienteSel==='Otro'&&!clienteVal) { showToast('Especifica el nombre del cliente','error'); return; }
+      const cliente=(document.getElementById('ad-cliente-txt')?.value||'').trim();
+      if (!cliente) { showToast('Ingresa el nombre del cliente','error'); return; }
       const cortinaNum=document.getElementById('ad-cortina').value.trim();
       if (!cortinaNum) { showToast('La Cortina es obligatoria','error'); return; }
       const montaNum=document.getElementById('ad-monta').value.trim();
@@ -1912,11 +2436,9 @@ function saveRecord(type) {
       if (!estado) { showToast('Selecciona el estatus','error'); return; }
       if (!photos['ad']||photos['ad'].length===0) { showToast('La evidencia es obligatoria','error'); return; }
       const cortina='DOOR'+cortinaNum;
-      record={...record,subtipo:'A Detalle',unidad_envio:unidad,cliente:clienteVal,cortina,usuario_monta:'SMO'+montaNum,pallets:parseInt(palletsVal)||0,pallets_blancas:parseInt(blancasVal)||0,etiquetas:parseInt(etiqVal)||0,avance,estado,fotos_count:(photos['ad']||[]).length};
+      record={...record,subtipo:'A Detalle',unidad_envio:unidad,cliente,cortina,usuario_monta:'SMO'+montaNum,pallets:parseInt(palletsVal)||0,pallets_blancas:parseInt(blancasVal)||0,etiquetas:parseInt(etiqVal)||0,avance,estado,fotos_count:(photos['ad']||[]).length};
       uploadPhotos([...(photos['ad']||[])],unidad,cortina,session.date,session.squad,'armado_a_detalle');
-      clearField(['ad-unidad','ad-cortina','ad-monta','ad-pallets','ad-blancas','ad-etiquetas','ad-cliente-otro']);
-      const sel2=document.getElementById('ad-cliente-select'); if(sel2) sel2.value='';
-      document.getElementById('ad-cliente-otro-row').classList.add('hidden');
+      clearField(['ad-unidad','ad-cortina','ad-monta','ad-pallets','ad-blancas','ad-etiquetas','ad-cliente-txt']);
       document.getElementById('ad-avance').value='';
       document.querySelectorAll('#ad-estatus .toggle-option').forEach(o=>o.classList.remove('selected'));
       document.getElementById('ad-herencia-id').value='';
@@ -1926,21 +2448,19 @@ function saveRecord(type) {
     }
   }
   else if (type === 'embarque') {
-    const unidad=document.getElementById('e-unidad').value.trim();
-    if (!unidad) { showToast('Ingresa la Unidad de Envío','error'); return; }
+    const unidad = document.getElementById('e-unidad').value.trim();
+    const cliente = document.getElementById('e-cliente').value.trim();
+    const tipoCargaVal = document.getElementById('e-tipo-carga-val').value.trim();
+    const tipoDestinoVal = document.getElementById('e-tipo-destino-val').value.trim();
+
+    if (!unidad) { showToast('Este embarque no tiene unidad de envío. Inicia desde Pendientes','error'); return; }
     const herenciaId=document.getElementById('e-herencia-id').value;
     if (!herenciaId&&isUnitDuplicate('embarque',unidad)) { showToast(`⚠️ La unidad ${unidad} ya está registrada.`,'error'); return; }
-    const clienteSel=document.getElementById('e-cliente').value, clienteOtro=document.getElementById('e-cliente-otro')?.value.trim()||'';
-    const cliente=clienteSel==='Otro'?clienteOtro:clienteSel;
-    if (!clienteSel) { showToast('Selecciona el Cliente','error'); return; }
-    if (clienteSel==='Otro'&&!clienteOtro) { showToast('Especifica el nombre del cliente','error'); return; }
     const cortinaNum=document.getElementById('e-cortina').value.trim();
     if (!cortinaNum) { showToast('Ingresa la Cortina','error'); return; }
     const montaNum=document.getElementById('e-monta').value.trim();
     if (!montaNum) { showToast('El Montacarguista es obligatorio','error'); return; }
-    if (!getToggleValue('e-tipo-carga'))   { showToast('Selecciona tipo de carga','error'); return; }
-    if (!getToggleValue('e-tipo-destino')) { showToast('Selecciona destino','error'); return; }
-    if (!getToggleValue('e-tiempo'))       { showToast('Indica si el Status MC fue correcto','error'); return; }
+    if (!getToggleValue('e-tiempo')) { showToast('Indica si el Status MC fue correcto','error'); return; }
     const blancasVal=document.getElementById('e-blancas').value, chepVal=document.getElementById('e-chep-embarque').value;
     if (blancasVal==='') { showToast('Ingresa Pallets Blancas','error'); return; }
     if (chepVal==='')    { showToast('Ingresa Pallets CHEP','error'); return; }
@@ -1948,21 +2468,35 @@ function saveRecord(type) {
     if (!avance) { showToast('Selecciona el avance','error'); return; }
     const estado=getToggleValue('e-estado');
     if (!estado) { showToast('Selecciona el Estado Final','error'); return; }
-    if (!photos['embarque_general']||photos['embarque_general'].length===0) { showToast('La evidencia del embarque es obligatoria','error'); return; }
-    if (!photos['mc']||photos['mc'].length===0) { showToast('La evidencia del MC es obligatoria','error'); return; }
-    const cortina='DOOR'+cortinaNum, tipoCarga=getToggleValue('e-tipo-carga'), tipoDest=getToggleValue('e-tipo-destino'), statusMC=getToggleValue('e-tiempo');
-    record={...record,unidad_envio:unidad,cliente,cortina,usuario_monta:'SMO'+montaNum,tipo_carga:tipoCarga,tipo_destino:tipoDest,status_mc:statusMC,mc_descripcion:statusMC.includes('Incorrecto')?document.getElementById('e-mc-desc')?.value.trim():'',etiqueta_consolidada:getToggleValue('e-etiqueta'),pallets_blancas:parseInt(blancasVal)||0,pallets_chep:parseInt(chepVal)||0,avance,observacion:document.getElementById('e-obs')?.value.trim()||'',estado,fotos_mc_count:(photos['mc']||[]).length,fotos_embarque_count:(photos['embarque_general']||[]).length};
-    uploadPhotos([...(photos['mc']||[])],unidad,cortina,session.date,session.squad,'mc',statusMC);
-    uploadPhotos([...(photos['embarque_general']||[])],unidad,cortina,session.date,session.squad,'embarque');
-    clearField(['e-unidad','e-cortina','e-monta','e-blancas','e-chep-embarque','e-obs','e-cliente-otro','e-mc-desc']);
-    const eClienteSel=document.getElementById('e-cliente'); if(eClienteSel) eClienteSel.value='';
-    const eRow=document.getElementById('e-cliente-otro-row'); if(eRow) eRow.classList.add('hidden');
-    document.querySelectorAll('#e-tipo-carga .toggle-option,#e-tipo-destino .toggle-option,#e-tiempo .toggle-option,#e-etiqueta .toggle-option,#e-estado .toggle-option').forEach(o=>o.classList.remove('selected'));
+
+    const esHerenciaActual = estado.includes('Herencia') || estado.includes('Pendiente');
+    if (!esHerenciaActual) {
+      if (!photos['embarque_general']||photos['embarque_general'].length===0) { showToast('La evidencia del embarque es obligatoria','error'); return; }
+      if (!photos['mc']||photos['mc'].length===0) { showToast('La evidencia del MC es obligatoria','error'); return; }
+    }
+
+    const cortina='DOOR'+cortinaNum;
+    const statusMC=getToggleValue('e-tiempo');
+    record={...record,unidad_envio:unidad,cliente,cortina,usuario_monta:'SMO'+montaNum,tipo_carga:tipoCargaVal,tipo_destino:tipoDestinoVal,status_mc:statusMC,mc_descripcion:statusMC.includes('Incorrecto')?document.getElementById('e-mc-desc')?.value.trim():'',etiqueta_consolidada:getToggleValue('e-etiqueta'),pallets_blancas:parseInt(blancasVal)||0,pallets_chep:parseInt(chepVal)||0,avance,observacion:document.getElementById('e-obs')?.value.trim()||'',estado,fotos_mc_count:(photos['mc']||[]).length,fotos_embarque_count:(photos['embarque_general']||[]).length};
+    if ((photos['mc']||[]).length > 0)               uploadPhotos([...(photos['mc']||[])],unidad,cortina,session.date,session.squad,'mc',statusMC);
+    if ((photos['embarque_general']||[]).length > 0) uploadPhotos([...(photos['embarque_general']||[])],unidad,cortina,session.date,session.squad,'embarque');
+
+    clearField(['e-cortina','e-monta','e-blancas','e-chep-embarque','e-obs','e-mc-desc']);
+    document.getElementById('e-unidad').value='';
+    document.getElementById('e-cliente').value='';
+    document.getElementById('e-tipo-carga-val').value='';
+    document.getElementById('e-tipo-destino-val').value='';
+    document.querySelectorAll('#e-tiempo .toggle-option,#e-etiqueta .toggle-option,#e-estado .toggle-option').forEach(o=>o.classList.remove('selected'));
     const pn=document.getElementById('e-pendiente-nota'); if(pn) pn.classList.add('hidden');
     const mc=document.getElementById('mc-incorrecto-panel'); if(mc) mc.classList.add('hidden');
     document.getElementById('e-herencia-id').value='';
     photos['embarque_general']=[]; renderPhotos('embarque_general');
     photos['mc']=[]; renderPhotos('mc');
+    toggleEstadoEmbarque(null);
+    const infoPanel = document.getElementById('embarque-asignacion-info');
+    if (infoPanel) infoPanel.classList.add('hidden');
+    const herPanel = document.getElementById('embarque-herencia-panel');
+    if (herPanel) { herPanel.classList.add('hidden'); herPanel.innerHTML=''; }
     if (herenciaId) resolveHerencia(herenciaId, record);
     gestionarPendiente(record, herenciaId);
   }
@@ -1984,6 +2518,10 @@ function esPendiente(estado) {
 }
 function gestionarPendiente(record, herenciaIdPadre) {
   const estadoActual = record.estado || '';
+  if (herenciaIdPadre) {
+    const padrePend = pendientes.find(p => p.id === herenciaIdPadre);
+    if (padrePend && esAsignacionExterna(padrePend) && !esPendiente(estadoActual)) return;
+  }
   if (herenciaIdPadre && !esPendiente(estadoActual)) return;
   if (esPendiente(estadoActual)) {
     const pendiente = { id:'P'+Date.now(), herencia_padre:herenciaIdPadre||null, modulo:record.tipo, subtipo:record.subtipo||'', sto:record.sto||'', unidad_envio:record.unidad_envio||'', cortina:record.cortina||'', cliente:record.cliente||'', ultimo_registro_id:record.id, ultimo_auditor:record.auditor, ultimo_turno:record.turno, fecha_creacion:record.fecha, turnos:buildTurnosAcum(herenciaIdPadre, record), avance:record.avance||'', datos:record };
@@ -1996,21 +2534,41 @@ function gestionarPendiente(record, herenciaIdPadre) {
 function buildTurnosAcum(herenciaIdPadre, record) {
   let prev = [];
   if (herenciaIdPadre) { const p=pendientes.find(p=>p.id===herenciaIdPadre); if(p) prev=p.turnos||[]; }
-  return [...prev, { turno:record.turno, auditor:record.auditor, cuadrilla:record.cuadrilla }];
+  return [...prev, { turno:record.turno, auditor:record.auditor, cuadrilla:record.cuadrilla, avance:record.avance||'' }];
 }
 function resolveHerencia(herenciaId, record) {
-  const idx = pendientes.findIndex(p=>p.id===herenciaId);
-  if (idx===-1) return;
+  const idx = pendientes.findIndex(p => p.id === herenciaId);
+  if (idx === -1) return;
   const padre = pendientes[idx];
-  herenciasResueltas.push({...padre, estado_final:record.estado, fecha_resolucion:session.date, registro_final_id:record.id});
-  const listaKey = padre.modulo==='recibo'?'recibo':padre.modulo==='armado'?'armado':'embarque';
-  const rIdx = records[listaKey].findIndex(r=>r.id===padre.ultimo_registro_id);
-  if (rIdx!==-1) records[listaKey].splice(rIdx,1);
+  herenciasResueltas.push({ ...padre, estado_final: record.estado, fecha_resolucion: session.date, registro_final_id: record.id });
+
+  if (esAsignacionExterna(padre)) {
+    const unidad = padre.unidad_envio || padre.datos?.unidad_envio || '';
+    if (unidad) {
+      const db = mesaGetEmbarquesDB();
+      if (db[unidad]) {
+        db[unidad].estado = 'completado';
+        db[unidad].completado_por   = session.name;
+        db[unidad].completado_turno = session.shift;
+        db[unidad].completado_fecha = new Date().toISOString();
+        mesaSetEmbarquesDB(db);
+        // Refresh cancel list
+        mesaRenderCancelarLista();
+      }
+    }
+  } else if (padre.ultimo_registro_id) {
+    const listaKey = padre.modulo === 'recibo' ? 'recibo' : padre.modulo === 'armado' ? 'armado' : 'embarque';
+    const rIdx = records[listaKey].findIndex(r => r.id === padre.ultimo_registro_id);
+    if (rIdx !== -1) records[listaKey].splice(rIdx, 1);
+  }
+
   record._herencia_padre_id = padre.ultimo_registro_id || null;
-  pendientes.splice(idx,1);
+  pendientes.splice(idx, 1);
   cloudDeletePendiente(padre.id);
-  showToast('✅ Herencia resuelta y cerrada','success');
+  const esAsig = esAsignacionExterna(padre);
+  showToast(esAsig ? '✅ Embarque asignado completado' : '✅ Herencia resuelta y cerrada', 'success');
 }
+
 function continuarHerencia(pendienteId) {
   const pend = pendientes.find(p=>p.id===pendienteId);
   if (!pend) return;
@@ -2041,7 +2599,7 @@ function continuarHerencia(pendienteId) {
       if(isEsp){
         document.getElementById('ae-herencia-id').value=pendienteId;
         if(d.unidad_envio) document.getElementById('ae-unidad').value=d.unidad_envio;
-        if(d.cliente){const s=document.getElementById('ae-cliente');if([...s.options].some(o=>o.value===d.cliente)){s.value=d.cliente;}else{s.value='Otro';document.getElementById('ae-cliente-otro').value=d.cliente;document.getElementById('ae-cliente-otro-row').classList.remove('hidden');}}
+        if(d.cliente) document.getElementById('ae-cliente-txt').value=d.cliente;
         if(d.cortina) document.getElementById('ae-cortina').value=d.cortina.replace(/^DOOR/i,'');
         if(d.usuario_monta) document.getElementById('ae-monta').value=d.usuario_monta.replace(/^SMO/i,'');
         if(d.chep!==undefined) document.getElementById('ae-chep').value=d.chep;
@@ -2054,7 +2612,7 @@ function continuarHerencia(pendienteId) {
       } else {
         document.getElementById('ad-herencia-id').value=pendienteId;
         if(d.unidad_envio) document.getElementById('ad-unidad').value=d.unidad_envio;
-        if(d.cliente){const s=document.getElementById('ad-cliente-select');if([...s.options].some(o=>o.value===d.cliente)){s.value=d.cliente;}else{s.value='Otro';document.getElementById('ad-cliente-otro').value=d.cliente;document.getElementById('ad-cliente-otro-row').classList.remove('hidden');}}
+        if(d.cliente) document.getElementById('ad-cliente-txt').value=d.cliente;
         if(d.cortina) document.getElementById('ad-cortina').value=d.cortina.replace(/^DOOR/i,'');
         if(d.usuario_monta) document.getElementById('ad-monta').value=d.usuario_monta.replace(/^SMO/i,'');
         if(d.pallets!==undefined) document.getElementById('ad-pallets').value=d.pallets;
@@ -2067,35 +2625,119 @@ function continuarHerencia(pendienteId) {
       }
     },300);
   } else if (modulo==='embarque') {
-    switchTab('embarque');
-    setTimeout(()=>{
-      document.getElementById('e-herencia-id').value=pendienteId;
-      if(d.unidad_envio) document.getElementById('e-unidad').value=d.unidad_envio;
-      if(d.cliente){const s=document.getElementById('e-cliente');if([...s.options].some(o=>o.value===d.cliente)){s.value=d.cliente;}else{s.value='Otro';document.getElementById('e-cliente-otro').value=d.cliente;document.getElementById('e-cliente-otro-row').classList.remove('hidden');}}
-      if(d.cortina) document.getElementById('e-cortina').value=d.cortina.replace(/^DOOR/i,'');
-      if(d.usuario_monta) document.getElementById('e-monta').value=d.usuario_monta.replace(/^SMO/i,'');
-      if(d.tipo_carga) document.querySelectorAll('#e-tipo-carga .toggle-option').forEach(o=>{if(o.textContent.includes(d.tipo_carga))o.classList.add('selected');});
-      if(d.tipo_destino) document.querySelectorAll('#e-tipo-destino .toggle-option').forEach(o=>{if(o.textContent.includes(d.tipo_destino))o.classList.add('selected');});
-      if(d.pallets_blancas!==undefined) document.getElementById('e-blancas').value=d.pallets_blancas;
-      if(d.pallets_chep!==undefined) document.getElementById('e-chep-embarque').value=d.pallets_chep;
-      if(d.avance) document.getElementById('e-avance').value=d.avance;
-      if(d.observacion) document.getElementById('e-obs').value=d.observacion;
-      document.querySelectorAll('#e-estado .toggle-option').forEach(o=>o.classList.toggle('selected',o.textContent.includes('Finalizado')));
-      const pn=document.getElementById('e-pendiente-nota'); if(pn) pn.classList.add('hidden');
-      showHerenciaBanner('embarque-herencia-panel',pend);
-    },300);
+    if (esAsignacionExterna(pend)) {
+      iniciarDesdeAsignacion(pendienteId);
+    } else {
+      switchTab('embarque');
+      setTimeout(() => {
+        document.getElementById('e-herencia-id').value = pendienteId;
+        const unidad  = d.unidad_envio || '';
+        const cliente = d.cliente || '';
+        const tipoCarga   = d.tipo_carga   || '';
+        const tipoDestino = d.tipo_destino || '';
+        if (document.getElementById('e-unidad'))          document.getElementById('e-unidad').value          = unidad;
+        if (document.getElementById('e-cliente'))         document.getElementById('e-cliente').value         = cliente;
+        if (document.getElementById('e-tipo-carga-val'))  document.getElementById('e-tipo-carga-val').value  = tipoCarga;
+        if (document.getElementById('e-tipo-destino-val'))document.getElementById('e-tipo-destino-val').value= tipoDestino;
+        if (d.cortina) { const cn=document.getElementById('e-cortina'); if(cn) cn.value=d.cortina.replace(/^DOOR/i,''); }
+        if (d.usuario_monta) { const mn=document.getElementById('e-monta'); if(mn) mn.value=d.usuario_monta.replace(/^SMO/i,''); }
+        if (d.pallets_blancas!==undefined) { const bl=document.getElementById('e-blancas'); if(bl) bl.value=d.pallets_blancas; }
+        if (d.pallets_chep!==undefined)    { const ch=document.getElementById('e-chep-embarque'); if(ch) ch.value=d.pallets_chep; }
+        if (d.avance) { const av=document.getElementById('e-avance'); if(av) av.value=d.avance; }
+        if (d.observacion) { const ob=document.getElementById('e-obs'); if(ob) ob.value=d.observacion; }
+        if (d.status_mc) {
+          document.querySelectorAll('#e-tiempo .toggle-option').forEach(o => {
+            const matches = d.status_mc.includes('Correcto') && o.textContent.includes('Correcto') && !o.textContent.includes('Incorrecto');
+            const matchesInc = d.status_mc.includes('Incorrecto') && o.textContent.includes('Incorrecto');
+            o.classList.toggle('selected', matches || matchesInc);
+          });
+          if (d.status_mc.includes('Incorrecto')) {
+            const p = document.getElementById('mc-incorrecto-panel'); if(p) p.classList.remove('hidden');
+            if (d.mc_descripcion) { const md=document.getElementById('e-mc-desc'); if(md) md.value=d.mc_descripcion; }
+          }
+        }
+        document.querySelectorAll('#e-estado .toggle-option').forEach(o => o.classList.toggle('selected', o.textContent.includes('Finalizado')));
+        const pn = document.getElementById('e-pendiente-nota'); if(pn) pn.classList.add('hidden');
+        const infoPanel = document.getElementById('embarque-asignacion-info');
+        const infoDetalle = document.getElementById('embarque-asig-detalle');
+        if (infoPanel && infoDetalle) {
+          infoPanel.classList.remove('hidden');
+          infoDetalle.innerHTML = [
+            ['Unidad de Envío', unidad || '—'],
+            ['Cliente',         cliente || '—'],
+            ['Tipo Embarque',   tipoCarga || '—'],
+          ].map(c =>
+            `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(224,112,0,0.15);font-size:12px">
+              <span style="color:#7A4500;font-weight:700">${c[0]}</span>
+              <span style="font-weight:600">${c[1]}</span>
+            </div>`).join('');
+        }
+        showHerenciaBanner('embarque-herencia-panel', pend);
+      }, 300);
+    }
   }
   closeModal('pendiente-detail-modal');
 }
+
 function showHerenciaBanner(panelId, pend) {
   const panel = document.getElementById(panelId);
   if (!panel) return;
   panel.classList.remove('hidden');
+  const d = pend.datos || {};
+  const turnos = pend.turnos || [];
+
+  let timelineHtml = '';
+  if (turnos.length > 0) {
+    timelineHtml = `<div style="margin-top:8px;border-top:1px solid rgba(45,138,78,0.25);padding-top:8px">
+      <div style="font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">📋 Historial de Auditores</div>`;
+    turnos.forEach((t, i) => {
+      const isLast = i === turnos.length - 1;
+      timelineHtml += `
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:${isLast?0:6}px">
+        <div style="width:20px;height:20px;border-radius:50%;background:${i===0?'var(--green)':'rgba(45,138,78,0.45)'};color:white;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</div>
+        <div style="flex:1;font-size:11px;color:#1A6B36;background:rgba(45,138,78,0.07);border-radius:7px;padding:5px 8px;line-height:1.5">
+          <strong>${t.auditor||'—'}</strong> · Turno ${t.turno||'—'}${t.cuadrilla?' · Cuad. '+t.cuadrilla:''}
+          ${t.avance?`<br><span style="color:var(--gray)">Avance dejado: <strong>${t.avance}</strong></span>`:''}
+        </div>
+      </div>`;
+    });
+    timelineHtml += '</div>';
+  }
+
+  const datosResumen = [];
+  if (d.sto)           datosResumen.push(['STO', d.sto]);
+  if (d.master_receipt)datosResumen.push(['Master', d.master_receipt]);
+  if (d.unidad_envio)  datosResumen.push(['Unidad', d.unidad_envio]);
+  if (d.cliente)       datosResumen.push(['Cliente', d.cliente]);
+  if (d.cortina)       datosResumen.push(['Cortina', d.cortina]);
+  if (d.tipo_recibo)   datosResumen.push(['Tipo Recibo', d.tipo_recibo]);
+  if (d.tipo_carga)    datosResumen.push(['Tipo Carga', d.tipo_carga]);
+  if (d.pallets_chep !== undefined && d.pallets_chep !== '') datosResumen.push(['Pallets CHEP', d.pallets_chep]);
+  if ((d.pallets_blancas !== undefined && d.pallets_blancas !== '') || (d.blancas !== undefined && d.blancas !== '')) datosResumen.push(['Pallets Blancas', d.pallets_blancas ?? d.blancas]);
+  if (d.avance)        datosResumen.push(['Último avance', d.avance]);
+  if (d.notas)         datosResumen.push(['Notas', d.notas]);
+  if (d.observacion)   datosResumen.push(['Observación', d.observacion]);
+
+  const datosHtml = datosResumen.length
+    ? `<div style="margin-top:8px;border-top:1px solid rgba(45,138,78,0.25);padding-top:8px">
+        <div style="font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">📦 Datos Registrados Anteriormente</div>
+        ${datosResumen.map(([k,v]) => `
+        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(45,138,78,0.12);font-size:11px">
+          <span style="color:var(--gray);font-weight:700">${k}</span>
+          <span style="font-weight:600;color:var(--black)">${v}</span>
+        </div>`).join('')}
+      </div>`
+    : '';
+
   panel.innerHTML = `
   <div class="continuar-card">
     <div class="cc-header"><div class="cc-icon">🔄</div><div class="cc-title">Continuando Herencia</div></div>
-    <div class="cc-meta"><strong>Turno origen:</strong> ${pend.ultimo_turno} · ${pend.ultimo_auditor}<br><strong>Cortina:</strong> ${pend.datos.cortina||'—'} &nbsp;|&nbsp; <strong>Unidad:</strong> ${pend.datos.unidad_envio||pend.datos.sto||'—'}</div>
-    <div style="font-size:11px;color:var(--green);font-weight:700">✓ Campos prellenados. Completa la auditoría y guarda para cerrar la herencia.</div>
+    <div class="cc-meta">
+      <strong>Turno origen:</strong> ${pend.ultimo_turno} · ${pend.ultimo_auditor}
+    </div>
+    ${datosHtml}
+    ${timelineHtml}
+    <div style="margin-top:10px;font-size:11px;color:var(--green);font-weight:700;background:rgba(45,138,78,0.08);border-radius:8px;padding:7px 10px">✓ Campos prellenados con los datos anteriores. Revisa, completa y guarda para cerrar la herencia.</div>
   </div>`;
   showToast('📋 Formulario prellenado con datos de herencia','success');
 }
@@ -2103,48 +2745,273 @@ function showHerenciaBanner(panelId, pend) {
 // ══════════════════════════════════════════════════════
 //  RENDER PENDIENTES
 // ══════════════════════════════════════════════════════
+function esAsignacionExterna(p) {
+  return p.tipo_asignacion === 'embarque_externo';
+}
+
 function renderPendientes() {
   const container = document.getElementById('pendientes-container');
   if (!container) return;
+
+  const mesaDB = mesaGetEmbarquesDB();
+  pendientes = pendientes.filter(p => {
+    if (!esAsignacionExterna(p)) return true;
+    const unidad = p.unidad_envio || p.datos?.unidad_envio || '';
+    return mesaDB[unidad]?.estado !== 'completado';
+  });
+
   updateNavBadge();
+
   if (!pendientes.length) {
-    container.innerHTML = `<div style="text-align:center;padding:38px 20px;color:var(--gray)"><div style="font-size:46px;margin-bottom:10px">✅</div><div style="font-weight:700;font-size:15px">Sin pendientes</div><div style="font-size:12px;margin-top:3px">Todos los registros están finalizados</div></div>`;
+    container.innerHTML = `
+      <div style="text-align:center;padding:38px 20px;color:var(--gray)">
+        <div style="font-size:46px;margin-bottom:10px">✅</div>
+        <div style="font-weight:700;font-size:15px">Sin pendientes</div>
+        <div style="font-size:12px;margin-top:3px">Todos los registros están finalizados</div>
+      </div>`;
     return;
   }
-  const grupos = { recibo:[], armado:[], embarque:[] };
-  pendientes.forEach(p=>{ (grupos[p.modulo]||grupos.embarque).push(p); });
+
+  const asignaciones = pendientes.filter(p => esAsignacionExterna(p));
+  const herencias    = pendientes.filter(p => !esAsignacionExterna(p));
+
   const iconMod  = { recibo:'📦', armado:'🔧', embarque:'🚛' };
   const labelMod = { recibo:'Recibo', armado:'Armado', embarque:'Embarque' };
   let html = '';
-  Object.entries(grupos).forEach(([mod, lista])=>{
-    if (!lista.length) return;
-    html += `<div class="pendientes-panel"><div class="pendientes-header"><div class="ph-title">${iconMod[mod]} ${labelMod[mod]}</div><div class="pendientes-count">${lista.length}</div></div>`;
-    lista.forEach((p,idx)=>{
-      const d=p.datos, id=d.unidad_envio||d.sto||'—', cortina=d.cortina||'—', avance=p.avance||d.avance||'—';
-      const isNew=idx===lista.length-1;
-      html += `<div class="pendiente-item${isNew?' pendiente-flash':''}" id="pendiente-item-${p.id}"><div class="pi-icon">${iconMod[mod]}</div><div class="pi-body"><div class="pi-title">${id} · Cortina ${cortina}</div><div class="pi-meta">Turno: <strong>${p.ultimo_turno}</strong> · ${p.ultimo_auditor}<br>Avance: <strong>${avance}</strong></div><div class="pi-actions"><button class="pi-btn pi-btn-continuar" onclick="continuarHerencia('${p.id}')">🔄 Continuar</button><button class="pi-btn pi-btn-ver" onclick="verDetallePendiente('${p.id}')">👁 Ver</button></div></div></div>`;
+
+  // ── ASIGNACIONES ──────────────────────────
+  if (asignaciones.length) {
+    html += `
+    <div style="background:linear-gradient(135deg,#FFF8F0,#FFF3E0);border:2px solid #E07000;border-radius:var(--radius);overflow:hidden;margin-bottom:12px">
+      <div style="background:#E07000;padding:11px 15px;display:flex;align-items:center;gap:8px">
+        <div style="font-size:18px">📤</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:white;text-transform:uppercase;flex:1">Asignados</div>
+        <div style="background:white;color:#E07000;border-radius:99px;padding:2px 9px;font-size:11px;font-weight:800">${asignaciones.length}</div>
+      </div>`;
+    asignaciones.forEach((p, idx) => {
+      const isNew   = idx === asignaciones.length - 1;
+      const unidad  = p.unidad_envio || p.datos?.unidad_envio || '—';
+      const cliente = p.cliente      || p.datos?.cliente      || '—';
+      const tipo    = p.tipo_embarque|| p.datos?.tipo_carga   || '—';
+      const destino = p.destino      || p.datos?.destino      || '—';
+      const sup     = p.supervisor   || '—';
+      const nota    = p.nota_supervisor ? `<br>📝 <em>${p.nota_supervisor}</em>` : '';
+      html += `
+      <div class="pendiente-item${isNew?' pendiente-flash':''}" id="pendiente-item-${p.id}"
+           style="background:transparent;border-bottom:1px solid rgba(224,112,0,0.2)">
+        <div class="pi-icon">🚛</div>
+        <div class="pi-body">
+          <div style="margin-bottom:4px"><span class="pa-badge"> Asignación </span></div>
+          <div class="pi-title">${unidad} · ${cliente}</div>
+          <div class="pi-meta">Tipo: <strong>${tipo}</strong> · Destino: <strong>${destino}</strong> · Por: ${sup}${nota}</div>
+          <div class="pi-actions">
+            <button class="pi-btn" style="background:#E07000;color:white" onclick="iniciarDesdeAsignacion('${p.id}')">▶ Iniciar</button>
+            <button class="pi-btn pi-btn-ver" onclick="verDetallePendiente('${p.id}')">👁 Ver</button>
+          </div>
+        </div>
+      </div>`;
     });
     html += '</div>';
-  });
+  }
+
+  // ── HERENCIAS NORMALES ──────────────────────────────
+  if (herencias.length) {
+    const grupos = { recibo:[], armado:[], embarque:[] };
+    herencias.forEach(p => { (grupos[p.modulo] || grupos.embarque).push(p); });
+
+    Object.entries(grupos).forEach(([mod, lista]) => {
+      if (!lista.length) return;
+      html += `<div class="pendientes-panel"><div class="pendientes-header"><div class="ph-title">${iconMod[mod]} ${labelMod[mod]}</div><div class="pendientes-count">${lista.length}</div></div>`;
+      lista.forEach((p, idx) => {
+        const d = p.datos;
+        const id      = d.unidad_envio || d.sto || '—';
+        const cortina = d.cortina || '—';
+        const avance  = p.avance  || d.avance || '—';
+        const isNew   = idx === lista.length - 1;
+        const turnosCount = p.turnos?.length || 1;
+        const ultimoAuditor = p.ultimo_auditor || '—';
+        const miniData = [
+          d.cliente ? `👤 ${d.cliente}` : null,
+          d.tipo_carga || d.tipo_recibo ? `📦 ${d.tipo_carga||d.tipo_recibo}` : null,
+          avance !== '—' ? `📊 ${avance}` : null,
+        ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
+        html += `
+        <div class="pendiente-item${isNew?' pendiente-flash':''}" id="pendiente-item-${p.id}">
+          <div class="pi-icon">${iconMod[mod]}</div>
+          <div class="pi-body">
+            <div class="pi-title">${id} · Cortina ${cortina}</div>
+            <div class="pi-meta">
+              Turno: <strong>${p.ultimo_turno}</strong> · ${ultimoAuditor}
+              ${miniData ? `<br><span style="color:var(--gray)">${miniData}</span>` : ''}
+              ${turnosCount > 1 ? `<br><span style="color:#C9A700;font-weight:700;font-size:10px">🔄 ${turnosCount} auditores previos</span>` : ''}
+            </div>
+            <div class="pi-actions">
+              <button class="pi-btn pi-btn-continuar" onclick="continuarHerencia('${p.id}')">🔄 Continuar</button>
+              <button class="pi-btn pi-btn-ver" onclick="verDetallePendiente('${p.id}')">👁 Ver</button>
+            </div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    });
+  }
+
   container.innerHTML = html;
   setTimeout(flashPendienteItems, 8000);
 }
-function flashPendienteItems() { document.querySelectorAll('.pendiente-flash').forEach(el=>el.classList.remove('pendiente-flash')); }
-function updateNavBadge() {
-  const badge=document.getElementById('nav-badge-pend'); if(!badge) return;
-  badge.textContent=pendientes.length; badge.classList.toggle('hidden',pendientes.length===0);
+
+function flashPendienteItems() {
+  document.querySelectorAll('.pendiente-flash').forEach(el => el.classList.remove('pendiente-flash'));
 }
+
+function updateNavBadge() {
+  const badge = document.getElementById('nav-badge-pend');
+  if (!badge) return;
+  badge.textContent = pendientes.length;
+  badge.classList.toggle('hidden', pendientes.length === 0);
+}
+
+function iniciarDesdeAsignacion(pendienteId) {
+  const pend = pendientes.find(p => p.id === pendienteId);
+  if (!pend) return;
+
+  switchTab('embarque');
+  setTimeout(() => {
+    const hid = document.getElementById('e-herencia-id');
+    if (hid) hid.value = pendienteId;
+
+    const unidad  = pend.unidad_envio || pend.datos?.unidad_envio || '';
+    const cliente = pend.cliente || pend.datos?.cliente || '';
+    const tipo    = pend.tipo_embarque || pend.datos?.tipo_carga || '';
+    const destino = pend.destino || pend.datos?.destino || '';
+
+    if (document.getElementById('e-unidad'))  document.getElementById('e-unidad').value  = unidad;
+    if (document.getElementById('e-cliente')) document.getElementById('e-cliente').value = cliente;
+    if (document.getElementById('e-tipo-carga-val'))   document.getElementById('e-tipo-carga-val').value   = tipo;
+    if (document.getElementById('e-tipo-destino-val')) document.getElementById('e-tipo-destino-val').value = destino;
+
+    const infoPanel = document.getElementById('embarque-asignacion-info');
+    const infoDetalle = document.getElementById('embarque-asig-detalle');
+    if (infoPanel && infoDetalle) {
+      infoPanel.classList.remove('hidden');
+      infoDetalle.innerHTML = [
+        ['Unidad de Envío', unidad || '—'],
+        ['Cliente',         cliente || '—'],
+        ['Tipo Embarque',   tipo || '—'],
+        ['Destino',         destino || '—'],
+        ['Cargado por',     pend.supervisor || '—'],
+        ['Nota',            pend.nota_supervisor || '—'],
+      ].map(c =>
+        `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(224,112,0,0.15);font-size:12px">
+          <span style="color:#7A4500;font-weight:700">${c[0]}</span>
+          <span style="font-weight:600">${c[1]}</span>
+        </div>`).join('');
+    }
+
+    const panel = document.getElementById('embarque-herencia-panel');
+    if (panel) {
+      panel.classList.remove('hidden');
+      panel.innerHTML = `
+      <div class="continuar-card" style="background:linear-gradient(135deg,#FFF8F0,#FFF3E0);border:2px solid #E07000">
+        <div class="cc-header">
+          <div class="cc-icon">📤</div>
+          <div class="cc-title" style="color:#E07000">Asignación</div>
+        </div>
+        <div class="cc-meta" style="color:#7A4500">
+          <strong>Por:</strong> ${pend.supervisor||'—'} &nbsp;|&nbsp;
+          <strong>Unidad:</strong> ${unidad||'—'} &nbsp;|&nbsp;
+          <strong>Tipo:</strong> ${tipo||'—'} &nbsp;|&nbsp;
+          <strong>Destino:</strong> ${destino||'—'}
+          ${pend.nota_supervisor ? `<br>📝 <em>${pend.nota_supervisor}</em>` : ''}
+        </div>
+        <div style="font-size:11px;color:#E07000;font-weight:700">✓ Completa la información faltante y guarda el registro.</div>
+      </div>`;
+    }
+
+    showToast('Embarque cargado desde asignación','success');
+  }, 300);
+
+  closeModal('pendiente-detail-modal');
+}
+
 function verDetallePendiente(id) {
-  const pend=pendientes.find(p=>p.id===id); if(!pend) return;
-  const d=pend.datos, titulo=d.unidad_envio||d.sto||id;
-  const campos=[['Módulo',pend.modulo.toUpperCase()],['Subtipo',d.subtipo||'—'],['STO',d.sto||'—'],['Unidad',d.unidad_envio||'—'],['Cortina',d.cortina||'—'],['Cliente',d.cliente||'—'],['Avance',d.avance||'—']];
-  let html=`<div class="card" style="margin-bottom:10px"><div class="card-title">📋 Datos</div>`;
-  html+=campos.filter(c=>c[1]&&c[1]!=='—').map(c=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--gray);font-weight:700">${c[0]}</span><span style="font-weight:600">${c[1]}</span></div>`).join('');
-  html+='</div>';
-  if(pend.turnos&&pend.turnos.length){html+=`<div class="card" style="margin-bottom:10px"><div class="card-title">⏱ Historial</div><div>`;pend.turnos.forEach((t,i)=>{html+=`<div class="tl-item"><div class="tl-dot ${i===0?'tl-dot-start':'tl-dot-pause'}">${i===0?'▶':'🔄'}</div><div class="tl-body"><div class="tl-label">Turno ${t.turno} · ${t.auditor}</div></div></div>${i<pend.turnos.length-1?'<div class="tl-connector"></div>':''}`;});html+='</div></div>';}
-  html+=`<button class="btn btn-green" onclick="continuarHerencia('${id}')">🔄 Continuar esta Herencia</button>`;
-  document.getElementById('pd-modal-title').textContent=`📂 ${titulo}`;
-  document.getElementById('pd-modal-body').innerHTML=html;
+  const pend = pendientes.find(p => p.id === id);
+  if (!pend) return;
+  const esAsig = esAsignacionExterna(pend);
+  const d      = pend.datos || {};
+  const titulo = pend.unidad_envio || d.unidad_envio || d.sto || id;
+
+  let html = '';
+
+  if (esAsig) {
+    const destino = pend.destino || d.destino || '—';
+    html += `
+    <div style="background:linear-gradient(135deg,#FFF8F0,#FFF3E0);border:2px solid #E07000;border-radius:12px;padding:14px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:20px">📤</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#E07000;text-transform:uppercase">Asignación</span>
+      </div>`;
+    const campos = [
+      ['Unidad de Envío', pend.unidad_envio||'—'],
+      ['Cliente',         pend.cliente||'—'],
+      ['Tipo Embarque',   pend.tipo_embarque||'—'],
+      ['Destino',         destino],
+      ['Cargado por',     pend.supervisor||'—'],
+    ];
+    html += campos.map(c=>`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(224,112,0,0.2);font-size:12px">
+        <span style="color:#7A4500;font-weight:700">${c[0]}</span>
+        <span style="font-weight:600">${c[1]}</span>
+      </div>`).join('');
+    if (pend.nota_supervisor) {
+      html += `<div style="margin-top:10px;font-size:11px;color:#7A4500;background:rgba(224,112,0,0.08);border-radius:8px;padding:8px">📝 <strong>Nota:</strong> ${pend.nota_supervisor}</div>`;
+    }
+    html += `</div>`;
+    html += `<button class="btn" style="background:#E07000;color:white;box-shadow:0 4px 14px rgba(224,112,0,0.3)" onclick="iniciarDesdeAsignacion('${id}')">▶ Iniciar Embarque</button>`;
+  } else {
+    const campos = [
+      ['Módulo',  pend.modulo?.toUpperCase()||'—'],
+      ['Subtipo', d.subtipo||'—'],
+      ['STO',     d.sto||'—'],
+      ['Unidad',  d.unidad_envio||'—'],
+      ['Cortina', d.cortina||'—'],
+      ['Cliente', d.cliente||'—'],
+      ['Tipo Carga', d.tipo_carga||'—'],
+      ['Tipo Recibo', d.tipo_recibo||'—'],
+      ['Pallets CHEP', d.pallets_chep!==undefined ? d.pallets_chep : (d.chep!==undefined ? d.chep : '—')],
+      ['Pallets Blancas', d.pallets_blancas!==undefined ? d.pallets_blancas : (d.blancas!==undefined ? d.blancas : '—')],
+      ['Avance',  d.avance||'—'],
+      ['Estado anterior', d.estado||'—'],
+      ['Observación', d.observacion||d.notas||'—'],
+    ];
+    html += `<div class="card" style="margin-bottom:10px"><div class="card-title">📋 Datos Registrados</div>`;
+    html += campos.filter(c=>c[1]&&c[1]!=='—').map(c=>`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span style="color:var(--gray);font-weight:700">${c[0]}</span>
+        <span style="font-weight:600">${c[1]}</span>
+      </div>`).join('');
+    html += '</div>';
+    if (pend.turnos?.length) {
+      html += `<div class="card" style="margin-bottom:10px"><div class="card-title">⏱ Historial de Auditores</div><div>`;
+      pend.turnos.forEach((t,i) => {
+        html += `
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px">
+          <div style="width:22px;height:22px;border-radius:50%;background:${i===0?'var(--green)':'rgba(45,138,78,0.4)'};color:white;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</div>
+          <div style="flex:1;background:rgba(45,138,78,0.06);border-radius:8px;padding:6px 10px;font-size:11px;line-height:1.5">
+            <strong>${t.auditor||'—'}</strong><br>
+            <span style="color:var(--gray)">Turno ${t.turno||'—'}${t.cuadrilla?' · Cuad. '+t.cuadrilla:''}</span>
+            ${t.avance?`<br><span style="color:#1A6B36">Avance: <strong>${t.avance}</strong></span>`:''}
+          </div>
+        </div>`;
+      });
+      html += '</div></div>';
+    }
+    html += `<button class="btn btn-green" onclick="continuarHerencia('${id}')">🔄 Continuar esta Herencia</button>`;
+  }
+
+  document.getElementById('pd-modal-title').textContent = `📂 ${titulo}`;
+  document.getElementById('pd-modal-body').innerHTML = html;
   document.getElementById('pendiente-detail-modal').classList.add('open');
 }
 
@@ -2178,7 +3045,7 @@ function clearReciboForm(){
   const req=document.getElementById('r-monta-req'); if(req) req.style.display='inline';
   const opt=document.getElementById('r-monta-opt'); if(opt) opt.style.display='none';
 }
-function clearField(ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+function clearField(ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';})}
 
 // ══════════════════════════════════════════════════════
 //  TABS
@@ -2252,11 +3119,37 @@ async function syncPendientesDesdeNube(){
     const s=document.getElementById('jsonp-pendientes'); if(s) s.remove();
     delete window[cbName];
     if(data&&data.ok&&Array.isArray(data.pendientes)){
-      pendientes=data.pendientes; saveState(); renderPendientes(); updateNavBadge();
-      showToast(pendientes.length>0?`⚠️ ${pendientes.length} herencia(s) activa(s)`:'✅ Sin pendientes activos',pendientes.length>0?'warning':'success');
+      const mesaDB = mesaGetEmbarquesDB();
+      const cloudAsig = data.pendientes.filter(p =>
+        esAsignacionExterna(p) &&
+        mesaDB[p.unidad_envio]?.estado !== 'completado'
+      );
+      const cloudNorm = data.pendientes.filter(p => !esAsignacionExterna(p));
+      const localNorm = pendientes.filter(p => !esAsignacionExterna(p));
+      const seen = new Set();
+      const merged = [];
+      [...cloudNorm, ...cloudAsig, ...localNorm].forEach(p => {
+        if (!seen.has(p.id) && mesaDB[p.unidad_envio]?.estado !== 'completado') {
+          seen.add(p.id);
+          merged.push(p);
+        }
+      });
+      pendientes = merged;
+      saveState(); renderPendientes(); updateNavBadge();
+      const asigCount = merged.filter(p=>esAsignacionExterna(p)).length;
+      const herCount  = merged.filter(p=>!esAsignacionExterna(p)).length;
+      let msg = '';
+      if (!merged.length) msg = '✅ Sin pendientes activos';
+      else {
+        const parts = [];
+        if (asigCount) parts.push(`${asigCount} asignación(es)`);
+        if (herCount)  parts.push(`${herCount} herencia(s)`);
+        msg = `⚠️ ${parts.join(' · ')}`;
+      }
+      showToast(msg, merged.length>0?'warning':'success');
     }else{showToast('⚠️ Respuesta inesperada del servidor','warning');}
   };
-  timeoutId=setTimeout(()=>{const s=document.getElementById('jsonp-pendientes');if(s)s.remove();delete window[cbName];showToast(pendientes.length>0?`⚠️ ${pendientes.length} herencia(s) en caché local`:'Sin conexión','');},10000);
+  timeoutId=setTimeout(()=>{const s=document.getElementById('jsonp-pendientes');if(s)s.remove();delete window[cbName];showToast(pendientes.length>0?`⚠️ ${pendientes.length} pendiente(s) en caché local`:'Sin conexión','');},10000);
   const script=document.createElement('script');
   script.id='jsonp-pendientes';
   script.src=API_URL+'?action=get_pendientes&callback='+cbName;
@@ -2268,6 +3161,241 @@ async function cloudSavePendiente(pendiente){
 }
 async function cloudDeletePendiente(pendienteId){
   try{const body=JSON.stringify({action:'delete_pendiente',pendiente_id:pendienteId});await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});if(API_URL_2)await fetch(API_URL_2,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});}catch(e){}
+}
+
+// ══════════════════════════════════════════════════════
+//  SUPERVISOR
+// ══════════════════════════════════════════════════════
+let supervisorFilas = [];
+
+function buildSupervisorApp(nav, main) {
+  const tabs = [
+    { id:'sup-carga',    icon:'📋', text:'Carga'    },
+    { id:'sup-enviados', icon:'✅', text:'Enviados' },
+    { id:'logout',       icon:'🚪', text:'Salir'    }
+  ];
+  tabs.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'nav-tab' + (t.id === 'sup-carga' ? ' active' : '');
+    d.setAttribute('data-tab', t.id);
+    d.innerHTML = `<span class="tab-icon">${t.icon}</span>${t.text}`;
+    d.onclick = () => switchTab(t.id);
+    nav.appendChild(d);
+  });
+  tabs.forEach(t => {
+    const div = document.createElement('div');
+    div.id = 'tab-' + t.id;
+    div.className = 'tab-content' + (t.id === 'sup-carga' ? ' active' : '');
+    main.appendChild(div);
+  });
+  fillSupCargaTab();
+  fillSupEnviadosTab();
+  fillLogoutTabGenerico('tab-logout');
+}
+function fillSupCargaTab() {
+  const tab = document.getElementById('tab-sup-carga');
+  if (!tab) return;
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon" style="background:linear-gradient(160deg,#A8DCC8,#0E6655)">📋</div>
+    <div><div class="section-title">Carga de Embarques</div><div class="section-desc"> Cualquier auditor puede tomar los pendientes</div></div>
+  </div>
+  <div class="card" style="border:2px solid rgba(14,102,85,0.3);background:linear-gradient(135deg,#fff,#F0FFF8)">
+    <div class="card-title" style="color:#0E6655;border-bottom-color:#0E6655">📌 Instrucciones</div>
+    <div class="info-note" style="margin-bottom:0">
+      <strong>1.</strong> Pega las columnas o agrega filas manualmente.<br>
+      <strong>2.</strong> Presiona <em>Enviar</em> — cualquier auditor en turno puede tomar los embarques.<br>
+      <strong>3.</strong> No es necesario seleccionar cuadrilla ni turno.
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="color:#0E6655;border-bottom-color:#0E6655">📊 Pegar desde Excel</div>
+    <div style="font-size:11px;color:var(--gray);margin-bottom:8px">Formato: <strong>Tipo Embarque [Tab] Unidad de Envío [Tab] Cliente</strong></div>
+    <textarea id="sup-paste-area" rows="6"
+      placeholder="Ej:&#10;Exportación&#9;UE-45821&#9;WALMART&#10;Local&#9;UE-45822&#9;OXXO"
+      style="font-family:monospace;font-size:12px;border:2px solid rgba(14,102,85,0.3);resize:vertical;background:#FAFFF8"
+      oninput="supParsePaste()"></textarea>
+    <div style="height:8px"></div>
+    <button class="btn btn-supervisor btn-sm" onclick="supParsePaste()" style="width:auto;margin-bottom:0">🔍 Previsualizar</button>
+  </div>
+  <div class="card">
+    <div class="card-title" style="color:#0E6655;border-bottom-color:#0E6655">✏️ Agregar Fila Manual</div>
+    <div class="form-row-3" style="margin-bottom:10px">
+      <div><label>Tipo Embarque <span class="req">*</span></label><select id="sup-manual-tipo"><option value="">—</option><option>Exportación</option><option>Local</option><option>Paletizado</option><option>Granel</option><option>Especial</option></select></div>
+      <div><label>Unidad de Envío <span class="req">*</span></label><input type="text" id="sup-manual-unidad" placeholder="UE-00000"></div>
+      <div><label>Cliente <span class="req">*</span></label><input type="text" id="sup-manual-cliente" placeholder="WALMART"></div>
+    </div>
+    <button class="btn btn-supervisor btn-sm" onclick="supAgregarManual()" style="width:auto">+ Agregar Fila</button>
+  </div>
+  <div id="sup-preview-card" class="card hidden">
+    <div class="card-title" style="color:#0E6655;border-bottom-color:#0E6655">👁 Previsualización — <span id="sup-preview-count">0</span> embarque(s)</div>
+    <div id="sup-preview-table-wrap" style="overflow-x:auto"></div>
+    <div style="height:12px"></div>
+    <div class="form-row" style="margin-bottom:12px">
+      <label>Nota para auditores</label>
+      <textarea id="sup-nota" placeholder="Instrucciones adicionales (opcional)..." style="min-height:55px"></textarea>
+    </div>
+    <button class="btn btn-supervisor" onclick="supEnviarAsignaciones()"><span>📤</span> Enviar</button>
+    <div style="height:6px"></div>
+    <button class="btn btn-ghost" onclick="supLimpiarTodo()" style="margin-top:4px">🗑 Limpiar todo</button>
+  </div>`;
+}
+
+function fillSupEnviadosTab() {
+  const tab = document.getElementById('tab-sup-enviados');
+  if (!tab) return;
+  renderSupEnviados();
+}
+
+function renderSupEnviados() {
+  const tab = document.getElementById('tab-sup-enviados');
+  if (!tab) return;
+  const enviados = (JSON.parse(localStorage.getItem('ap_asignaciones_enviadas')||'[]'));
+  tab.innerHTML = `
+  <div class="section-header">
+    <div class="section-icon" style="background:linear-gradient(160deg,#A8DCC8,#0E6655)">✅</div>
+    <div><div class="section-title">Asignaciones Enviadas</div><div class="section-desc">Historial de embarques asignados</div></div>
+  </div>`;
+  if (!enviados.length) {
+    tab.innerHTML += `<div style="text-align:center;padding:40px 20px;color:var(--gray)"><div style="font-size:44px;margin-bottom:10px">📭</div><div style="font-weight:700;font-size:14px">Sin asignaciones enviadas</div></div>`;
+    return;
+  }
+  const batches = {};
+  enviados.forEach(a => { const k=a.batch_id||'SIN_BATCH'; if(!batches[k]) batches[k]={ts:a.timestamp,items:[]}; batches[k].items.push(a); });
+  let html = '';
+  Object.entries(batches).reverse().forEach(([bk, b]) => {
+    const fecha = new Date(b.ts).toLocaleDateString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    html += `<div class="asignacion-card"><div class="asignacion-header"><div style="font-size:18px">📦</div><div class="ah-title">Lote enviado</div><div style="font-size:10px;color:rgba(255,255,255,0.8)">${fecha}</div></div>`;
+    b.items.forEach(item => {
+      html += `<div class="asignacion-item"><div class="ai-icon">🚛</div><div class="ai-body"><div class="ai-title">${item.unidad_envio||'—'}</div><div class="ai-meta">${item.tipo_embarque||'—'} · ${item.cliente||'—'}</div></div><div class="ai-badge">${item.tipo_embarque||'—'}</div></div>`;
+    });
+    html += '</div>';
+  });
+  tab.innerHTML += html;
+}
+
+function supParsePaste() {
+  const raw = (document.getElementById('sup-paste-area').value||'').trim();
+  if (!raw) { supervisorFilas = []; supRenderPreview(); return; }
+  const newFilas = [];
+  raw.split('\n').forEach((line) => {
+    const parts = line.split('\t').map(s=>s.trim());
+    if (parts.length < 1 || !parts.some(p=>p)) return;
+    let tipo='', unidad='', cliente='';
+    if (parts.length === 1) { unidad=parts[0]; }
+    else if (parts.length === 2) { unidad=parts[0]; cliente=parts[1]; }
+    else { tipo=parts[0]; unidad=parts[1]; cliente=parts[2]; }
+    newFilas.push({ tipo, unidad: unidad.toUpperCase(), cliente: cliente.toUpperCase() });
+  });
+  supervisorFilas = newFilas;
+  supRenderPreview();
+}
+
+function supAgregarManual() {
+  const tipo    = document.getElementById('sup-manual-tipo').value.trim();
+  const unidad  = document.getElementById('sup-manual-unidad').value.trim().toUpperCase();
+  const cliente = document.getElementById('sup-manual-cliente').value.trim().toUpperCase();
+  if (!unidad) { showToast('Ingresa la Unidad de Envío','error'); return; }
+  if (!tipo)   { showToast('Selecciona el Tipo de Embarque','error'); return; }
+  supervisorFilas.push({ tipo, unidad, cliente });
+  supRenderPreview();
+  document.getElementById('sup-manual-tipo').value='';
+  document.getElementById('sup-manual-unidad').value='';
+  document.getElementById('sup-manual-cliente').value='';
+  showToast('✓ Fila agregada','success');
+}
+
+function supEliminarFila(idx) { supervisorFilas.splice(idx,1); supRenderPreview(); }
+
+function supRenderPreview() {
+  const card  = document.getElementById('sup-preview-card');
+  const wrap  = document.getElementById('sup-preview-table-wrap');
+  const count = document.getElementById('sup-preview-count');
+  if (!card || !wrap) return;
+  if (!supervisorFilas.length) { card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+  if (count) count.textContent = supervisorFilas.length;
+  const seenUnidades = {};
+  let html = `<table class="preview-table"><thead><tr><th>#</th><th>Tipo Embarque</th><th>Unidad de Envío</th><th>Cliente</th><th>Estado</th><th></th></tr></thead><tbody>`;
+  supervisorFilas.forEach((f, i) => {
+    const isDup = seenUnidades[f.unidad];
+    const hasErr = !f.unidad;
+    if (!isDup && f.unidad) seenUnidades[f.unidad]=true;
+    const rowClass = hasErr ? 'row-error' : isDup ? 'row-dup' : 'row-ok';
+    const statusLabel = hasErr ? `<span class="col-status err">⚠ Error</span>` : isDup ? `<span class="col-status dup">Dup.</span>` : `<span class="col-status ok">✓ OK</span>`;
+    html += `<tr class="${rowClass}"><td>${i+1}</td><td>${f.tipo||'—'}</td><td><strong>${f.unidad||'—'}</strong></td><td>${f.cliente||'—'}</td><td>${statusLabel}</td><td><button onclick="supEliminarFila(${i})" style="background:var(--red);color:white;border:none;border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer">✕</button></td></tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+async function supEnviarAsignaciones() {
+  const nota      = document.getElementById('sup-nota').value.trim();
+  const validas = supervisorFilas.filter(f => f.unidad);
+  if (!validas.length) { showToast('No hay filas válidas para enviar','error'); return; }
+
+  const batchId  = 'BATCH-' + Date.now();
+  const now      = new Date();
+  const asignaciones = validas.map(f => ({
+    id:               'AS' + Date.now() + Math.random().toString(36).slice(2,6),
+    batch_id:         batchId,
+    tipo_asignacion:  'embarque_externo',
+    modulo:           'embarque',
+    tipo_embarque:    f.tipo || '',
+    unidad_envio:     f.unidad,
+    cliente:          f.cliente || '',
+    turno_destino:    '',
+    cuadrilla_destino:'',
+    nota_supervisor:  nota,
+    supervisor:       session.name,
+    timestamp:        now.toISOString(),
+    fecha:            now.toISOString().slice(0,10),
+    estado:           'Pendiente'
+  }));
+
+  showToast('⏳ Enviando asignaciones...','');
+  const stored = JSON.parse(localStorage.getItem('ap_asignaciones_enviadas')||'[]');
+  localStorage.setItem('ap_asignaciones_enviadas', JSON.stringify([...stored, ...asignaciones]));
+
+  const pending = JSON.parse(localStorage.getItem('ap_pendientes_global')||'[]');
+  const nuevasPendientes = asignaciones.map(a => ({
+    id:               a.id,
+    modulo:           'embarque',
+    tipo_asignacion:  'embarque_externo',
+    tipo_embarque:    a.tipo_embarque,
+    unidad_envio:     a.unidad_envio,
+    cliente:          a.cliente,
+    turno_destino:    '',
+    cuadrilla_destino:'',
+    nota_supervisor:  a.nota_supervisor,
+    supervisor:       a.supervisor,
+    ultimo_turno:     'Global',
+    ultimo_auditor:   'Mesa: ' + session.name,
+    avance:           'Sin iniciar',
+    fecha_creacion:   a.fecha,
+    datos: { unidad_envio: a.unidad_envio, cliente: a.cliente, tipo_carga: a.tipo_embarque, cortina:'', avance:'Sin iniciar' }
+  }));
+  localStorage.setItem('ap_pendientes_global', JSON.stringify([...pending, ...nuevasPendientes]));
+
+  for (const a of asignaciones) {
+    try {
+      const body = JSON.stringify({ action:'save_pendiente', pendiente: nuevasPendientes.find(p=>p.id===a.id) });
+      await fetch(API_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+      if (API_URL_2) await fetch(API_URL_2, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body });
+    } catch(e) {}
+  }
+
+  showToast(`✅ ${asignaciones.length} embarque(s) enviados`,'success');
+  supLimpiarTodo();
+  renderSupEnviados();
+  switchTab('sup-enviados');
+}
+
+function supLimpiarTodo() {
+  supervisorFilas = [];
+  const pa = document.getElementById('sup-paste-area'); if(pa) pa.value='';
+  const pc = document.getElementById('sup-preview-card'); if(pc) pc.classList.add('hidden');
+  const notaEl  = document.getElementById('sup-nota'); if(notaEl) notaEl.value='';
 }
 
 // ══════════════════════════════════════════════════════

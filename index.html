@@ -10,8 +10,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Bricolage+Grotesque:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
-
 :root {
   /* Brand */
   --red: #CF002E;
@@ -76,151 +77,60 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body {
-  font-family: var(--f-body);
-  background: var(--gray-50);
-  color: var(--ink);
-  min-height: 100vh;
-  overflow-x: hidden;
-  letter-spacing: -0.005em;
-  font-feature-settings: "cv11","ss01","ss02";
-  -webkit-font-smoothing: antialiased;
-}
-
+  font-family: var(--f-body);background: var(--gray-50);
+  color: var(--ink);min-height: 100vh;overflow-x: hidden;letter-spacing: -0.005em;font-feature-settings: "cv11","ss01","ss02";-webkit-font-smoothing: antialiased;}
 /* ════════════════════════════════════════════════════════════════
    SPLASH / LOGIN
    ════════════════════════════════════════════════════════════════ */
-#splash {
-  position: fixed; inset: 0; z-index: 999;
-  background: var(--yellow);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 22px; padding: 24px;
-  transition: opacity .45s, transform .45s;
-}
+#splash {position: fixed; inset: 0; z-index: 999;background: var(--yellow);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;gap: 22px; padding: 24px;transition: opacity .45s, transform .45s;}
 #splash.hide { opacity: 0; transform: translateY(-12px); pointer-events: none; }
-
 /* Patrón sutil de fondo */
-#splash::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    radial-gradient(circle at 18% 22%, rgba(207,0,46,.06) 0, transparent 40%),
-    radial-gradient(circle at 82% 78%, rgba(253,208,0,.10) 0, transparent 35%);
-  pointer-events: none;
-}
-
+#splash::before {content: '';position: absolute; inset: 0;background-image:radial-gradient(circle at 18% 22%, rgba(207,0,46,.06) 0, transparent 40%),
+radial-gradient(circle at 82% 78%, rgba(253,208,0,.10) 0, transparent 35%);pointer-events: none;}
 .splash-stack { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 18px; width: min(94vw, 440px); }
-
-.splash-logo {
-  width: 88px; height: 88px;
-  background: var(--yellow);
-  border-radius: 18px;
-  box-shadow: var(--shadow-lg), var(--shadow-inset);
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(15,17,21,.06);
-}
+.splash-logo {width: 88px; height: 88px;background: var(--yellow);border-radius: 18px;
+  box-shadow: var(--shadow-lg), var(--shadow-inset);display: flex; align-items: center; justify-content: center;border: 1px solid rgba(15,17,21,.06);}
 .splash-logo img { max-width: 70%; max-height: 70%; object-fit: contain; }
-
-.splash-title {
-  font-family: var(--f-display);
-  font-size: 22px; font-weight: 800;
-  color: var(--ink);
-  text-align: center;
-  letter-spacing: -0.02em; line-height: 1.05;
-}
-.splash-title small {
-  display: block; margin-top: 6px;
-  font-family: var(--f-mono); font-size: 10px;
-  font-weight: 500; opacity: .65;
-  letter-spacing: .2em; text-transform: uppercase;
-}
-
-.splash-divider {
-  width: 64px; height: 2px;
-  background: var(--ink);
-  border-radius: 2px; opacity: .85;
-}
-
+.splash-title {font-family: var(--f-display);
+  font-size: 22px; font-weight: 800; color: var(--ink);text-align: center;letter-spacing: -0.02em; line-height: 1.05;}
+.splash-title small {display: block; margin-top: 6px;
+  font-family: var(--f-mono); font-size: 10px;font-weight: 500; opacity: .65;letter-spacing: .2em; text-transform: uppercase;}
+.splash-divider {width: 64px; height: 2px;background: var(--ink);border-radius: 2px; opacity: .85;}
 /* Role selector — cards en blanco/ink con acento brand */
 .role-selector { width: 100%; }
-.role-selector h3 {
-  font-family: var(--f-mono); font-size: 10px;
-  font-weight: 700; color: var(--gray-700);
-  text-transform: uppercase; letter-spacing: .22em;
-  text-align: center; margin-bottom: 14px;
-}
+.role-selector h3 {font-family: var(--f-mono); font-size: 10px;
+font-weight: 700; color: var(--gray-700);text-transform: uppercase; letter-spacing: .22em;text-align: center; margin-bottom: 14px;}
 .role-cards { display: grid; grid-template-columns: 1fr; gap: 8px; }
-.role-card {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-  padding: 14px 16px;
-  display: flex; align-items: center; gap: 14px;
-  cursor: pointer;
-  box-shadow: var(--shadow-xs);
-  transition: transform .18s cubic-bezier(.4,.0,.2,1), box-shadow .18s, border-color .18s;
-  position: relative; overflow: hidden;
-}
+.role-card {background: var(--white);border: 1px solid var(--gray-200);border-radius: var(--r-md);
+  padding: 14px 16px;display: flex; align-items: center; gap: 14px;cursor: pointer;box-shadow: var(--shadow-xs);
+  transition: transform .18s cubic-bezier(.4,.0,.2,1), box-shadow .18s, border-color .18s; position: relative; overflow: hidden;}
 .role-card::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--red); opacity: 0; transition: opacity .18s;
-}
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;background: var(--red); opacity: 0; transition: opacity .18s;}
 .role-card:hover,
-.role-card:active {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--red);
-}
+.role-card:active {transform: translateY(-1px);box-shadow: var(--shadow-md);border-color: var(--red);}
 .role-card:hover::before, .role-card:active::before { opacity: 1; }
-
 .role-badge {
-  width: 42px; height: 42px;
-  border-radius: var(--r-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--f-mono); font-size: 11px; font-weight: 800;
-  color: var(--white);
-  flex-shrink: 0;
-  box-shadow: var(--shadow-xs);
-}
+  width: 42px; height: 42px;border-radius: var(--r-sm);display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 800;color: var(--white);flex-shrink: 0;box-shadow: var(--shadow-xs);}
 .role-badge.auditor    { background: var(--red); }
 .role-badge.mesa       { background: var(--gray-900); }
 .role-badge.despacho   { background: var(--gray-700); }
 .role-badge.supervisor { background: var(--ink); }
-
 .role-text { flex: 1; min-width: 0; }
-.role-name {
-  font-family: var(--f-display);
-  font-size: 15px; font-weight: 700;
-  color: var(--ink); letter-spacing: -.01em;
-}
-.role-desc {
-  font-size: 11px; color: var(--gray-500);
-  margin-top: 2px; letter-spacing: -.005em;
-}
+.role-name {font-family: var(--f-display);font-size: 15px; font-weight: 700;color: var(--ink); letter-spacing: -.01em;}
+.role-desc {font-size: 11px; color: var(--gray-500);margin-top: 2px; letter-spacing: -.005em;}
 .role-arrow { font-size: 18px; color: var(--gray-300); font-weight: 300; }
 .role-card:hover .role-arrow { color: var(--red); }
-
 /* Login panel */
 .login-panel { display: none; width: 100%; flex-direction: column; gap: 12px; }
 .login-panel.visible { display: flex; }
-.login-back {
-  font-family: var(--f-mono); font-size: 10px; font-weight: 700;
-  color: var(--gray-700); cursor: pointer;
-  letter-spacing: .15em; text-transform: uppercase;
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 0; width: fit-content;
-  transition: color .15s;
-}
+.login-back {font-family: var(--f-mono); font-size: 10px; font-weight: 700;color: var(--gray-700); cursor: pointer;letter-spacing: .15em; text-transform: uppercase;
+display: inline-flex; align-items: center; gap: 6px;padding: 6px 0; width: fit-content;transition: color .15s;}
 .login-back:hover { color: var(--red); }
-
-.login-card {
-  background: var(--white);
-  border-radius: var(--r-lg);
-  padding: 22px 20px;
-  box-shadow: var(--shadow-xl);
-  border-top: 3px solid var(--red);
-  border: 1px solid var(--gray-200);
-  border-top: 3px solid var(--red);
-}
+.login-card {background: var(--white);
+border-radius: var(--r-lg);padding: 22px 20px;box-shadow: var(--shadow-xl);border-top: 3px solid var(--red);
+border: 1px solid var(--gray-200);border-top: 3px solid var(--red);}
 .lc-head { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid var(--gray-200); }
 .lc-icon { width: 40px; height: 40px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-family: var(--f-mono); font-size: 11px; font-weight: 800; color: var(--white); }
 .lc-icon.auditor    { background: var(--red); }
@@ -229,322 +139,112 @@ body {
 .lc-icon.supervisor { background: var(--ink); }
 .lc-title { font-family: var(--f-display); font-size: 16px; font-weight: 700; color: var(--ink); }
 .lc-sub   { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
-
-.dev-credit {
-  font-family: var(--f-mono); font-size: 9px;
-  color: var(--gray-500); letter-spacing: .25em;
-  text-transform: uppercase; text-align: center;
-  margin-top: 12px; padding-top: 14px;
-  border-top: 1px solid rgba(15,17,21,.08);
-  width: 100%;
-}
+.dev-credit {font-family: var(--f-mono); font-size: 9px;color: var(--gray-500); letter-spacing: .25em;
+  text-transform: uppercase; text-align: center;margin-top: 12px; padding-top: 14px;border-top: 1px solid rgba(15,17,21,.08);width: 100%;}
 .dev-credit strong { color: var(--ink); font-weight: 700; }
-
 /* ════════════════════════════════════════════════════════════════
    APP HEADER
    ════════════════════════════════════════════════════════════════ */
 #app { display: none; }
-
-header.app-header {
-  color: var(--white);
-  position: sticky; top: 0; z-index: 100;
-  background: var(--role-grad);
-  box-shadow: var(--shadow-md);
-}
-.app-header-inner {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 18px;
-  max-width: 1280px; margin: 0 auto;
-}
-.brand-mark {
-  width: 36px; height: 36px;
-  background: var(--yellow);
-  border-radius: var(--r-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--f-display); font-weight: 800;
-  font-size: 14px; color: var(--red);
-  flex-shrink: 0;
-  box-shadow: var(--shadow-xs);
-  letter-spacing: -.02em;
-}
+header.app-header {color: var(--white);position: sticky; top: 0; z-index: 100;background: var(--role-grad);box-shadow: var(--shadow-md);}
+.app-header-inner {display: flex; align-items: center; gap: 12px;padding: 12px 18px;max-width: 1280px; margin: 0 auto;}
+.brand-mark {width: 36px; height: 36px;background: var(--yellow);
+  border-radius: var(--r-sm);display: flex; align-items: center; justify-content: center;font-family: var(--f-display); font-weight: 800;
+  font-size: 14px; color: var(--red);flex-shrink: 0;box-shadow: var(--shadow-xs);letter-spacing: -.02em;}
 .brand-text { flex: 1; min-width: 0; }
-.brand-text h1 {
-  font-family: var(--f-display);
-  font-size: 16px; font-weight: 700;
-  letter-spacing: -.015em; line-height: 1.15;
-}
-.brand-meta {
-  font-family: var(--f-mono); font-size: 10px;
-  opacity: .65; letter-spacing: .12em; text-transform: uppercase;
-}
-.header-user {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
-  font-size: 11px;
-}
+.brand-text h1 {font-family: var(--f-display);font-size: 16px; font-weight: 700;letter-spacing: -.015em; line-height: 1.15;}
+.brand-meta {font-family: var(--f-mono); font-size: 10px;opacity: .65; letter-spacing: .12em; text-transform: uppercase;}
+.header-user {display: flex; flex-direction: column; align-items: flex-end; gap: 2px;font-size: 11px;}
 .header-user .u-name { font-weight: 600; }
 .header-user .u-meta { opacity: .68; font-family: var(--f-mono); font-size: 10px; }
-.header-user .u-pill {
-  display: inline-flex; align-items: center;
-  padding: 2px 8px; border-radius: 99px;
-  font-size: 9px; font-weight: 700; letter-spacing: .08em;
-  background: rgba(255,255,255,.18); color: var(--white);
-  text-transform: uppercase; margin-top: 3px;
-}
-
+.header-user .u-pill {display: inline-flex; align-items: center;
+padding: 2px 8px; border-radius: 99px;font-size: 9px; font-weight: 700; letter-spacing: .08em;
+  background: rgba(255,255,255,.18); color: var(--white);text-transform: uppercase; margin-top: 3px;}
 /* Nav tabs */
-.app-nav {
-  display: flex;
-  background: rgba(0,0,0,.22);
-  border-top: 1px solid rgba(255,255,255,.08);
-  overflow-x: auto;
-}
+.app-nav {display: flex;background: rgba(0,0,0,.22);border-top: 1px solid rgba(255,255,255,.08);overflow-x: auto;}
 .app-nav::-webkit-scrollbar { display: none; }
-.nav-tab {
-  flex: 1;
-  min-width: 70px;
-  padding: 9px 6px;
-  text-align: center; cursor: pointer;
-  font-family: var(--f-mono); font-size: 9px;
-  font-weight: 700; text-transform: uppercase;
-  letter-spacing: .12em;
-  color: rgba(255,255,255,.55);
-  border-bottom: 2px solid transparent;
-  transition: all .18s;
-  position: relative; line-height: 1.3;
-}
-.nav-tab.active {
-  color: var(--yellow);
-  border-bottom-color: var(--yellow);
-  background: rgba(255,255,255,.04);
-}
-.nav-tab .nt-icon {
-  display: block; font-size: 16px; margin-bottom: 3px;
-  font-family: var(--f-body); letter-spacing: 0;
-}
-.nav-badge {
-  position: absolute; top: 4px; right: 6px;
-  background: var(--yellow); color: var(--ink);
-  border-radius: 99px; padding: 1px 5px;
-  font-size: 8px; font-weight: 800; line-height: 1.4;
-}
-
+.nav-tab {flex: 1;min-width: 70px;padding: 9px 6px;
+  text-align: center; cursor: pointer;font-family: var(--f-mono); font-size: 9px;font-weight: 700; text-transform: uppercase;letter-spacing: .12em;
+  color: rgba(255,255,255,.55);border-bottom: 2px solid transparent;transition: all .18s;position: relative; line-height: 1.3;}
+.nav-tab.active {color: var(--yellow);border-bottom-color: var(--yellow);background: rgba(255,255,255,.04);}
+.nav-tab .nt-icon {display: block; font-size: 16px; margin-bottom: 3px;font-family: var(--f-body); letter-spacing: 0;}
+.nav-badge {position: absolute; top: 4px; right: 6px;background: var(--yellow); color: var(--ink);
+  border-radius: 99px; padding: 1px 5px;font-size: 8px; font-weight: 800; line-height: 1.4;}
 /* ════════════════════════════════════════════════════════════════
    MAIN
    ════════════════════════════════════════════════════════════════ */
 main { padding: 18px 14px 40px; max-width: 1280px; margin: 0 auto; }
-
-.section-head {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 18px; padding-bottom: 14px;
-  border-bottom: 1px solid var(--gray-200);
-}
-.section-icon {
-  width: 44px; height: 44px;
-  border-radius: var(--r-md);
-  background: var(--grad-brand);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray-200);
-}
+.section-head {display: flex; align-items: center; gap: 14px;margin-bottom: 18px; padding-bottom: 14px;border-bottom: 1px solid var(--gray-200);}
+.section-icon {width: 44px; height: 44px;border-radius: var(--r-md);background: var(--grad-brand);
+  display: flex; align-items: center; justify-content: center;font-size: 20px;box-shadow: var(--shadow-sm);border: 1px solid var(--gray-200);}
 .section-title { font-family: var(--f-display); font-size: 20px; font-weight: 700; letter-spacing: -.015em; }
 .section-desc  { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
-
-/* KPI strip — dashboard ligero arriba de cada vista */
-.kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.kpi {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-  padding: 12px 14px;
-  box-shadow: var(--shadow-xs);
-  position: relative; overflow: hidden;
-}
-.kpi::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gray-300);
-}
+/* KPI strip */
+.kpi-strip {display: grid;grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));gap: 8px;margin-bottom: 16px;}
+.kpi {background: var(--white);border: 1px solid var(--gray-200);border-radius: var(--r-md);padding: 12px 14px;box-shadow: var(--shadow-xs);position: relative; overflow: hidden;}
+.kpi::before {content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;background: var(--gray-300);}
 .kpi.kpi-brand::before { background: var(--red); }
 .kpi.kpi-yellow::before { background: var(--yellow); }
 .kpi.kpi-ok::before { background: var(--ok); }
 .kpi.kpi-danger::before { background: var(--danger); }
-.kpi .kpi-label {
-  font-family: var(--f-mono); font-size: 9px;
-  font-weight: 700; color: var(--gray-500);
-  text-transform: uppercase; letter-spacing: .12em;
-}
-.kpi .kpi-value {
-  font-family: var(--f-display); font-size: 24px;
-  font-weight: 800; letter-spacing: -.02em;
-  margin-top: 4px; line-height: 1;
-}
-.kpi .kpi-foot {
-  font-size: 10px; color: var(--gray-500); margin-top: 4px;
-}
-
+.kpi .kpi-label {font-family: var(--f-mono); font-size: 9px;font-weight: 700; color: var(--gray-500);text-transform: uppercase; letter-spacing: .12em;}
+.kpi .kpi-value {font-family: var(--f-display); font-size: 24px;font-weight: 800; letter-spacing: -.02em;margin-top: 4px; line-height: 1;}
+.kpi .kpi-foot {font-size: 10px; color: var(--gray-500); margin-top: 4px;}
 /* Card */
-.card {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-  padding: 18px;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-xs);
-}
-.card-title {
-  font-family: var(--f-display);
-  font-size: 14px; font-weight: 700;
-  color: var(--ink);
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 14px; padding-bottom: 10px;
-  border-bottom: 2px solid var(--yellow);
-  letter-spacing: -.01em;
-}
-.card-title .ct-dot {
-  width: 8px; height: 8px; border-radius: 2px;
-  background: var(--red); flex-shrink: 0;
-}
+.card {background: var(--white);border: 1px solid var(--gray-200);border-radius: var(--r-md);padding: 18px;margin-bottom: 12px;box-shadow: var(--shadow-xs);}
+.card-title {font-family: var(--f-display);font-size: 14px; font-weight: 700;color: var(--ink);
+  display: flex; align-items: center; gap: 8px;margin-bottom: 14px; padding-bottom: 10px;border-bottom: 2px solid var(--yellow);letter-spacing: -.01em;}
+.card-title .ct-dot {width: 8px; height: 8px; border-radius: 2px;background: var(--red); flex-shrink: 0;}
 .card-title.ct-mesa .ct-dot     { background: var(--gray-900); }
 .card-title.ct-despacho .ct-dot { background: var(--gray-700); }
 .card-title.ct-ok .ct-dot       { background: var(--ok); }
-
 /* Forms */
 .form-row   { margin-bottom: 14px; }
 .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-@media (max-width: 480px) {
-  .form-row-3 { grid-template-columns: 1fr 1fr; }
-}
-
-label {
-  display: block;
-  font-family: var(--f-mono);
-  font-size: 9px; font-weight: 700;
-  color: var(--gray-700);
-  text-transform: uppercase; letter-spacing: .12em;
-  margin-bottom: 6px;
-}
+@media (max-width: 480px) {.form-row-3 { grid-template-columns: 1fr 1fr; }}
+label {display: block;font-family: var(--f-mono);
+  font-size: 9px; font-weight: 700;color: var(--gray-700);text-transform: uppercase; letter-spacing: .12em;margin-bottom: 6px;}
 label .req { color: var(--red); }
-label .opt {
-  display: inline-block; margin-left: 6px;
-  font-size: 9px; font-weight: 700;
-  background: var(--ok-tint); color: var(--ok);
-  padding: 2px 7px; border-radius: 99px;
-  text-transform: uppercase; letter-spacing: .1em;
-}
-
+label .opt {display: inline-block; margin-left: 6px;
+  font-size: 9px; font-weight: 700;background: var(--ok-tint); color: var(--ok);padding: 2px 7px; border-radius: 99px;text-transform: uppercase; letter-spacing: .1em;}
 input[type="text"], input[type="number"], input[type="date"], input[type="time"],
-select, textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: var(--r-sm);
-  font-family: var(--f-body); font-size: 13px;
-  color: var(--ink);
-  background: var(--white);
-  transition: border-color .15s, box-shadow .15s, background .15s;
-  appearance: none; -webkit-appearance: none;
-}
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--red);
-  box-shadow: 0 0 0 3px rgba(207,0,46,.10);
-}
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23CF002E' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 12px center;
-  padding-right: 34px;
-}
+select, textarea {width: 100%;padding: 10px 12px;border: 1.5px solid var(--gray-200);
+  border-radius: var(--r-sm);font-family: var(--f-body); font-size: 13px;color: var(--ink);
+  background: var(--white);transition: border-color .15s, box-shadow .15s, background .15s;appearance: none; -webkit-appearance: none;}
+input:focus, select:focus, textarea:focus {outline: none;border-color: var(--red);box-shadow: 0 0 0 3px rgba(207,0,46,.10);}
+select {background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23CF002E' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;padding-right: 34px;}
 textarea { resize: vertical; min-height: 72px; }
 input:disabled, select:disabled { opacity: .55; cursor: not-allowed; background: var(--gray-100); }
-
 .prefix-group { display: flex; align-items: stretch; }
 .prefix-label {
-  background: var(--gray-100);
-  border: 1.5px solid var(--gray-200);
-  border-right: none;
-  border-radius: var(--r-sm) 0 0 var(--r-sm);
-  padding: 10px 12px;
-  font-family: var(--f-mono); font-size: 11px; font-weight: 700;
-  color: var(--gray-700);
-  display: flex; align-items: center;
-}
-.prefix-group input {
-  border-radius: 0 var(--r-sm) var(--r-sm) 0;
-  border-left: none;
-}
-
+  background: var(--gray-100);border: 1.5px solid var(--gray-200);border-right: none;border-radius: var(--r-sm) 0 0 var(--r-sm);padding: 10px 12px;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 700;color: var(--gray-700);display: flex; align-items: center;}
+.prefix-group input {border-radius: 0 var(--r-sm) var(--r-sm) 0;border-left: none;}
 /* Autocomplete combobox */
-.combo {
-  position: relative;
-}
+.combo {position: relative;}
 .combo-input { width: 100%; }
-.combo-list {
-  position: absolute; left: 0; right: 0; top: calc(100% + 4px);
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-sm);
-  box-shadow: var(--shadow-lg);
-  max-height: 220px; overflow-y: auto;
-  z-index: 10;
-  display: none;
-}
+.combo-list {position: absolute; left: 0; right: 0; top: calc(100% + 4px);background: var(--white);border: 1px solid var(--gray-200);
+  border-radius: var(--r-sm);box-shadow: var(--shadow-lg);max-height: 220px; overflow-y: auto;z-index: 10;display: none;}
 .combo-list.open { display: block; }
-.combo-item {
-  padding: 9px 12px;
-  font-size: 13px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--gray-100);
-}
-.combo-item:hover, .combo-item.highlighted {
-  background: var(--yellow-tint);
-  color: var(--ink);
-}
+.combo-item {padding: 9px 12px;font-size: 13px;cursor: pointer;border-bottom: 1px solid var(--gray-100);}
+.combo-item:hover, .combo-item.highlighted {background: var(--yellow-tint);color: var(--ink);}
 .combo-item:last-child { border-bottom: none; }
 .combo-empty { padding: 12px; font-size: 12px; color: var(--gray-500); text-align: center; }
-
 /* Toggle pills */
 .toggle-group { display: flex; gap: 6px; flex-wrap: wrap; }
-.toggle-opt {
-  flex: 1; min-width: 80px;
-  padding: 9px 10px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: var(--r-sm);
-  text-align: center; cursor: pointer;
-  font-size: 12px; font-weight: 600;
-  color: var(--gray-700);
-  background: var(--white);
-  transition: all .15s;
-  user-select: none;
-}
-.toggle-opt.selected {
-  border-color: var(--red);
-  background: var(--red-tint);
-  color: var(--red);
-  font-weight: 700;
-}
+.toggle-opt {flex: 1; min-width: 80px;
+  padding: 9px 10px;border: 1.5px solid var(--gray-200);border-radius: var(--r-sm);text-align: center; cursor: pointer;
+  font-size: 12px; font-weight: 600;color: var(--gray-700);background: var(--white);transition: all .15s;user-select: none;}
+.toggle-opt.selected {border-color: var(--red);background: var(--red-tint);color: var(--red);font-weight: 700;}
 .toggle-opt.selected.ok    { border-color: var(--ok); background: var(--ok-tint); color: var(--ok); }
 .toggle-opt.selected.yellow{ border-color: var(--yellow-dark); background: var(--yellow-tint); color: var(--warn); }
-
 /* Buttons */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 7px;
-  padding: 12px 18px;
-  border-radius: var(--r-sm);
-  font-family: var(--f-body);
-  font-size: 13px; font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: transform .12s, box-shadow .15s, background .15s;
-  width: 100%;
-  letter-spacing: -.005em;
-}
+  display: inline-flex; align-items: center; justify-content: center;gap: 7px;padding: 12px 18px;
+  border-radius: var(--r-sm);font-family: var(--f-body);font-size: 13px; font-weight: 600;cursor: pointer;
+  border: none;transition: transform .12s, box-shadow .15s, background .15s;width: 100%;letter-spacing: -.005em;}
 .btn:active { transform: scale(.985); }
 .btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; }
 .btn-primary  { background: var(--red); color: var(--white); box-shadow: 0 2px 10px rgba(207,0,46,.22); }
@@ -557,97 +257,40 @@ input:disabled, select:disabled { opacity: .55; cursor: not-allowed; background:
 .btn-ghost:hover { background: var(--red-tint); }
 .btn-danger   { background: #C0392B; color: var(--white); box-shadow: 0 2px 10px rgba(192,57,43,.22); }
 .btn-sm { padding: 7px 12px; font-size: 11px; width: auto; }
-
 /* Notes */
-.note {
-  font-size: 12px; line-height: 1.55;
-  padding: 10px 12px;
-  border-radius: var(--r-sm);
-  margin-bottom: 10px;
-}
+.note {font-size: 12px; line-height: 1.55;padding: 10px 12px;border-radius: var(--r-sm);margin-bottom: 10px;}
 .note.info { background: var(--gray-100); color: var(--gray-700); border-left: 3px solid var(--gray-300); }
 .note.warn { background: var(--warn-tint); color: var(--warn); border-left: 3px solid var(--yellow-dark); }
 .note.ok   { background: var(--ok-tint); color: var(--ok); border-left: 3px solid var(--ok); }
 .note.danger { background: var(--danger-tint); color: var(--red); border-left: 3px solid var(--red); }
 .note strong { font-weight: 700; }
-
 /* Pendiente / Asignación cards */
-.pendiente-panel {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-  overflow: hidden;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-xs);
-}
-.pp-head {
-  padding: 11px 16px;
-  display: flex; align-items: center; gap: 10px;
-  font-family: var(--f-display);
-  font-size: 14px; font-weight: 700;
-  color: var(--white);
-  letter-spacing: -.01em;
-}
+.pendiente-panel {background: var(--white);
+  border: 1px solid var(--gray-200);border-radius: var(--r-md);overflow: hidden;margin-bottom: 12px;box-shadow: var(--shadow-xs);}
+.pp-head {padding: 11px 16px;display: flex; align-items: center; gap: 10px;
+  font-family: var(--f-display);font-size: 14px; font-weight: 700;color: var(--white);letter-spacing: -.01em;}
 .pp-head.brand    { background: var(--red); }
 .pp-head.yellow   { background: var(--yellow); color: var(--ink); }
 .pp-head.dark     { background: var(--ink); }
-.pp-head .pp-count {
-  margin-left: auto;
-  background: rgba(255,255,255,.22);
-  padding: 2px 9px; border-radius: 99px;
-  font-size: 11px; font-weight: 700;
-}
+.pp-head .pp-count {margin-left: auto;background: rgba(255,255,255,.22);padding: 2px 9px; border-radius: 99px;font-size: 11px; font-weight: 700;}
 .pp-head.yellow .pp-count { background: rgba(15,17,21,.12); color: var(--ink); }
-
-.pp-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--gray-200);
-  display: flex; align-items: flex-start; gap: 12px;
-}
+.pp-item {padding: 12px 16px;border-bottom: 1px solid var(--gray-200);display: flex; align-items: flex-start; gap: 12px;}
 .pp-item:last-child { border-bottom: none; }
 .pp-item:hover { background: var(--gray-50); }
-
-.pp-icon {
-  width: 36px; height: 36px;
-  border-radius: var(--r-sm);
-  background: var(--gray-100);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
-}
+.pp-icon {width: 36px; height: 36px;border-radius: var(--r-sm);
+  background: var(--gray-100);display: flex; align-items: center; justify-content: center;font-size: 16px; flex-shrink: 0;}
 .pp-body { flex: 1; min-width: 0; }
-.pp-title {
-  font-family: var(--f-display);
-  font-size: 14px; font-weight: 700;
-  color: var(--ink);
-  letter-spacing: -.01em;
-}
-.pp-meta {
-  font-size: 11px; color: var(--gray-500);
-  margin-top: 3px; line-height: 1.5;
-}
-.pp-actions {
-  display: flex; gap: 7px; margin-top: 9px;
-  flex-wrap: wrap;
-}
-.pp-btn {
-  padding: 6px 12px;
-  border-radius: var(--r-xs);
-  font-size: 11px; font-weight: 700;
-  cursor: pointer; border: none;
-  text-transform: uppercase; letter-spacing: .08em;
-  font-family: var(--f-mono);
-}
+.pp-title {font-family: var(--f-display);font-size: 14px; font-weight: 700;color: var(--ink);letter-spacing: -.01em;}
+.pp-meta {font-size: 11px; color: var(--gray-500);margin-top: 3px; line-height: 1.5;}
+.pp-actions {display: flex; gap: 7px; margin-top: 9px;flex-wrap: wrap;}
+.pp-btn {padding: 6px 12px;border-radius: var(--r-xs);
+  font-size: 11px; font-weight: 700;cursor: pointer; border: none;text-transform: uppercase; letter-spacing: .08em;font-family: var(--f-mono);}
 .pp-btn.primary { background: var(--red); color: var(--white); }
 .pp-btn.yellow  { background: var(--yellow); color: var(--ink); }
 .pp-btn.ghost   { background: var(--gray-100); color: var(--ink); }
-
 /* Status badges */
-.status {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 9px; border-radius: 99px;
-  font-family: var(--f-mono); font-size: 9px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .1em;
-}
+.status {display: inline-flex; align-items: center; gap: 4px;padding: 3px 9px; border-radius: 99px;
+  font-family: var(--f-mono); font-size: 9px; font-weight: 800;text-transform: uppercase; letter-spacing: .1em;}
 .status.nuevo    { background: rgba(253,208,0,.18); color: var(--warn); }
 .status.herencia { background: var(--yellow-tint); color: var(--warn); }
 .status.auditado { background: var(--gray-100); color: var(--ink); }
@@ -655,385 +298,140 @@ input:disabled, select:disabled { opacity: .55; cursor: not-allowed; background:
 .status.cerrado  { background: var(--ok-tint); color: var(--ok); }
 .status.cerrado_con_incidencias { background: rgba(207,0,46,.10); color: var(--red); }
 .status.cancelado { background: rgba(192,57,43,.12); color: #C0392B; }
-
 /* Bandeja global (tabla) */
-.bandeja {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-  overflow: hidden;
-  box-shadow: var(--shadow-xs);
-  margin-bottom: 12px;
-}
-.bandeja-head {
-  padding: 12px 16px;
-  background: var(--ink); color: var(--white);
-  display: flex; align-items: center; gap: 10px;
-}
-.bandeja-head h3 {
-  font-family: var(--f-display); font-size: 14px; font-weight: 700;
-  letter-spacing: -.01em;
-}
+.bandeja {background: var(--white);
+  border: 1px solid var(--gray-200);border-radius: var(--r-md);overflow: hidden;box-shadow: var(--shadow-xs);margin-bottom: 12px;}
+.bandeja-head {padding: 12px 16px;
+  background: var(--ink); color: var(--white);display: flex; align-items: center; gap: 10px;}
+.bandeja-head h3 {font-family: var(--f-display); font-size: 14px; font-weight: 700;letter-spacing: -.01em;}
 .bandeja-table-wrap { overflow-x: auto; }
-table.bandeja-table {
-  width: 100%; border-collapse: collapse;
-  font-size: 12px;
-}
-table.bandeja-table th {
-  background: var(--gray-100); color: var(--gray-700);
-  font-family: var(--f-mono); font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .1em;
-  padding: 9px 12px; text-align: left;
-  border-bottom: 1px solid var(--gray-200);
-  white-space: nowrap;
-}
-table.bandeja-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--gray-100);
-  vertical-align: middle;
-}
+table.bandeja-table {width: 100%; border-collapse: collapse;font-size: 12px;}
+table.bandeja-table th {background: var(--gray-100); color: var(--gray-700);
+  font-family: var(--f-mono); font-size: 9px; font-weight: 700;text-transform: uppercase; letter-spacing: .1em;
+  padding: 9px 12px; text-align: left;border-bottom: 1px solid var(--gray-200);white-space: nowrap;}
+table.bandeja-table td {padding: 10px 12px;border-bottom: 1px solid var(--gray-100);vertical-align: middle;}
 table.bandeja-table tr:hover td { background: var(--gray-50); }
-table.bandeja-table .col-id {
-  font-family: var(--f-mono); font-size: 10px;
-  color: var(--gray-500);
-}
-
+table.bandeja-table .col-id {font-family: var(--f-mono); font-size: 10px;color: var(--gray-500);}
 /* Photo upload */
-.photo-zone {
-  border: 2px dashed var(--gray-300);
-  border-radius: var(--r-md);
-  padding: 22px 18px; text-align: center;
-  cursor: pointer; position: relative; overflow: hidden;
-  background: var(--gray-50);
-  transition: border-color .15s, background .15s;
-}
+.photo-zone {border: 2px dashed var(--gray-300);border-radius: var(--r-md);
+  padding: 22px 18px; text-align: center;cursor: pointer; position: relative; overflow: hidden;background: var(--gray-50);transition: border-color .15s, background .15s;}
 .photo-zone:hover { border-color: var(--red); background: var(--red-tint); }
+.photo-zone.drag-active { border-color: var(--red); background: var(--red-tint); transform: scale(1.01); }
 .photo-zone .pz-icon { font-size: 32px; margin-bottom: 6px; opacity: .7; }
 .photo-zone p { font-size: 12px; color: var(--gray-700); font-weight: 600; }
 .photo-zone span { font-size: 10px; color: var(--gray-500); display: block; margin-top: 3px; }
-.photo-zone input[type="file"] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer;
-  width: 100%; height: 100%; border: none; background: none; padding: 0;
-}
+.photo-zone input[type="file"] {position: absolute; inset: 0; opacity: 0; cursor: pointer;width: 100%; height: 100%; border: none; background: none; padding: 0;}
 .photo-zone.opt { border-color: var(--ok); background: var(--ok-tint); }
 .photo-zone.opt p { color: var(--ok); }
-
-.photo-previews {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(90px,1fr));
-  gap: 8px; margin-top: 10px;
-}
-.photo-thumb {
-  aspect-ratio: 1; border-radius: var(--r-sm);
-  overflow: hidden; position: relative;
-  box-shadow: var(--shadow-sm);
-}
+.photo-previews {display: grid; grid-template-columns: repeat(auto-fill, minmax(90px,1fr));gap: 8px; margin-top: 10px;}
+.photo-thumb {aspect-ratio: 1; border-radius: var(--r-sm);overflow: hidden; position: relative;box-shadow: var(--shadow-sm);}
 .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.photo-thumb .ph-del {
-  position: absolute; top: 4px; right: 4px;
-  width: 22px; height: 22px;
-  background: var(--red); color: var(--white);
-  border-radius: 50%; border: none;
-  font-size: 12px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700;
-}
-
-.progress-bar {
-  height: 3px; background: var(--gray-200);
-  border-radius: 99px; overflow: hidden;
-  margin-top: 6px; display: none;
-}
+.photo-thumb .ph-del {position: absolute; top: 4px; right: 4px;width: 22px; height: 22px;background: var(--red); color: var(--white);
+  border-radius: 50%; border: none;font-size: 12px; cursor: pointer;display: flex; align-items: center; justify-content: center;font-weight: 700;}
+.progress-bar {height: 3px; background: var(--gray-200);border-radius: 99px; overflow: hidden;margin-top: 6px; display: none;}
 .progress-bar.visible { display: block; }
-.progress-bar .inner {
-  height: 100%; background: var(--ok);
-  width: 0%; transition: width .3s;
-}
-
+.progress-bar .inner {height: 100%; background: var(--ok);width: 0%; transition: width .3s;}
 /* Modal */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 500;
-  background: rgba(15,17,21,.55);
-  backdrop-filter: blur(4px);
-  display: flex; align-items: flex-end; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity .25s;
-}
+.modal-overlay {position: fixed; inset: 0; z-index: 500;background: rgba(15,17,21,.55);backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;opacity: 0; pointer-events: none;transition: opacity .25s;}
 .modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal {
-  background: var(--white);
-  width: 100%;
-  max-width: 720px;
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  padding: 22px 18px 36px;
-  transform: translateY(40px);
-  transition: transform .28s cubic-bezier(.34,1.2,.64,1);
-  max-height: 92vh; overflow-y: auto;
-  box-shadow: var(--shadow-xl);
-}
+.modal {background: var(--white);width: 100%;max-width: 720px;border-radius: var(--r-lg) var(--r-lg) 0 0;
+  padding: 22px 18px 36px;transform: translateY(40px);
+  transition: transform .28s cubic-bezier(.34,1.2,.64,1);max-height: 92vh; overflow-y: auto;box-shadow: var(--shadow-xl);}
 .modal-overlay.open .modal { transform: translateY(0); }
-.modal-handle {
-  width: 40px; height: 4px;
-  background: var(--gray-300);
-  border-radius: 99px;
-  margin: 0 auto 18px;
-}
-.modal-title {
-  font-family: var(--f-display);
-  font-size: 18px; font-weight: 700;
-  margin-bottom: 16px;
-  letter-spacing: -.015em;
-}
-
+.modal-handle {width: 40px; height: 4px; background: var(--gray-300);border-radius: 99px;margin: 0 auto 18px;}
+.modal-title {font-family: var(--f-display);font-size: 18px; font-weight: 700;margin-bottom: 16px;letter-spacing: -.015em;}
 /* Excel paste zone */
-.excel-zone {
-  border: 2px dashed var(--gray-300);
-  border-radius: var(--r-md);
-  padding: 14px;
-  background: var(--gray-50);
-}
-.excel-zone textarea {
-  font-family: var(--f-mono); font-size: 12px;
-  background: var(--white);
-  min-height: 120px;
-}
-
+.excel-zone {border: 2px dashed var(--gray-300);border-radius: var(--r-md);padding: 14px;background: var(--gray-50);}
+.excel-zone textarea {font-family: var(--f-mono); font-size: 12px;background: var(--white);min-height: 120px;}
 /* Preview table */
-table.preview {
-  width: 100%; border-collapse: collapse; font-size: 12px;
-  margin-top: 10px;
-  background: var(--white);
-  border-radius: var(--r-sm); overflow: hidden;
-  border: 1px solid var(--gray-200);
-}
-table.preview th {
-  background: var(--ink); color: var(--white);
-  padding: 8px 10px;
-  font-family: var(--f-mono); font-size: 9px; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase;
-  text-align: left;
-}
-table.preview td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--gray-100);
-}
+table.preview {width: 100%; border-collapse: collapse; font-size: 12px;margin-top: 10px;
+  background: var(--white);border-radius: var(--r-sm); overflow: hidden;border: 1px solid var(--gray-200);}
+table.preview th {background: var(--ink); color: var(--white);padding: 8px 10px;
+  font-family: var(--f-mono); font-size: 9px; font-weight: 700;letter-spacing: .1em; text-transform: uppercase;text-align: left;}
+table.preview td {padding: 8px 10px;border-bottom: 1px solid var(--gray-100);}
 table.preview tr.row-ok td { background: rgba(10,127,62,.04); }
 table.preview tr.row-dup td { background: rgba(253,208,0,.10); }
 table.preview tr.row-err td { background: var(--danger-tint); }
-
 /* Timeline (historial) */
 .timeline { padding-left: 14px; border-left: 2px solid var(--gray-200); margin-top: 8px; }
-.tl-item {
-  position: relative; padding: 8px 0 8px 16px;
-}
-.tl-item::before {
-  content: ''; position: absolute;
-  left: -21px; top: 12px;
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: var(--red);
-  box-shadow: 0 0 0 3px var(--white), 0 0 0 4px var(--gray-200);
-}
+.tl-item {position: relative; padding: 8px 0 8px 16px;}
+.tl-item::before {content: ''; position: absolute;left: -21px; top: 12px;width: 10px; height: 10px;
+  border-radius: 50%;background: var(--red);box-shadow: 0 0 0 3px var(--white), 0 0 0 4px var(--gray-200);}
 .tl-item.ok::before { background: var(--ok); }
 .tl-item.warn::before { background: var(--yellow); }
 .tl-head { font-size: 12px; font-weight: 700; color: var(--ink); }
 .tl-meta { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
 .tl-detail { font-size: 11px; color: var(--gray-700); margin-top: 4px; line-height: 1.5; }
-
 /* Evidence grid by area (reporte unidad) */
-.area-tabs {
-  display: flex; gap: 6px; margin-bottom: 14px;
-  border-bottom: 1px solid var(--gray-200);
-  overflow-x: auto;
-}
-.area-tab {
-  padding: 9px 14px;
-  font-family: var(--f-mono); font-size: 10px; font-weight: 700;
-  color: var(--gray-500);
-  text-transform: uppercase; letter-spacing: .12em;
-  cursor: pointer; white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  transition: color .15s, border-color .15s;
-}
+.area-tabs {display: flex; gap: 6px; margin-bottom: 14px;border-bottom: 1px solid var(--gray-200);overflow-x: auto;}
+.area-tab {padding: 9px 14px;font-family: var(--f-mono); font-size: 10px; font-weight: 700;
+  color: var(--gray-500);text-transform: uppercase; letter-spacing: .12em;
+  cursor: pointer; white-space: nowrap;border-bottom: 2px solid transparent;transition: color .15s, border-color .15s;}
 .area-tab.active { color: var(--red); border-bottom-color: var(--red); }
 .area-content { display: none; }
 .area-content.active { display: block; }
-
-.evidence-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr));
-  gap: 10px;
-}
-.ev-card {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-sm);
-  overflow: hidden;
-  box-shadow: var(--shadow-xs);
-  transition: transform .15s, box-shadow .15s;
-  text-decoration: none; color: inherit;
-}
+.evidence-grid {display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr));gap: 10px;}
+.ev-card {background: var(--white);border: 1px solid var(--gray-200);
+  border-radius: var(--r-sm);overflow: hidden;
+  box-shadow: var(--shadow-xs);transition: transform .15s, box-shadow .15s;text-decoration: none; color: inherit;}
 .ev-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .ev-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: var(--gray-100); display: block; }
 .ev-card .ev-doc { width: 100%; aspect-ratio: 4/3; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--gray-500); }
 .ev-card .ev-info { padding: 8px 10px; }
-.ev-card .ev-name {
-  font-size: 11px; font-weight: 600;
-  color: var(--ink);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.ev-card .ev-meta {
-  font-family: var(--f-mono); font-size: 9px;
-  color: var(--gray-500); margin-top: 2px;
-  letter-spacing: .08em; text-transform: uppercase;
-}
-
+.ev-card .ev-name {font-size: 11px; font-weight: 600; color: var(--ink);white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.ev-card .ev-meta {font-family: var(--f-mono); font-size: 9px;color: var(--gray-500); margin-top: 2px;letter-spacing: .08em; text-transform: uppercase;}
 /* Trazabilidad detail sections */
-.detail-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 8px 14px;
-}
+.detail-grid {display: grid; grid-template-columns: 1fr 1fr;gap: 8px 14px;}
 @media (max-width: 480px) { .detail-grid { grid-template-columns: 1fr; } }
-.dt-item {
-  display: flex; flex-direction: column; gap: 2px;
-  padding: 8px 10px;
-  background: var(--gray-50);
-  border-radius: var(--r-xs);
-  border-left: 3px solid var(--gray-300);
-}
-.dt-label {
-  font-family: var(--f-mono); font-size: 9px;
-  color: var(--gray-500); text-transform: uppercase; letter-spacing: .12em;
-  font-weight: 700;
-}
-.dt-value {
-  font-size: 13px; font-weight: 600; color: var(--ink);
-}
+.dt-item {display: flex; flex-direction: column; gap: 2px;padding: 8px 10px; background: var(--gray-50);border-radius: var(--r-xs);border-left: 3px solid var(--gray-300);}
+.dt-label {font-family: var(--f-mono); font-size: 9px;color: var(--gray-500); text-transform: uppercase; letter-spacing: .12em;font-weight: 700;}
+.dt-value {font-size: 13px; font-weight: 600; color: var(--ink);}
 .dt-item.dt-brand { border-left-color: var(--red); }
 .dt-item.dt-yellow { border-left-color: var(--yellow); }
 .dt-item.dt-ok { border-left-color: var(--ok); background: var(--ok-tint); }
 .dt-item.dt-danger { border-left-color: var(--red); background: var(--danger-tint); }
-
 /* Asset Type block */
-.asset-block {
-  background: linear-gradient(135deg, var(--yellow-tint), rgba(253,208,0,.05));
-  border: 1px solid var(--yellow-dark);
-  border-radius: var(--r-md);
-  padding: 14px;
-  margin-bottom: 12px;
-}
-.asset-block .ab-title {
-  font-family: var(--f-display);
-  font-size: 13px; font-weight: 700;
-  color: var(--warn);
-  margin-bottom: 10px;
-  display: flex; align-items: center; gap: 6px;
-}
-
+.asset-block {background: linear-gradient(135deg, var(--yellow-tint), rgba(253,208,0,.05));border: 1px solid var(--yellow-dark);border-radius: var(--r-md);padding: 14px;margin-bottom: 12px;}
+.asset-block .ab-title {font-family: var(--f-display);font-size: 13px; font-weight: 700; color: var(--warn);margin-bottom: 10px;display: flex; align-items: center; gap: 6px;}
 /* Accent line */
-.accent-line {
-  height: 2px;
-  background: linear-gradient(90deg, var(--red), var(--yellow));
-  border-radius: 99px;
-  margin: 16px 0;
-  opacity: .9;
-}
-
+.accent-line {height: 2px;background: linear-gradient(90deg, var(--red), var(--yellow));border-radius: 99px;margin: 16px 0;opacity: .9;}
 /* Toast */
 .toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(120%);
-  background: var(--ink); color: var(--white);
-  padding: 12px 22px;
-  border-radius: 99px;
-  font-size: 12px; font-weight: 600;
-  z-index: 9999;
-  transition: transform .3s cubic-bezier(.34,1.5,.64,1);
-  box-shadow: var(--shadow-xl);
-  max-width: 92vw;
-}
+  position: fixed; bottom: 24px; left: 50%;transform: translateX(-50%) translateY(120%);background: var(--ink); color: var(--white);padding: 12px 22px;border-radius: 99px;
+  font-size: 12px; font-weight: 600;z-index: 9999;transition: transform .3s cubic-bezier(.34,1.5,.64,1);box-shadow: var(--shadow-xl);max-width: 92vw;}
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.success { background: var(--ok); }
 .toast.error   { background: var(--red); }
 .toast.warn    { background: var(--warn); color: var(--yellow); }
-
 /* Tab content */
 .tab-content { display: none; animation: fadeIn .25s ease; }
 .tab-content.active { display: block; }
 .hidden { display: none !important; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+@keyframes fadeIn {from { opacity: 0; transform: translateY(4px); }to { opacity: 1; transform: translateY(0); }}
 /* Sync banner */
-.sync-banner {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--gray-100);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  font-size: 11px; color: var(--gray-700);
-}
+.sync-banner {display: flex; align-items: center; gap: 10px;
+  background: var(--gray-100);border: 1px solid var(--gray-200);border-radius: var(--r-md);padding: 10px 14px;margin-bottom: 12px;font-size: 11px; color: var(--gray-700);}
 .sync-banner .sb-icon { font-size: 16px; }
-.sync-banner button {
-  margin-left: auto;
-  background: var(--ink); color: var(--white);
-  border: none; padding: 6px 12px;
-  border-radius: var(--r-xs);
-  font-family: var(--f-mono); font-size: 10px; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase;
-  cursor: pointer;
-}
-
+.sync-banner button {margin-left: auto;background: var(--ink); color: var(--white);border: none; padding: 6px 12px;border-radius: var(--r-xs);
+  font-family: var(--f-mono); font-size: 10px; font-weight: 700;letter-spacing: .1em; text-transform: uppercase;cursor: pointer;}
 /* Empty state */
-.empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--gray-500);
-}
+.empty {text-align: center;padding: 40px 20px;color: var(--gray-500);}
 .empty .em-icon { font-size: 44px; margin-bottom: 10px; opacity: .5; }
 .empty .em-title { font-family: var(--f-display); font-size: 16px; font-weight: 700; color: var(--ink); }
 .empty .em-sub { font-size: 12px; margin-top: 4px; }
-
 /* Continuar herencia banner */
-.heritage-banner {
-  background: var(--yellow-tint);
-  border: 1.5px solid var(--yellow-dark);
-  border-radius: var(--r-md);
-  padding: 14px;
-  margin-bottom: 14px;
-}
-.heritage-banner .hb-head {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 10px;
-}
-.heritage-banner .hb-title {
-  font-family: var(--f-display);
-  font-size: 14px; font-weight: 700;
-  color: var(--warn);
-}
-
+.heritage-banner {background: var(--yellow-tint);border: 1.5px solid var(--yellow-dark);border-radius: var(--r-md);padding: 14px;margin-bottom: 14px;}
+.heritage-banner .hb-head {display: flex; align-items: center; gap: 8px;margin-bottom: 10px;}
+.heritage-banner .hb-title {font-family: var(--f-display);font-size: 14px; font-weight: 700;color: var(--warn);}
 /* Cancelar embarque row */
-.cancel-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px;
-  background: var(--danger-tint);
-  border: 1px solid rgba(192,57,43,.3);
-  border-radius: var(--r-sm);
-  cursor: pointer; margin-bottom: 6px;
-  transition: background .15s;
-}
+.cancel-row {display: flex; align-items: center; gap: 10px;padding: 10px 14px;
+  background: var(--danger-tint);border: 1px solid rgba(192,57,43,.3);border-radius: var(--r-sm);cursor: pointer; margin-bottom: 6px;transition: background .15s;}
 .cancel-row:hover { background: rgba(192,57,43,.10); }
 .cancel-row .cr-unit { font-size: 12px; font-weight: 700; color: #C0392B; flex: 1; }
 .cancel-row .cr-meta { font-size: 10px; color: var(--gray-700); }
-.cancel-row .cr-badge {
-  font-family: var(--f-mono); font-size: 9px; font-weight: 800;
-  letter-spacing: .1em; text-transform: uppercase;
-  background: #C0392B; color: var(--white);
-  padding: 3px 9px; border-radius: 99px;
-}
-
+.cancel-row .cr-badge {font-family: var(--f-mono); font-size: 9px; font-weight: 800;letter-spacing: .1em; text-transform: uppercase;
+  background: #C0392B; color: var(--white);padding: 3px 9px; border-radius: 99px;}
 </style>
 </head>
 <body>
@@ -1150,7 +548,7 @@ table.preview tr.row-err td { background: var(--danger-tint); }
 <div id="app">
   <header class="app-header" id="app-header">
     <div class="app-header-inner">
-      <div class="brand-mark">AP</div>
+      <div class="brand-mark">DHL</div>
       <div class="brand-text">
         <h1>Auditoría de Pallets</h1>
         <div class="brand-meta" id="hdr-date">—</div>
@@ -1182,7 +580,7 @@ table.preview tr.row-err td { background: var(--danger-tint); }
 <div class="modal-overlay" id="modal-cancel" onclick="closeModal('modal-cancel')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <div class="modal-title" style="color:#C0392B">🚫 Cancelar Embarque</div>
+    <div class="modal-title" style="color:#C0392B">Cancelar Embarque</div>
     <div id="modal-cancel-body"></div>
     <div style="height:14px"></div>
     <button class="btn btn-ghost" onclick="closeModal('modal-cancel')">Cerrar</button>
@@ -1251,7 +649,6 @@ let mesaFilas = [];
 let photos = { recibo:[], mc:[], embarque:[], asset:[], despacho:[] };
 let assetCapture = null;
 let despachoDoc = null;
-let bandejaCache = [];
 
 function loadState() {
   try {
@@ -1375,17 +772,14 @@ function buildApp() {
     mesa: [
       { id:'mesa-carga',         icon:'', text:'Carga' },
       { id:'mesa-enriquece',     icon:'', text:'Enriquecer' },
-      { id:'mesa-bandeja',       icon:'', text:'Bandeja' },
       { id:'logout',             icon:'⏻', text:'Salir' }
     ],
     despacho: [
       { id:'despacho-cierre',    icon:'', text:'Cierre' },
-      { id:'despacho-bandeja',   icon:'', text:'Bandeja' },
       { id:'logout',             icon:'⏻', text:'Salir' }
     ],
     supervisor: [
       { id:'sup-dashboard',      icon:'', text:'Dashboard' },
-      { id:'sup-bandeja',        icon:'', text:'Bandeja' },
       { id:'sup-reporte',        icon:'', text:'Reporte' },
       { id:'logout',             icon:'⏻', text:'Salir' }
     ]
@@ -1415,15 +809,12 @@ function buildApp() {
   } else if (session.role === 'mesa') {
     renderMesaCarga();
     renderMesaEnriquece();
-    renderMesaBandeja();
     renderLogout();
   } else if (session.role === 'despacho') {
     renderDespachoCierre();
-    renderDespachoBandeja();
     renderLogout();
   } else if (session.role === 'supervisor') {
     renderSupDashboard();
-    renderSupBandeja();
     renderSupReporte();
     renderLogout();
   }
@@ -1437,9 +828,7 @@ function switchTab(id) {
   // Refrescos contextuales
   if (id === 'auditor-pendientes') renderPendientesAuditor();
   if (id === 'mesa-carga')         syncPendientes();
-  if (id === 'mesa-bandeja')       loadAndRenderBandeja('mesa-bandeja-table');
-  if (id === 'despacho-bandeja')   loadAndRenderBandeja('despacho-bandeja-table');
-  if (id === 'sup-bandeja')        loadAndRenderBandeja('sup-bandeja-table');
+  if (id === 'despacho-cierre')    loadDespachoList();
   if (id === 'sup-dashboard')      loadDashboard();
 }
 
@@ -1621,9 +1010,9 @@ async function submitRecibo() {
   if (!res || !res.ok) return toast('Error al guardar','error');
 
   const newId = res.data.id;
-  // Subir evidencias
-  for (const ph of photos.recibo) {
-    await uploadEvidence(newId, 'recibo', 'recibo', 'recibo', ph);
+  // Subir evidencias EN PARALELO (no serializadas)
+  if (photos.recibo.length) {
+    uploadEvidencesBatch(newId, 'recibo', 'recibo', photos.recibo).catch(()=>{});
   }
   toast(`✓ Recibo ${res.data.estado === 'HERENCIA' ? 'guardado como herencia' : 'finalizado'}`,'success');
   resetReciboForm();
@@ -1728,6 +1117,9 @@ function renderAuditorEmbarque() {
             <option>Etiqueta faltante</option>
             <option>Producto incorrecto</option>
             <option>Documentación faltante</option>
+            <option>Omisión de etiqueta</option>
+            <option>Sin información</option>
+            <option>Etiqueta duplicada</option>
             <option>Otro</option>
           </select>
         </div>
@@ -1815,8 +1207,9 @@ async function submitEmbarque() {
   const res = await apiPost('auditor_save_embarque', { data });
   if (!res || !res.ok) return toast('Error: ' + (res?.error || 'desconocido'),'error');
 
-  for (const ph of photos.embarque) {
-    await uploadEvidence(id, 'embarque', 'embarque', 'embarque', ph);
+  // Subir evidencias EN PARALELO (no bloqueante)
+  if (photos.embarque.length) {
+    uploadEvidencesBatch(id, 'embarque', 'embarque', photos.embarque).catch(()=>{});
   }
   toast(`✓ Auditoría guardada · Auditores: ${res.data.conteo_auditores}`,'success');
   cancelEmbarqueForm();
@@ -2105,13 +1498,23 @@ function renderMesaCarga() {
       <div class="card-title ct-mesa"><span class="ct-dot"></span>Previsualización (sin enviar) · <span id="mesa-preview-count">0</span> filas</div>
       <div id="mesa-preview-table" style="overflow-x:auto"></div>
       <div style="height:12px"></div>
+      <div class="form-row-2">
+        <div>
+          <label>Fecha UE de Envío <span style="font-size:10px;color:var(--gray-500)">(editable después)</span></label>
+          <input type="date" id="mesa-ue-fecha">
+        </div>
+        <div>
+          <label>Hora UE de Envío</label>
+          <input type="time" id="mesa-ue-hora">
+        </div>
+      </div>
       <div class="form-row">
         <label>Nota para auditores (opcional)</label>
         <textarea id="mesa-nota" placeholder="Instrucciones adicionales..."></textarea>
       </div>
-      <button class="btn btn-primary" onclick="mesaEnviar()">📤 Enviar a Bandeja de Asignaciones</button>
+      <button class="btn btn-primary" onclick="mesaEnviar()">Enviar a Bandeja de Asignaciones</button>
       <div style="height:8px"></div>
-      <button class="btn btn-ghost" onclick="mesaLimpiar()">🗑 Limpiar previsualización</button>
+      <button class="btn btn-ghost" onclick="mesaLimpiar()">Limpiar previsualización</button>
     </div>
 
     <div class="accent-line"></div>
@@ -2216,7 +1619,7 @@ function mesaAsignacionItemHTML(p, estado) {
         <div class="pp-actions">
           ${sinCortina ? `<button class="pp-btn yellow" onclick="agregarCortinaRapido('${p.id}')">+ Cortina</button>` : ''}
           <button class="pp-btn primary" onclick="abrirEditarAsig('${p.id}')">Editar</button>
-          <button class="pp-btn" style="background:#C0392B;color:#fff" onclick="abrirCancelar('${p.id}')">🚫 Cancelar</button>
+          <button class="pp-btn" style="background:#C0392B;color:#fff" onclick="abrirCancelar('${p.id}')">Cancelar</button>
           ${estado==='AUDITADO' ? `<button class="pp-btn yellow" onclick="switchTab('mesa-enriquece');setTimeout(()=>{document.getElementById('mesa-buscar').value='${unidad}';mesaBuscarEmbarque();},120)">🟣 Enriquecer</button>` : ''}
           <button class="pp-btn ghost" onclick="verReporteUnidad('${unidad}')">👁 Ver</button>
         </div>
@@ -2304,16 +1707,19 @@ function mesaQuitarFila(idx) { mesaFilas.splice(idx,1); mesaRenderPreview(); }
 async function mesaEnviar() {
   if (!mesaFilas.length) return toast('Sin filas para enviar','error');
   const nota = document.getElementById('mesa-nota').value.trim();
+  const ueFecha = (document.getElementById('mesa-ue-fecha')?.value || '').trim();
+  const ueHora  = (document.getElementById('mesa-ue-hora')?.value  || '').trim();
   toast('Enviando a la nube...');
   const res = await apiPost('mesa_create_pendientes', {
-    filas: mesaFilas, nota, usuario: session.name, turno: session.shift, cuadrilla: session.squad
+    filas: mesaFilas, nota, usuario: session.name, turno: session.shift, cuadrilla: session.squad,
+    ue_fecha: ueFecha, ue_hora: ueHora
   });
   if (!res || !res.ok) return toast('Error al enviar','error');
   const { creados=[], omitidos=[] } = res.data;
   toast(`✓ ${creados.length} asignaciones creadas${omitidos.length?' · '+omitidos.length+' duplicadas omitidas':''}`,'success');
   mesaLimpiar();
-  await syncPendientes();
-  // Scroll a bandeja
+  // Sync no bloqueante de UI (no esperamos)
+  syncPendientes();
   const bandeja = document.getElementById('mesa-asignaciones-container');
   if (bandeja) bandeja.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -2409,10 +1815,13 @@ function renderMesaEnriquece() {
           </div>
         </div>
         <div id="me-asset-evidence" class="hidden">
-          <div class="note warn">📸 Evidencia obligatoria si se ajustó Asset Type</div>
-          <div class="photo-zone" id="pz-asset">
+          <div class="note warn">Evidencia obligatoria si se ajustó Asset Type · Pega con <strong>Ctrl+V</strong> o arrastra un archivo</div>
+          <div class="photo-zone" id="pz-asset" tabindex="0"
+               ondragover="event.preventDefault();this.classList.add('drag-active')"
+               ondragleave="this.classList.remove('drag-active')"
+               ondrop="onAssetDrop(event)">
             <div class="pz-icon">📷</div>
-            <p>Subir screenshot / imagen</p>
+            <p>Pega imagen (Ctrl+V), arrastra o selecciona</p>
             <span>Evidencia del ajuste</span>
             <input type="file" accept="image/*,application/pdf" onchange="handleAssetCapture(event)">
           </div>
@@ -2513,8 +1922,9 @@ async function submitMesaEnriquece() {
   });
   if (!res || !res.ok) return toast('Error: '+(res?.error||''),'error');
 
+  // Evidencia en paralelo (no bloqueante)
   if (ajusteSi && assetCapture) {
-    await uploadEvidence(mesaEmbarqueActual.id, 'embarque', 'asset_type', 'mesa', assetCapture);
+    uploadEvidence(mesaEmbarqueActual.id, 'embarque', 'asset_type', 'asset_type', assetCapture).catch(()=>{});
   }
 
   toast(`✓ Enriquecido · Dif. Prime/MC: ${res.data.dif_prime_mc}`,'success');
@@ -2536,113 +1946,95 @@ function mesaCancelarBusqueda() {
 async function handleAssetCapture(event) {
   const file = event.target.files[0];
   if (!file) return;
-  const comp = await compressImage(file, 1400, 1400, 0.80);
-  assetCapture = { name: file.name, data: comp.data, type: file.type };
+  await ingestAssetFile(file);
+  event.target.value = '';
+}
+
+async function ingestAssetFile(file) {
+  if (!file) return;
+  const comp = file.type.startsWith('image/')
+    ? await compressImage(file, 1200, 1200, 0.72)
+    : await fileToBase64(file);
+  assetCapture = { name: file.name || ('asset_'+Date.now()+'.png'), data: comp.data, type: file.type };
   const prev = document.getElementById('me-asset-preview');
   if (file.type.startsWith('image/')) {
-    prev.innerHTML = `<img src="${comp.data}" style="max-width:100%;max-height:140px;border-radius:8px;border:1px solid var(--gray-200)">`;
+    prev.innerHTML = `<img src="${comp.data}" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--gray-200)">`;
   } else {
     prev.innerHTML = `<div class="note info">📄 ${file.name}</div>`;
   }
-  toast('✓ Evidencia lista','success');
+  toast('Evidencia lista','success');
 }
 
-// ════════════════════════════════════════════════════════════════
-//  MESA — BANDEJA
-// ════════════════════════════════════════════════════════════════
-function renderMesaBandeja() {
-  const tab = document.getElementById('tab-mesa-bandeja');
-  if (!tab) return;
-  tab.innerHTML = `
-    <div class="section-head">
-      <div class="section-icon">📊</div>
-      <div>
-        <div class="section-title">Bandeja Global</div>
-        <div class="section-desc">Todos los embarques · Edición y cancelación</div>
-      </div>
-    </div>
-    <div class="sync-banner">
-      <span class="sb-icon"></span>
-      <div style="flex:1">Última actualización en tiempo real</div>
-      <button onclick="loadAndRenderBandeja('mesa-bandeja-table')">Actualizar</button>
-    </div>
-    <div id="mesa-bandeja-table"></div>
-  `;
-  loadAndRenderBandeja('mesa-bandeja-table');
+function onAssetDrop(ev) {
+  ev.preventDefault();
+  ev.currentTarget.classList.remove('drag-active');
+  const file = ev.dataTransfer?.files?.[0];
+  if (file) ingestAssetFile(file);
 }
 
-async function loadAndRenderBandeja(containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '<div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando...</div></div>';
-  const res = await apiGet('get_embarques', {});
-  if (!res || !res.ok) {
-    container.innerHTML = '<div class="empty"><div class="em-icon">⚠</div><div class="em-title">Error de conexión</div></div>';
-    return;
-  }
-  bandejaCache = res.data || [];
-  const today = new Date().toISOString().slice(0,10);
-  const hoy = bandejaCache.filter(e => e.fecha === today);
-  if (!hoy.length) {
-    container.innerHTML = '<div class="empty"><div class="em-icon">📭</div><div class="em-title">Sin embarques hoy</div></div>';
-    return;
-  }
-  let html = `<div class="bandeja">
-    <div class="bandeja-head"><h3>📊 Embarques del día — ${hoy.length}</h3></div>
-    <div class="bandeja-table-wrap">
-      <table class="bandeja-table">
-        <thead><tr>
-          <th>ID</th><th>Unidad</th><th>Cliente</th><th>Cortina</th><th>Tipo</th>
-          <th>Estado</th><th>Auditor</th><th>Dif. MC</th><th>Resultado</th><th></th>
-        </tr></thead>
-        <tbody>`;
-  hoy.forEach(e => {
-    const dif = e.dif_mc_factura !== '' && e.dif_mc_factura != null ? e.dif_mc_factura : '—';
-    const estCls = (e.estado_global||'').toLowerCase();
-    html += `<tr>
-      <td><span class="col-id">${e.id.slice(-8)}</span></td>
-      <td><strong>${e.unidad_envio||'—'}</strong></td>
-      <td>${e.cliente||'—'}</td>
-      <td>${e.cortina||'<span style="color:var(--warn);font-size:10px">sin</span>'}</td>
-      <td>${e.tipo_embarque||'—'}</td>
-      <td><span class="status ${estCls}">${e.estado_global||'—'}</span></td>
-      <td>${e.auditor_nombre||'—'}</td>
-      <td>${dif}</td>
-      <td>${e.resultado_final||'—'}</td>
-      <td>
-        ${session.role === 'mesa' && e.estado_global !== 'CERRADO' && e.estado_global !== 'CERRADO_CON_INCIDENCIAS' && e.estado_global !== 'CANCELADO' ?
-          `<button class="pp-btn ghost" onclick="abrirEditarAsig('${e.id}')" title="Editar asignación">✏</button>
-           <button class="pp-btn" style="background:#C0392B;color:#fff;margin-left:4px" onclick="abrirCancelar('${e.id}')" title="Cancelar embarque">🚫</button>` : ''
+/**
+ * Pegado global (Ctrl+V) para evidencia tipo asset_type:
+ * solo se activa cuando el panel de enriquecimiento está visible y
+ * el ajuste de Asset Type está en SÍ.
+ */
+function setupAssetPasteListener() {
+  if (window.__assetPasteBound) return;
+  window.__assetPasteBound = true;
+  document.addEventListener('paste', async (e) => {
+    const evidenceVisible = !document.getElementById('me-asset-evidence')?.classList.contains('hidden');
+    if (!evidenceVisible) return;
+    const items = e.clipboardData?.items || [];
+    for (const it of items) {
+      if (it.type && it.type.startsWith('image/')) {
+        const blob = it.getAsFile();
+        if (blob) {
+          // Construir File con nombre para mantener consistencia
+          const file = new File([blob], 'pegado_'+Date.now()+'.png', { type: blob.type });
+          await ingestAssetFile(file);
+          e.preventDefault();
+          break;
         }
-        <button class="pp-btn ghost" style="margin-left:4px" onclick="verReporteUnidad('${e.unidad_envio}')" title="Ver reporte">👁</button>
-      </td>
-    </tr>`;
+      }
+    }
   });
-  html += '</tbody></table></div></div>';
-  container.innerHTML = html;
 }
 
 function abrirEditarAsig(id) {
-  const e = bandejaCache.find(x => x.id === id);
+  const e = (pendientes || []).find(x => x.id === id);
   if (!e) return;
   document.getElementById('modal-edit-asig-body').innerHTML = `
-    <div class="form-row">
-      <label>Tipo de Embarque</label>
-      <input type="text" id="ea-tipo" value="${e.tipo_embarque||''}">
+    <div class="note info">Edita cualquier campo asignado. La trazabilidad se conserva en historial.</div>
+    <div class="form-row-2">
+      <div>
+        <label>Tipo de Embarque</label>
+        <input type="text" id="ea-tipo" value="${e.tipo_embarque||''}">
+      </div>
+      <div>
+        <label>Unidad de Envío</label>
+        <input type="text" id="ea-unidad" value="${e.unidad_envio||''}">
+      </div>
     </div>
-    <div class="form-row">
-      <label>Unidad de Envío</label>
-      <input type="text" id="ea-unidad" value="${e.unidad_envio||''}">
+    <div class="form-row-2">
+      <div>
+        <label>Cliente</label>
+        <input type="text" id="ea-cliente" value="${e.cliente||''}">
+      </div>
+      <div>
+        <label>Cortina</label>
+        <input type="text" id="ea-cortina" value="${e.cortina||''}" placeholder="DOOR000">
+      </div>
     </div>
-    <div class="form-row">
-      <label>Cliente</label>
-      <input type="text" id="ea-cliente" value="${e.cliente||''}">
+    <div class="form-row-2">
+      <div>
+        <label>Fecha UE de Envío</label>
+        <input type="date" id="ea-ue-fecha" value="${e.ue_fecha||''}">
+      </div>
+      <div>
+        <label>Hora UE de Envío</label>
+        <input type="time" id="ea-ue-hora" value="${e.ue_hora||''}">
+      </div>
     </div>
-    <div class="form-row">
-      <label>Cortina</label>
-      <input type="text" id="ea-cortina" value="${e.cortina||''}" placeholder="DOOR000">
-    </div>
-    <button class="btn btn-primary" onclick="guardarEditarAsig('${id}')">Guardar cambios →</button>
+    <button class="btn btn-primary" onclick="guardarEditarAsig('${id}')">Guardar cambios</button>
   `;
   document.getElementById('modal-edit-asig').classList.add('open');
 }
@@ -2652,23 +2044,27 @@ async function guardarEditarAsig(id) {
     tipo_embarque: document.getElementById('ea-tipo').value.trim(),
     unidad_envio:  document.getElementById('ea-unidad').value.trim(),
     cliente:       document.getElementById('ea-cliente').value.trim(),
-    cortina:       document.getElementById('ea-cortina').value.trim()
+    cortina:       document.getElementById('ea-cortina').value.trim(),
+    ue_fecha:      document.getElementById('ea-ue-fecha').value,
+    ue_hora:       document.getElementById('ea-ue-hora').value
   };
   toast('Guardando...');
   const res = await apiPost('mesa_edit_asignacion', { id, cambios, usuario: session.name });
   if (!res || !res.ok) return toast('Error: '+(res?.error||''),'error');
   toast('✓ Cambios guardados','success');
   closeModal('modal-edit-asig');
-  if (document.getElementById('mesa-bandeja-table')) loadAndRenderBandeja('mesa-bandeja-table');
   syncPendientes();
 }
 
 function abrirCancelar(id) {
-  const e = bandejaCache.find(x => x.id === id);
+  const e = (pendientes || []).find(x => x.id === id);
   if (!e) return;
   document.getElementById('modal-cancel-body').innerHTML = `
     <div class="note danger">
       <strong>${e.unidad_envio}</strong> · ${e.cliente} · ${e.tipo_embarque||'—'}
+    </div>
+    <div class="note info">
+      La cancelación es definitiva para este registro. Si la unidad <strong>${e.unidad_envio}</strong> regresa al patio, podrá cargarse nuevamente como un embarque distinto desde Carga.
     </div>
     <div class="form-row">
       <label>Razón de Cancelación <span class="req">*</span></label>
@@ -2679,6 +2075,7 @@ function abrirCancelar(id) {
         <option>Cliente canceló</option>
         <option>Problema con la mercancía</option>
         <option>Error de planeación</option>
+        <option>Reprogramada (volverá después)</option>
         <option>Otra razón</option>
       </select>
     </div>
@@ -2686,7 +2083,7 @@ function abrirCancelar(id) {
       <label>Observaciones</label>
       <textarea id="cancel-obs" placeholder="Detalla la razón..."></textarea>
     </div>
-    <button class="btn btn-danger" onclick="confirmCancelacion('${id}')">🚫 Confirmar Cancelación</button>
+    <button class="btn btn-danger" onclick="confirmCancelacion('${id}')">Confirmar Cancelación</button>
   `;
   document.getElementById('modal-cancel').classList.add('open');
 }
@@ -2698,9 +2095,8 @@ async function confirmCancelacion(id) {
   toast('Cancelando...');
   const res = await apiPost('mesa_cancel_embarque', { id, razon, obs, usuario: session.name });
   if (!res || !res.ok) return toast('Error: '+(res?.error||''),'error');
-  toast('🚫 Embarque cancelado','success');
+  toast('Embarque cancelado','success');
   closeModal('modal-cancel');
-  if (document.getElementById('mesa-bandeja-table')) loadAndRenderBandeja('mesa-bandeja-table');
   syncPendientes();
 }
 
@@ -2715,17 +2111,39 @@ function renderDespachoCierre() {
       <div class="section-icon">✅</div>
       <div>
         <div class="section-title">Validación y Cierre</div>
-        <div class="section-desc">Cantidad MC vs Factura · Cálculo automático · Evidencia</div>
+        <div class="section-desc">Listado disponible · Búsqueda individual · Cálculo automático</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title ct-despacho"><span class="ct-dot"></span>Buscar Embarque</div>
-      <div class="form-row">
-        <label>Unidad de Envío <span class="req">*</span></label>
-        <input type="text" id="dp-buscar" placeholder="UE-00000">
+      <div class="card-title ct-despacho"><span class="ct-dot"></span>Embarques disponibles para cierre</div>
+      <div class="form-row-2">
+        <div>
+          <label>Filtro de Estado</label>
+          <select id="dp-list-filter" onchange="renderDespachoList()">
+            <option value="todos">Todos los pendientes</option>
+            <option value="MESA_OK" selected>Mesa OK (listos para cerrar)</option>
+            <option value="AUDITADO">Auditados (esperan mesa)</option>
+            <option value="NUEVO">Nuevos</option>
+            <option value="HERENCIA">Herencias</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px">
+          <button class="btn btn-dark btn-sm" onclick="loadDespachoList()">Actualizar lista</button>
+        </div>
       </div>
-      <button class="btn btn-dark" onclick="despachoBuscar()"> Buscar</button>
+      <div id="dp-list-container" style="margin-top:10px">
+        <div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando…</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title ct-despacho"><span class="ct-dot"></span>Búsqueda individual</div>
+      <div class="form-row">
+        <label>Unidad de Envío</label>
+        <input type="text" id="dp-buscar" placeholder="UE-00000" onkeydown="if(event.key==='Enter')despachoBuscar()">
+      </div>
+      <button class="btn btn-dark" onclick="despachoBuscar()">Buscar</button>
     </div>
 
     <div id="dp-resultado" style="display:none">
@@ -2760,7 +2178,17 @@ function renderDespachoCierre() {
         <div id="dp-doc-preview" style="margin-top:10px"></div>
       </div>
 
-      <button class="btn btn-primary" onclick="submitDespacho()">Validar y Cerrar →</button>
+      <div class="card">
+        <div class="card-title ct-despacho"><span class="ct-dot"></span>Seguimiento (opcional)</div>
+        <div class="note info">Si aún no puedes cerrar, deja una nota de avance. El embarque permanecerá en la bandeja con la nota visible para Mesa y supervisión.</div>
+        <div class="form-row">
+          <label>Nota de seguimiento</label>
+          <textarea id="dp-seguimiento" placeholder="Pendiente factura · Esperando confirmación · etc."></textarea>
+        </div>
+        <button class="btn btn-dark" onclick="enviarSeguimientoDespacho()">Guardar Seguimiento</button>
+      </div>
+
+      <button class="btn btn-primary" onclick="submitDespacho()">Validar y Cerrar</button>
       <div style="height:8px"></div>
       <button class="btn btn-ghost" onclick="despachoCancelar()">Cancelar</button>
     </div>
@@ -2775,7 +2203,21 @@ function renderDespachoCierre() {
       const e = document.getElementById(id);
       if (e) e.addEventListener('input', updateDespachoDifPreview);
     });
+    loadDespachoList();
   }, 100);
+}
+
+async function enviarSeguimientoDespacho() {
+  if (!despachoEmbActual) return toast('Busca un embarque','error');
+  const nota = (document.getElementById('dp-seguimiento')?.value || '').trim();
+  if (!nota) return toast('Escribe una nota de seguimiento','error');
+  toast('Guardando seguimiento...');
+  const res = await apiPost('despacho_seguimiento', {
+    id: despachoEmbActual.id, nota, usuario: session.name
+  });
+  if (!res || !res.ok) return toast('Error: '+(res?.error||''),'error');
+  toast('Seguimiento guardado','success');
+  document.getElementById('dp-seguimiento').value = '';
 }
 
 function updateDespachoDifPreview() {
@@ -2791,6 +2233,81 @@ function updateDespachoDifPreview() {
 }
 
 let despachoEmbActual = null;
+
+let despachoListCache = [];
+
+async function loadDespachoList() {
+  const cont = document.getElementById('dp-list-container');
+  if (!cont) return;
+  cont.innerHTML = '<div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando…</div></div>';
+  const res = await apiGet('get_embarques', {});
+  if (!res || !res.ok) {
+    cont.innerHTML = '<div class="empty"><div class="em-icon">⚠</div><div class="em-title">Error de conexión</div></div>';
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  // Solo embarques NO cerrados/cancelados (relevantes para despacho)
+  despachoListCache = (res.data || []).filter(e =>
+    e.fecha === today &&
+    e.estado_global !== 'CERRADO' &&
+    e.estado_global !== 'CERRADO_CON_INCIDENCIAS' &&
+    e.estado_global !== 'CANCELADO'
+  );
+  renderDespachoList();
+}
+
+function renderDespachoList() {
+  const cont = document.getElementById('dp-list-container');
+  if (!cont) return;
+  const filtro = document.getElementById('dp-list-filter')?.value || 'todos';
+  const rows = filtro === 'todos'
+    ? despachoListCache
+    : despachoListCache.filter(e => e.estado_global === filtro);
+
+  if (!rows.length) {
+    cont.innerHTML = '<div class="empty"><div class="em-icon">📭</div><div class="em-title">Sin embarques para este filtro</div></div>';
+    return;
+  }
+
+  let html = `
+    <div class="bandeja">
+      <div class="bandeja-head"><h3>${rows.length} embarques disponibles</h3></div>
+      <div class="bandeja-table-wrap">
+        <table class="bandeja-table">
+          <thead><tr>
+            <th>Unidad</th><th>Cliente</th><th>Cortina</th><th>Tipo</th>
+            <th>Estado</th><th>Auditor</th><th>Total Prime</th><th>Dif. P/MC</th><th></th>
+          </tr></thead>
+          <tbody>`;
+  rows.forEach(e => {
+    const seg = (e.seguimiento_despacho||'').toString().trim();
+    const estCls = (e.estado_global||'').toLowerCase();
+    html += `<tr>
+      <td><strong>${e.unidad_envio||'—'}</strong>${seg?` <span title="${seg.replace(/"/g,'&quot;')}" style="color:var(--warn);cursor:help">●</span>`:''}</td>
+      <td>${e.cliente||'—'}</td>
+      <td>${e.cortina||'<span style="color:var(--warn);font-size:10px">sin</span>'}</td>
+      <td>${e.tipo_embarque||'—'}</td>
+      <td><span class="status ${estCls}">${e.estado_global||'—'}</span></td>
+      <td>${e.auditor_nombre||'—'}</td>
+      <td>${e.total_prime||0}</td>
+      <td>${e.dif_prime_mc!=null && e.dif_prime_mc!==''?e.dif_prime_mc:'—'}</td>
+      <td><button class="pp-btn" style="background:var(--red);color:#fff" onclick="seleccionarEmbarqueDespacho('${(e.unidad_envio||'').replace(/'/g,"\\\\'")}')">Seleccionar</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table></div></div>';
+  cont.innerHTML = html;
+}
+
+function seleccionarEmbarqueDespacho(unidad) {
+  const inp = document.getElementById('dp-buscar');
+  if (inp) inp.value = unidad;
+  despachoBuscar();
+  // Scroll al resultado
+  setTimeout(() => {
+    const r = document.getElementById('dp-resultado');
+    if (r) r.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 300);
+}
 
 async function despachoBuscar() {
   const u = (document.getElementById('dp-buscar').value||'').trim().toUpperCase();
@@ -2812,8 +2329,13 @@ async function despachoBuscar() {
     <div class="dt-item"><span class="dt-label">Total Prime</span><span class="dt-value">${res.data.total_prime||0}</span></div>
     <div class="dt-item"><span class="dt-label">Cant. MC (Mesa)</span><span class="dt-value">${res.data.cantidad_mc||0}</span></div>
     <div class="dt-item"><span class="dt-label">Dif. Prime/MC</span><span class="dt-value">${res.data.dif_prime_mc!=null?res.data.dif_prime_mc:'—'}</span></div>
+    ${res.data.ue_fecha ? `<div class="dt-item"><span class="dt-label">UE Fecha/Hora</span><span class="dt-value">${res.data.ue_fecha} ${res.data.ue_hora||''}</span></div>` : ''}
+    ${res.data.seguimiento_despacho ? `<div class="dt-item dt-yellow" style="grid-column:1/-1"><span class="dt-label">Seguimiento previo</span><span class="dt-value">${res.data.seguimiento_despacho}</span></div>` : ''}
   `;
-  toast('✓ Encontrado','success');
+  // Precargar el textarea de seguimiento si había uno
+  const segEl = document.getElementById('dp-seguimiento');
+  if (segEl) segEl.value = res.data.seguimiento_despacho || '';
+  toast('Encontrado','success');
 }
 
 async function submitDespacho() {
@@ -2824,20 +2346,26 @@ async function submitDespacho() {
   if (!despachoDoc) return toast('Evidencia obligatoria','error');
 
   toast('Validando...');
+  const seguimiento = (document.getElementById('dp-seguimiento')?.value || '').trim();
   const res = await apiPost('despacho_validate', {
     id: despachoEmbActual.id,
     data: {
       cantidad_mc_despacho: Number(mc),
       cantidad_factura: Number(fa),
+      seguimiento,
       usuario: session.name
     }
   });
   if (!res || !res.ok) return toast('Error: '+(res?.error||''),'error');
 
-  await uploadEvidence(despachoEmbActual.id, 'embarque', 'despacho', 'despacho', despachoDoc);
+  // Evidencia en paralelo (no bloqueante)
+  if (despachoDoc) {
+    uploadEvidence(despachoEmbActual.id, 'embarque', 'despacho', 'despacho', despachoDoc).catch(()=>{});
+  }
   const r = res.data;
   toast(`✓ ${r.resultado} · Dif. MC/Factura: ${r.dif_mc_factura}`, r.resultado === 'OK' ? 'success' : 'warn');
   despachoCancelar();
+  loadDespachoList();
 }
 
 function despachoCancelar() {
@@ -2846,7 +2374,7 @@ function despachoCancelar() {
   document.getElementById('dp-buscar').value = '';
   document.getElementById('dp-resultado').style.display = 'none';
   document.getElementById('dp-no-result').style.display = 'none';
-  ['dp-cant-mc','dp-cant-factura'].forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
+  ['dp-cant-mc','dp-cant-factura','dp-seguimiento'].forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
   document.getElementById('dp-doc-preview').innerHTML = '';
 }
 
@@ -2854,115 +2382,118 @@ async function handleDespachoDoc(event) {
   const file = event.target.files[0];
   if (!file) return;
   const compressed = file.type.startsWith('image/')
-    ? await compressImage(file, 1400, 1400, 0.80)
+    ? await compressImage(file, 1100, 1100, 0.70)
     : await fileToBase64(file);
   despachoDoc = { name: file.name, data: compressed.data, type: file.type };
   const prev = document.getElementById('dp-doc-preview');
   if (file.type.startsWith('image/')) {
     prev.innerHTML = `<img src="${compressed.data}" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--gray-200)">`;
   } else {
-    prev.innerHTML = `<div class="note info">📄 ${file.name}</div>`;
+    prev.innerHTML = `<div class="note info">${file.name}</div>`;
   }
-  toast('✓ Documento listo','success');
-}
-
-function renderDespachoBandeja() {
-  const tab = document.getElementById('tab-despacho-bandeja');
-  if (!tab) return;
-  tab.innerHTML = `
-    <div class="section-head">
-      <div class="section-icon">📊</div>
-      <div>
-        <div class="section-title">Bandeja Global</div>
-        <div class="section-desc">Embarques pendientes de cierre y cerrados</div>
-      </div>
-    </div>
-    <div class="sync-banner">
-      <span class="sb-icon"></span>
-      <div style="flex:1">Bandeja sincronizada</div>
-      <button onclick="loadAndRenderBandeja('despacho-bandeja-table')"> Actualizar</button>
-    </div>
-    <div id="despacho-bandeja-table"></div>
-  `;
-  loadAndRenderBandeja('despacho-bandeja-table');
+  toast('Documento listo','success');
 }
 
 // ════════════════════════════════════════════════════════════════
 //  SUPERVISOR — DASHBOARD
 // ════════════════════════════════════════════════════════════════
+let dashboardTimer = null;
+
 function renderSupDashboard() {
   const tab = document.getElementById('tab-sup-dashboard');
   if (!tab) return;
+  const todayStr = new Date().toISOString().slice(0,10);
   tab.innerHTML = `
     <div class="section-head">
       <div class="section-icon">📈</div>
       <div>
         <div class="section-title">Dashboard Operativo</div>
-        <div class="section-desc">KPIs en tiempo real · Visibilidad de datos críticos</div>
+        <div class="section-desc">KPIs en tiempo real · Segmentación por turno · Filtro por día</div>
       </div>
     </div>
-    <div class="sync-banner">
-      <span class="sb-icon"></span>
-      <div style="flex:1">Datos del día actual</div>
-      <button onclick="loadDashboard()"> Actualizar</button>
+    <div class="card">
+      <div class="card-title"><span class="ct-dot"></span>Filtros</div>
+      <div class="form-row-2">
+        <div>
+          <label>Fecha</label>
+          <input type="date" id="dash-fecha" value="${todayStr}" onchange="loadDashboard()">
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px">
+          <button class="btn btn-dark btn-sm" onclick="dashSetToday()">Hoy</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">Actualizar</button>
+        </div>
+      </div>
+      <div style="color:var(--gray-500);font-size:11px;margin-top:6px" id="dash-last-update">Cargando…</div>
     </div>
     <div id="dashboard-content"></div>
   `;
   loadDashboard();
+  if (dashboardTimer) clearInterval(dashboardTimer);
+  dashboardTimer = setInterval(() => {
+    const active = document.getElementById('tab-sup-dashboard')?.classList.contains('active');
+    if (active) loadDashboard();
+  }, 60000);
+}
+
+function dashSetToday() {
+  const el = document.getElementById('dash-fecha');
+  if (el) { el.value = new Date().toISOString().slice(0,10); loadDashboard(); }
+}
+
+function dashKpiStrip(d, label) {
+  d = d || { total:0, nuevos:0, herencias:0, auditados:0, mesa_ok:0, cerrados:0, incidencias:0, cancelados:0, pct_cumplimiento:0, pallets_chep:0, pallets_blancas:0 };
+  return `
+    <div class="card" style="padding:14px">
+      <div class="card-title"><span class="ct-dot"></span>${label}</div>
+      <div class="kpi-strip">
+        <div class="kpi kpi-brand"><div class="kpi-label">Total</div><div class="kpi-value">${d.total||0}</div></div>
+        <div class="kpi kpi-yellow"><div class="kpi-label">Nuevos</div><div class="kpi-value">${d.nuevos||0}</div></div>
+        <div class="kpi kpi-yellow"><div class="kpi-label">Herencias</div><div class="kpi-value">${d.herencias||0}</div></div>
+        <div class="kpi"><div class="kpi-label">Auditados</div><div class="kpi-value">${d.auditados||0}</div></div>
+        <div class="kpi"><div class="kpi-label">Mesa OK</div><div class="kpi-value">${d.mesa_ok||0}</div></div>
+        <div class="kpi kpi-ok"><div class="kpi-label">Cerrados</div><div class="kpi-value">${d.cerrados||0}</div><div class="kpi-foot">${d.pct_cumplimiento||0}%</div></div>
+        <div class="kpi kpi-danger"><div class="kpi-label">Incidencias</div><div class="kpi-value">${d.incidencias||0}</div></div>
+        <div class="kpi kpi-danger"><div class="kpi-label">Cancelados</div><div class="kpi-value">${d.cancelados||0}</div></div>
+      </div>
+      <div class="detail-grid" style="margin-top:10px">
+        <div class="dt-item dt-brand"><span class="dt-label">CHEP</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${d.pallets_chep||0}</span></div>
+        <div class="dt-item dt-yellow"><span class="dt-label">Blancas</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${d.pallets_blancas||0}</span></div>
+        <div class="dt-item dt-ok"><span class="dt-label">Total Pallets</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${(d.pallets_chep||0)+(d.pallets_blancas||0)}</span></div>
+      </div>
+    </div>`;
 }
 
 async function loadDashboard() {
   const c = document.getElementById('dashboard-content');
   if (!c) return;
-  c.innerHTML = '<div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando...</div></div>';
-  const res = await apiGet('get_dashboard', {});
+  const fecha = (document.getElementById('dash-fecha')?.value || new Date().toISOString().slice(0,10));
+  if (!c.dataset.loaded) {
+    c.innerHTML = '<div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando...</div></div>';
+  }
+  const res = await apiGet('get_dashboard', { fecha });
   if (!res || !res.ok) {
-    c.innerHTML = '<div class="empty"><div class="em-icon">⚠</div><div class="em-title">Error</div></div>';
+    c.innerHTML = '<div class="empty"><div class="em-icon">⚠</div><div class="em-title">Error de conexión</div><div style="color:var(--gray-500);font-size:11px;margin-top:6px">'+(res?.error||'desconocido')+'</div></div>';
     return;
   }
-  const d = res.data;
-  c.innerHTML = `
-    <div class="kpi-strip">
-      <div class="kpi kpi-brand"><div class="kpi-label">Total del día</div><div class="kpi-value">${d.total}</div></div>
-      <div class="kpi kpi-yellow"><div class="kpi-label">Nuevos</div><div class="kpi-value">${d.nuevos}</div></div>
-      <div class="kpi kpi-yellow"><div class="kpi-label">Herencias</div><div class="kpi-value">${d.herencias}</div></div>
-      <div class="kpi"><div class="kpi-label">Auditados</div><div class="kpi-value">${d.auditados}</div></div>
-      <div class="kpi"><div class="kpi-label">Mesa OK</div><div class="kpi-value">${d.mesa_ok}</div></div>
-      <div class="kpi kpi-ok"><div class="kpi-label">Cerrados</div><div class="kpi-value">${d.cerrados}</div><div class="kpi-foot">${d.pct_cumplimiento}% cumplimiento</div></div>
-      <div class="kpi kpi-danger"><div class="kpi-label">Incidencias</div><div class="kpi-value">${d.incidencias}</div></div>
-      <div class="kpi kpi-danger"><div class="kpi-label">Cancelados</div><div class="kpi-value">${d.cancelados}</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span class="ct-dot"></span>Pallets del día</div>
-      <div class="detail-grid">
-        <div class="dt-item dt-brand"><span class="dt-label">Pallets CHEP</span><span class="dt-value" style="font-size:24px;font-family:var(--f-display)">${d.pallets_chep}</span></div>
-        <div class="dt-item dt-yellow"><span class="dt-label">Pallets Blancas</span><span class="dt-value" style="font-size:24px;font-family:var(--f-display)">${d.pallets_blancas}</span></div>
-      </div>
-      <div class="accent-line"></div>
-      <div class="dt-item dt-ok" style="margin-top:8px"><span class="dt-label">Grand Total</span><span class="dt-value" style="font-size:28px;font-family:var(--f-display)">${d.pallets_chep + d.pallets_blancas}</span></div>
-    </div>
-  `;
-}
+  const d = res.data || {};
+  const g = d.global || d;
+  const t1 = (d.turnos && d.turnos.T1_06_14)   || {};
+  const t2 = (d.turnos && d.turnos.T2_14_2130) || {};
+  const t3 = (d.turnos && d.turnos.T3_2130_06) || {};
 
-function renderSupBandeja() {
-  const tab = document.getElementById('tab-sup-bandeja');
-  if (!tab) return;
-  tab.innerHTML = `
-    <div class="section-head">
-      <div class="section-icon">📊</div>
-      <div>
-        <div class="section-title">Bandeja Global</div>
-        <div class="section-desc">Visibilidad completa de todos los embarques</div>
-      </div>
-    </div>
-    <div class="sync-banner">
-      <span class="sb-icon"></span>
-      <div style="flex:1">Datos en vivo</div>
-      <button onclick="loadAndRenderBandeja('sup-bandeja-table')"> Actualizar</button>
-    </div>
-    <div id="sup-bandeja-table"></div>
+  c.dataset.loaded = '1';
+  c.innerHTML = `
+    ${dashKpiStrip(g, 'Resumen Global · ' + (d.fecha||fecha))}
+    <div class="accent-line"></div>
+    ${dashKpiStrip(t1, 'Turno 1 · 06:00 – 14:00')}
+    ${dashKpiStrip(t2, 'Turno 2 · 14:00 – 21:30')}
+    ${dashKpiStrip(t3, 'Turno 3 · 21:30 – 06:00')}
   `;
-  loadAndRenderBandeja('sup-bandeja-table');
+  const upd = document.getElementById('dash-last-update');
+  if (upd) {
+    const now = new Date();
+    upd.textContent = 'Última actualización: ' + now.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -3010,6 +2541,435 @@ async function verReporteUnidad(unidad) {
   renderReporteUnidad(res.data);
 }
 
+// ════════════════════════════════════════════════════════════════
+//  PDF EXPORT (Reporte Histórico con imágenes + logo DHL)
+// ════════════════════════════════════════════════════════════════
+// Convierte URL de evidencia (Drive) en data URL listo para jsPDF.
+// Pasa por el backend (proxy) para evitar problemas de CORS con Drive.
+async function loadImageAsDataURL(url) {
+  if (!url) return null;
+  // Extraer Drive file ID
+  const m = url.match(/\/file\/d\/([^/]+)/) || url.match(/[?&]id=([^&]+)/);
+  if (!m || !m[1]) return null;
+  const fileId = m[1];
+
+  // Cache en memoria por sesión
+  if (!window.__imgCache) window.__imgCache = {};
+  if (window.__imgCache[fileId]) return window.__imgCache[fileId];
+
+  const res = await apiGet('get_image_proxy', { file_id: fileId });
+  if (!res || !res.ok || !res.data || !res.data.data) return null;
+
+  const dataUrl = 'data:' + (res.data.mime || 'image/jpeg') + ';base64,' + res.data.data;
+  // Cargar en <img> para conocer dimensiones y normalizar a JPEG comprimido
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        const maxW = 800;
+        const ratio = img.naturalWidth > maxW ? maxW / img.naturalWidth : 1;
+        c.width  = Math.round(img.naturalWidth * ratio);
+        c.height = Math.round(img.naturalHeight * ratio);
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        const out = { data: c.toDataURL('image/jpeg', 0.78), w: c.width, h: c.height };
+        window.__imgCache[fileId] = out;
+        resolve(out);
+      } catch(_) { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+// Logotipo institucional: una sola descarga vía proxy backend.
+// Cacheado en memoria de sesión + localStorage para reusos posteriores.
+async function getInstitutionalLogo() {
+  if (window.__instLogo) return window.__instLogo;
+  try {
+    const cached = localStorage.getItem('inst_logo_v1');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      // Validar que tenga dimensiones para evitar payloads corruptos
+      if (parsed && parsed.data && parsed.w && parsed.h) {
+        window.__instLogo = parsed;
+        return parsed;
+      }
+    }
+  } catch(_) {}
+
+  const res = await apiGet('get_dhl_logo', {});
+  if (!res || !res.ok || !res.data || !res.data.data) return null;
+  const dataUrl = 'data:' + (res.data.mime || 'image/png') + ';base64,' + res.data.data;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const out = { data: dataUrl, w: img.naturalWidth, h: img.naturalHeight };
+      window.__instLogo = out;
+      try { localStorage.setItem('inst_logo_v1', JSON.stringify(out)); } catch(_) {}
+      resolve(out);
+    };
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+async function exportarReportePDF() {
+  const rep = window.__lastReporte;
+  if (!rep || !rep.encontrado) return toast('No hay reporte en pantalla','error');
+  if (!window.jspdf || !window.jspdf.jsPDF) return toast('Librería PDF no cargada, recarga la página','error');
+
+  toast('Generando PDF...');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const PW = doc.internal.pageSize.getWidth();
+  const PH = doc.internal.pageSize.getHeight();
+  const M  = 40;
+  const CONTENT_W = PW - M * 2;
+  const LABEL_W   = 200;
+  const VALUE_X   = M + LABEL_W;
+  const VALUE_W   = CONTENT_W - LABEL_W;
+
+  let y = M;
+
+  // ── Paleta de colores semánticos ──────────────────────────────
+  const RGB = {
+    OK:      [39, 174, 96],
+    DANGER:  [207, 0, 46],
+    WARN:    [253, 208, 0],
+    NEUTRAL: [107, 107, 107],
+    NEW:     [255, 178, 102],
+    GRID:    [222, 226, 230],
+    LABEL_BG:[247, 248, 250],
+    INK:     [33, 37, 41],
+    INK_SOFT:[90, 96, 104]
+  };
+
+  const statusBg = (val) => {
+    const v = String(val||'').toUpperCase().trim();
+    if (!v || v === '—') return null;
+    if (v === 'CERRADO_CON_INCIDENCIAS' || v === 'CANCELADO' || v === 'DIFERENCIA' || v === 'INCORRECTO') return RGB.DANGER;
+    if (v === 'CERRADO' || v === 'OK' || v === 'CORRECTO') return RGB.OK;
+    if (v === 'NUEVO') return RGB.NEW;
+    if (v === 'HERENCIA') return RGB.WARN;
+    if (v === 'AUDITADO' || v === 'MESA_OK') return RGB.NEUTRAL;
+    return null;
+  };
+
+  // Cargar logo institucional ANTES de empezar a dibujar páginas
+  toast('Preparando recursos...');
+  const instLogo = await getInstitutionalLogo();
+
+  // ── Header (cada página) ─────────────────────────────────────
+  function drawHeader() {
+    doc.setFont('helvetica','italic'); doc.setFontSize(8.5);
+    doc.setTextColor(140,140,140);
+    doc.text('Business Use', M, M - 4);
+
+    if (instLogo && instLogo.data) {
+      // Tamaño objetivo: 80pt de ancho, alto proporcional (logo discreto)
+      const targetW = 80;
+      const ratio = instLogo.h && instLogo.w ? instLogo.h / instLogo.w : 0.35;
+      const targetH = Math.max(16, Math.min(36, targetW * ratio));
+      const fmt = (instLogo.data.indexOf('image/png') !== -1) ? 'PNG' : 'JPEG';
+      try {
+        doc.addImage(instLogo.data, fmt, PW - M - targetW, M - 16, targetW, targetH);
+      } catch(_) {
+        // Si addImage falla, dejar el espacio vacío silenciosamente
+      }
+    }
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(120,120,120);
+    doc.text('DHL / P&G', PW - M, M + 18, { align:'right' });
+
+    doc.setDrawColor(RGB.GRID[0], RGB.GRID[1], RGB.GRID[2]);
+    doc.setLineWidth(0.5);
+    doc.line(M, M + 24, PW - M, M + 24);
+  }
+
+  function newPage() {
+    doc.addPage();
+    drawHeader();
+    y = M + 42;
+  }
+  function ensureSpace(needed) {
+    if (y + needed > PH - M - 20) newPage();
+  }
+
+  drawHeader();
+  y = M + 42;
+
+  // ── Título del reporte ────────────────────────────────────────
+  doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.setTextColor(RGB.INK[0], RGB.INK[1], RGB.INK[2]);
+  doc.text('Reporte Histórico de Embarque', M, y);
+  y += 15;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.setTextColor(RGB.INK_SOFT[0], RGB.INK_SOFT[1], RGB.INK_SOFT[2]);
+  const gen = new Date().toLocaleString('es-MX', { dateStyle:'medium', timeStyle:'short' });
+  doc.text('Generado: ' + gen, M, y);
+  y += 18;
+
+  // ── Helpers de tabla ──────────────────────────────────────────
+  function sectionHeader(title) {
+    ensureSpace(28);
+    doc.setFillColor(238, 240, 244);
+    doc.rect(M, y, CONTENT_W, 22, 'F');
+    doc.setDrawColor(RGB.GRID[0], RGB.GRID[1], RGB.GRID[2]);
+    doc.setLineWidth(0.5);
+    doc.rect(M, y, CONTENT_W, 22);
+    doc.setFont('helvetica','bold'); doc.setFontSize(10);
+    doc.setTextColor(RGB.INK[0], RGB.INK[1], RGB.INK[2]);
+    doc.text(title, M + 10, y + 14.5);
+    y += 22;
+  }
+
+  function dataRow(label, value, opts) {
+    opts = opts || {};
+    let valStr = (value === null || value === undefined || value === '') ? '—' : String(value);
+    if (valStr === 'undefined' || valStr === 'null') valStr = '—';
+    if (valStr === '—' && opts.bgColor) opts.bgColor = null;
+
+    doc.setFontSize(9);
+    const wrapped = doc.splitTextToSize(valStr, VALUE_W - 16);
+    const rowH = Math.max(20, 12 + wrapped.length * 11);
+
+    ensureSpace(rowH);
+
+    // Label cell (fondo gris suave)
+    doc.setFillColor(RGB.LABEL_BG[0], RGB.LABEL_BG[1], RGB.LABEL_BG[2]);
+    doc.rect(M, y, LABEL_W, rowH, 'F');
+
+    // Value cell (color si aplica)
+    if (opts.bgColor) {
+      doc.setFillColor(opts.bgColor[0], opts.bgColor[1], opts.bgColor[2]);
+      doc.rect(VALUE_X, y, VALUE_W, rowH, 'F');
+    } else {
+      doc.setFillColor(255, 255, 255);
+      doc.rect(VALUE_X, y, VALUE_W, rowH, 'F');
+    }
+
+    // Bordes
+    doc.setDrawColor(RGB.GRID[0], RGB.GRID[1], RGB.GRID[2]);
+    doc.setLineWidth(0.5);
+    doc.rect(M, y, CONTENT_W, rowH);
+    doc.line(VALUE_X, y, VALUE_X, y + rowH);
+
+    // Texto label
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.setTextColor(RGB.INK_SOFT[0], RGB.INK_SOFT[1], RGB.INK_SOFT[2]);
+    doc.text(label, M + 10, y + rowH/2 + 3);
+
+    // Texto value
+    if (opts.bgColor) {
+      const bg = opts.bgColor;
+      const isYellow = bg[0] > 200 && bg[1] > 180 && bg[2] < 80;
+      if (isYellow) doc.setTextColor(33, 37, 41); else doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+      doc.text(valStr, PW - M - 10, y + rowH/2 + 3, { align:'right' });
+    } else {
+      doc.setFont('helvetica','normal'); doc.setFontSize(9);
+      doc.setTextColor(RGB.INK[0], RGB.INK[1], RGB.INK[2]);
+      const lineH = 11;
+      const startY = y + (rowH - wrapped.length * lineH) / 2 + 8;
+      doc.text(wrapped, VALUE_X + 10, startY);
+    }
+
+    y += rowH;
+  }
+
+  // ── SECCIÓN: AUDITORÍA DE EMBARQUE ────────────────────────────
+  sectionHeader('Auditoría de embarque');
+  dataRow('Unidad de Envío',    rep.resumen.unidad);
+  dataRow('Cliente',            rep.resumen.cliente);
+  dataRow('Tipo de Embarque',   rep.embarque && rep.embarque.tipo_embarque);
+  dataRow('Cortina',            rep.resumen.cortina);
+  dataRow('UE Fecha / Hora',    ((rep.resumen.ue_fecha||'') + ' ' + (rep.resumen.ue_hora||'')).trim() || '—');
+  dataRow('Estado Global',      rep.resumen.estado_global, { bgColor: statusBg(rep.resumen.estado_global) });
+  dataRow('Resultado Final',    rep.resumen.resultado, { bgColor: statusBg(rep.resumen.resultado) });
+  dataRow('Áreas Participantes',(rep.resumen.areas_participantes||[]).join(' · '));
+  dataRow('Conteo de Auditores', rep.resumen.conteo_auditores || 0);
+  dataRow('Pallets CHEP',       rep.resumen.total_chep || 0);
+  dataRow('Pallets Blancas',    rep.resumen.total_blancas || 0);
+  dataRow('Total Pallets',      rep.resumen.total_pallets || 0);
+  dataRow('Total Fotografías',  rep.resumen.total_fotografias || 0);
+  if (rep.resumen.seguimiento_despacho) {
+    dataRow('Seguimiento Despacho', rep.resumen.seguimiento_despacho);
+  }
+
+  // ── SECCIÓN: AUDITOR ─────────────────────────────────────────
+  const a = (rep.tabs && rep.tabs.embarque && rep.tabs.embarque.auditor) || {};
+  if (a.nombre) {
+    y += 8;
+    sectionHeader('Auditor');
+    dataRow('Nombre',              a.nombre);
+    dataRow('Turno',               a.turno);
+    dataRow('Cuadrilla',           a.cuadrilla);
+    dataRow('Fecha',               (a.fecha||'').toString().replace('T',' ').slice(0,16));
+    dataRow('Tipo de Auditoría',   a.tipo_auditoria);
+    dataRow('Usuario Montacargas', a.usuario_monta);
+    dataRow('Etiqueta Consolidada',a.etiqueta);
+    const mcBg = a.status_mc === 'Correcto' ? RGB.OK : (a.status_mc === 'Incorrecto' ? RGB.DANGER : null);
+    dataRow('Status MC',           a.status_mc, { bgColor: mcBg });
+    if (a.motivo_error) dataRow('Motivo de Error', a.motivo_error);
+    dataRow('Avance',              a.avance);
+    dataRow('Estado Auditor',      a.estado);
+  }
+
+  // ── SECCIÓN: MESA DE CONTROL ─────────────────────────────────
+  const mm = (rep.tabs && rep.tabs.embarque && rep.tabs.embarque.mesa) || {};
+  if (mm.origen) {
+    y += 8;
+    sectionHeader('Mesa de Control');
+    dataRow('Usuario Origen',       mm.origen);
+    dataRow('Fecha Origen',         (mm.origen_fecha||'').toString().replace('T',' ').slice(0,16));
+    if (mm.enriquece_nombre) {
+      dataRow('Usuario Enriquecimiento', mm.enriquece_nombre);
+      dataRow('Fecha Enriquecimiento',   (mm.enriquece_fecha||'').toString().replace('T',' ').slice(0,16));
+    }
+    if (mm.tipo_tarima_t1) dataRow('Tipo Tarima T1', mm.tipo_tarima_t1);
+    if (mm.cant_prime_t1 != null && mm.cant_prime_t1 !== '') dataRow('Cantidad Prime T1', mm.cant_prime_t1);
+    if (mm.tipo_tarima_t2) dataRow('Tipo Tarima T2', mm.tipo_tarima_t2);
+    if (mm.cant_prime_t2 != null && mm.cant_prime_t2 !== '') dataRow('Cantidad Prime T2', mm.cant_prime_t2);
+    if (mm.cantidad_mc != null && mm.cantidad_mc !== '') dataRow('Cantidad MC', mm.cantidad_mc);
+    if (mm.total_prime != null && mm.total_prime !== '') dataRow('Total Prime', mm.total_prime);
+    if (mm.ajuste_asset_type) {
+      const ajBg = (mm.ajuste_asset_type === 'SÍ' || mm.ajuste_asset_type === 'SI') ? RGB.WARN : null;
+      dataRow('Ajuste Asset Type', mm.ajuste_asset_type, { bgColor: ajBg });
+    }
+  }
+
+  // ── SECCIÓN: DESPACHO ────────────────────────────────────────
+  const dp = (rep.tabs && rep.tabs.embarque && rep.tabs.embarque.despacho) || {};
+  if (dp.nombre) {
+    y += 8;
+    sectionHeader('Despacho');
+    dataRow('Analista', dp.nombre);
+    dataRow('Fecha',    (dp.fecha||'').toString().replace('T',' ').slice(0,16));
+    if (dp.cantidad_mc != null && dp.cantidad_mc !== '') dataRow('Cantidad MC', dp.cantidad_mc);
+    if (dp.cantidad_factura != null && dp.cantidad_factura !== '') dataRow('Cantidad Factura', dp.cantidad_factura);
+    if (dp.dif_prime_mc != null && dp.dif_prime_mc !== '') {
+      const bg = Number(dp.dif_prime_mc) === 0 ? RGB.OK : RGB.DANGER;
+      dataRow('Diferencia Prime vs MC', dp.dif_prime_mc, { bgColor: bg });
+    }
+    if (dp.dif_mc_factura != null && dp.dif_mc_factura !== '') {
+      const bg = Number(dp.dif_mc_factura) === 0 ? RGB.OK : RGB.DANGER;
+      dataRow('Diferencia MC vs Factura', dp.dif_mc_factura, { bgColor: bg });
+    }
+    if (dp.resultado) {
+      dataRow('Resultado', dp.resultado, { bgColor: statusBg(dp.resultado) });
+    }
+    if (dp.seguimiento) dataRow('Seguimiento', dp.seguimiento);
+  }
+
+  // ── EVIDENCIAS POR ÁREA (grid uniforme) ──────────────────────
+  const evidByArea = rep.evidencias_por_area || {};
+  const areasLabels = {
+    recibo:     'Evidencias · Recibo',
+    embarque:   'Evidencias · Embarque',
+    mesa:       'Evidencias · Mesa de Control',
+    asset_type: 'Evidencias · Ajuste de Asset Type',
+    despacho:   'Evidencias · Despacho',
+    general:    'Evidencias · General'
+  };
+  const areasOrden = ['recibo','embarque','mesa','asset_type','despacho','general'];
+  const areasPres = areasOrden.filter(k => evidByArea[k] && evidByArea[k].length)
+    .concat(Object.keys(evidByArea).filter(k => !areasOrden.includes(k) && evidByArea[k] && evidByArea[k].length));
+
+  // Grid: 4 imágenes por fila, tamaño uniforme
+  const PHOTOS_PER_ROW = 4;
+  const PHOTO_GAP = 10;
+  const PHOTO_W = (CONTENT_W - PHOTO_GAP * (PHOTOS_PER_ROW - 1)) / PHOTOS_PER_ROW;
+  const PHOTO_H = PHOTO_W * 0.78; // ligeramente apaisado para mejor legibilidad
+  const CAPTION_H = 12;
+
+  for (const areaKey of areasPres) {
+    const items = (evidByArea[areaKey] || []).slice(0, 32);
+    if (!items.length) continue;
+
+    y += 8;
+    sectionHeader(areasLabels[areaKey] || ('Evidencias · ' + areaKey));
+    y += 4;
+
+    // Cargar todas las imágenes del área en paralelo
+    const loaded = await Promise.all(items.map(async (ev) => {
+      const isImg = /\.(jpe?g|png|gif|webp)$/i.test(ev.filename || '') ||
+                    /^image\//i.test(ev.tipo || '');
+      return { ev, img: isImg ? await loadImageAsDataURL(ev.url) : null };
+    }));
+
+    // Render por filas completas
+    for (let i = 0; i < loaded.length; i += PHOTOS_PER_ROW) {
+      const rowItems = loaded.slice(i, i + PHOTOS_PER_ROW);
+      ensureSpace(PHOTO_H + CAPTION_H + 6);
+      const rowY = y;
+
+      rowItems.forEach((entry, idx) => {
+        const { ev, img } = entry;
+        const x = M + idx * (PHOTO_W + PHOTO_GAP);
+        const photoNum = i + idx + 1;
+
+        // Fondo
+        doc.setFillColor(248, 249, 250);
+        doc.rect(x, rowY, PHOTO_W, PHOTO_H, 'F');
+
+        if (img) {
+          // Fit-cover dentro del recuadro
+          const ratio = Math.max(PHOTO_W / img.w, PHOTO_H / img.h);
+          const drawW = img.w * ratio;
+          const drawH = img.h * ratio;
+          const offX = (PHOTO_W - drawW) / 2;
+          const offY = (PHOTO_H - drawH) / 2;
+          // Clip via rectángulo limpio (jsPDF no soporta clip robusto;
+          // se acepta ligero sangrado, cubierto por borde)
+          try {
+            doc.addImage(img.data, 'JPEG', x + offX, rowY + offY, drawW, drawH);
+          } catch(_) {}
+        } else {
+          // Placeholder de archivo no-imagen
+          doc.setFont('helvetica','normal'); doc.setFontSize(8);
+          doc.setTextColor(120, 120, 120);
+          doc.text('Archivo adjunto', x + PHOTO_W/2, rowY + PHOTO_H/2 - 4, { align:'center' });
+          doc.setFontSize(7);
+          const fn = (ev.filename || '').slice(0, 22);
+          doc.text(fn, x + PHOTO_W/2, rowY + PHOTO_H/2 + 8, { align:'center' });
+        }
+
+        // Borde
+        doc.setDrawColor(RGB.GRID[0], RGB.GRID[1], RGB.GRID[2]);
+        doc.setLineWidth(0.5);
+        doc.rect(x, rowY, PHOTO_W, PHOTO_H);
+
+        // Caption uniforme
+        doc.setFont('helvetica','normal'); doc.setFontSize(8);
+        doc.setTextColor(RGB.INK_SOFT[0], RGB.INK_SOFT[1], RGB.INK_SOFT[2]);
+        doc.text('Photo ' + photoNum, x + PHOTO_W/2, rowY + PHOTO_H + 10, { align:'center' });
+      });
+
+      y = rowY + PHOTO_H + CAPTION_H + 4;
+    }
+
+    y += 4;
+  }
+
+  // ── Pie de página en todas las páginas ────────────────────────
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Sistema de Auditoría de Pallets · ' + (rep.resumen.unidad||''), M, PH - 18);
+    doc.text(i + ' / ' + totalPages, PW - M, PH - 18, { align:'right' });
+  }
+
+  const safeUnidad = (rep.resumen.unidad || 'reporte').replace(/[^A-Za-z0-9_-]/g, '_');
+  doc.save('reporte_' + safeUnidad + '_' + new Date().toISOString().slice(0,10) + '.pdf');
+  toast('PDF generado','success');
+}
+
 function renderReporteUnidad(rep) {
   const { embarque, resumen, tabs, evidencias_por_area, historial } = rep;
 
@@ -3039,7 +2999,9 @@ function renderReporteUnidad(rep) {
       <div class="detail-grid">
         <div class="dt-item dt-brand"><span class="dt-label">Estado Global</span><span class="dt-value"><span class="status ${(resumen.estado_global||'').toLowerCase()}">${resumen.estado_global||'—'}</span></span></div>
         <div class="dt-item"><span class="dt-label">Cortina</span><span class="dt-value">${resumen.cortina||'—'}</span></div>
+        <div class="dt-item"><span class="dt-label">UE Fecha / Hora</span><span class="dt-value">${(resumen.ue_fecha||'—')} ${resumen.ue_hora||''}</span></div>
         <div class="dt-item"><span class="dt-label">Áreas participantes</span><span class="dt-value" style="font-size:11px">${(resumen.areas_participantes||[]).join(' · ') || '—'}</span></div>
+        ${resumen.seguimiento_despacho ? `<div class="dt-item dt-yellow" style="grid-column:1/-1"><span class="dt-label">Seguimiento despacho</span><span class="dt-value">${resumen.seguimiento_despacho}</span></div>` : ''}
       </div>
     </div>
   `;
@@ -3166,7 +3128,20 @@ function renderReporteUnidad(rep) {
     </div>
   `;
 
-  target.innerHTML = kpiStrip + headerInfo + tabsHTML + embarqueArea + reciboArea + evArea + histArea;
+  // Stash data para export PDF
+  window.__lastReporte = rep;
+
+  const exportBar = `
+    <div class="card" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:160px">
+        <div style="font-weight:700;color:var(--ink)">Exportar Reporte</div>
+        <div style="color:var(--gray-500);font-size:11px">PDF con encabezado institucional e imágenes incluidas</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="exportarReportePDF()">Descargar PDF</button>
+    </div>
+  `;
+
+  target.innerHTML = exportBar + kpiStrip + headerInfo + tabsHTML + embarqueArea + reciboArea + evArea + histArea;
 }
 
 function switchAreaTab(el, area) {
@@ -3178,9 +3153,14 @@ function switchAreaTab(el, area) {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  PHOTOS / EVIDENCIAS / FILES
+//  PHOTOS / EVIDENCIAS / FILES · v32
+//  · Compresión más agresiva por defecto (960×960 @ 0.68) → ~40% menos peso
+//  · handlePhotos paraleliza con Promise.all
+//  · uploadEvidencesBatch sube N fotos en paralelo (Promise.all)
+//  · Soporte de pegado (paste) tipo asset Ctrl+V
 // ════════════════════════════════════════════════════════════════
 function compressImage(file, maxW, maxH, quality) {
+  maxW = maxW || 960; maxH = maxH || 960; quality = quality || 0.68;
   return new Promise((resolve) => {
     if (!file.type.startsWith('image/')) return fileToBase64(file).then(resolve);
     const reader = new FileReader();
@@ -3192,8 +3172,10 @@ function compressImage(file, maxW, maxH, quality) {
         if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
         const c = document.createElement('canvas');
         c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve({ name: file.name, data: c.toDataURL('image/jpeg', quality) });
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingQuality = 'medium';
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve({ name: file.name || ('img_'+Date.now()+'.jpg'), data: c.toDataURL('image/jpeg', quality), type: 'image/jpeg' });
       };
       img.src = e.target.result;
     };
@@ -3203,7 +3185,7 @@ function compressImage(file, maxW, maxH, quality) {
 function fileToBase64(file) {
   return new Promise((res) => {
     const r = new FileReader();
-    r.onload = e => res({ name: file.name, data: e.target.result });
+    r.onload = e => res({ name: file.name, data: e.target.result, type: file.type });
     r.readAsDataURL(file);
   });
 }
@@ -3211,16 +3193,13 @@ async function handlePhotos(event, key) {
   const files = Array.from(event.target.files);
   if (!photos[key]) photos[key] = [];
   showProgress(key, 0);
-  let done = 0;
-  for (const f of files) {
-    const c = await compressImage(f, 1200, 1200, 0.75);
-    photos[key].push(c);
-    done++;
-    showProgress(key, Math.round(done/files.length*90));
-  }
+  // Compresión en paralelo
+  const compressed = await Promise.all(files.map(f => compressImage(f, 960, 960, 0.68)));
+  compressed.forEach(c => photos[key].push(c));
+  showProgress(key, 90);
   renderPhotos(key);
   showProgress(key, 100);
-  setTimeout(() => showProgress(key, 101), 600);
+  setTimeout(() => showProgress(key, 101), 400);
 }
 function renderPhotos(key) {
   const c = document.getElementById('ph-' + key);
@@ -3236,14 +3215,15 @@ function showProgress(key, pct) {
   const bar = document.getElementById('pg-' + key);
   if (!bar) return;
   bar.classList.toggle('visible', pct < 100);
-  bar.querySelector('.inner').style.width = pct + '%';
+  const inner = bar.querySelector('.inner');
+  if (inner) inner.style.width = pct + '%';
 }
 
 async function uploadEvidence(id, modulo, tipo, area, photo) {
   if (!photo || !photo.data) return;
   const base64 = photo.data.split(',')[1];
   const mime = photo.data.split(';')[0].split(':')[1] || 'image/jpeg';
-  await apiPost('upload_evidence', {
+  return apiPost('upload_evidence', {
     id, modulo, tipo, area,
     base64data: base64, mimeType: mime,
     filename: photo.name || ('ev_'+Date.now()+'.jpg'),
@@ -3251,32 +3231,45 @@ async function uploadEvidence(id, modulo, tipo, area, photo) {
   });
 }
 
+/**
+ * Sube N evidencias EN PARALELO (Promise.all).
+ * Reemplaza el patrón `for (const ph of fotos) await uploadEvidence(...)`
+ * que serializaba todo y multiplicaba el tiempo total por N.
+ */
+async function uploadEvidencesBatch(id, modulo, area, photoArr) {
+  if (!photoArr || !photoArr.length) return [];
+  return Promise.all(photoArr.map(ph => uploadEvidence(id, modulo, area, area, ph)));
+}
+
 // ════════════════════════════════════════════════════════════════
-//  API HELPERS
+//  API HELPERS · v32
+//  · POST cors único (sin doble payload del fallback)
+//  · Reintento no-cors solo si la red falla
+//  · Bootstrap consolidado (catálogo + pendientes en 1 round-trip)
 // ════════════════════════════════════════════════════════════════
 async function apiPost(action, payload) {
+  const body = JSON.stringify({ action, ...payload });
   try {
-    const body = JSON.stringify({ action, ...payload });
     const r = await fetch(API_URL, {
-      method: 'POST', mode: 'cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body,
+      keepalive: true
     });
     if (r.ok) return await r.json();
+    return { ok: false, error: 'http_' + r.status };
   } catch(e) {
-    // Apps Script suele responder mejor con no-cors + JSONP para GET; POST usamos cors
-    console.warn('POST fallback:', e);
-  }
-  // Fallback no-cors (sin respuesta legible)
-  try {
-    await fetch(API_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action, ...payload })
-    });
-    return { ok: true, data: {}, _opaque: true };
-  } catch(e2) {
-    return { ok: false, error: 'sin_conexion' };
+    try {
+      await fetch(API_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body, keepalive: true
+      });
+      return { ok: true, data: {}, _opaque: true };
+    } catch(e2) {
+      return { ok: false, error: 'sin_conexion' };
+    }
   }
 }
 
@@ -3286,11 +3279,28 @@ function apiGet(action, params) {
     const q = new URLSearchParams({ action, ...params, callback: cb }).toString();
     const s = document.createElement('script');
     s.src = API_URL + '?' + q;
-    const t = setTimeout(() => { delete window[cb]; s.remove(); resolve({ ok:false, error:'timeout' }); }, 12000);
+    const t = setTimeout(() => { delete window[cb]; s.remove(); resolve({ ok:false, error:'timeout' }); }, 15000);
     window[cb] = (data) => { clearTimeout(t); delete window[cb]; s.remove(); resolve(data); };
     s.onerror = () => { clearTimeout(t); delete window[cb]; s.remove(); resolve({ ok:false, error:'net' }); };
     document.head.appendChild(s);
   });
+}
+
+async function syncBootstrap() {
+  const res = await apiGet('bootstrap', {});
+  if (res && res.ok && res.data) {
+    if (Array.isArray(res.data.catalogo) && res.data.catalogo.length) {
+      const g = { auditor:[], mesa:[], despacho:[], supervisor:[] };
+      res.data.catalogo.forEach(r => { if (g[r.rol]) g[r.rol].push(r.nombre); });
+      Object.keys(g).forEach(k => { if (g[k].length) catalogo[k] = g[k]; });
+    }
+    if (Array.isArray(res.data.pendientes)) {
+      pendientes = res.data.pendientes;
+      saveState();
+      if (session.role === 'auditor') renderPendientesAuditor();
+      if (session.role === 'mesa') renderMesaAsignaciones();
+    }
+  }
 }
 
 async function syncPendientes() {
@@ -3344,13 +3354,18 @@ window.onload = () => {
     hideSplash();
     updateHeader();
     buildApp();
-    setTimeout(syncCatalogo, 300);
-    setTimeout(syncPendientes, 600);
+    // Bootstrap único reemplaza dos round-trips por uno
+    setTimeout(syncBootstrap, 200);
   }
-  // Auto uppercase para inputs de texto/textarea
+  setupAssetPasteListener();
+  // Auto uppercase para inputs de texto/textarea, excluyendo date/time/number
   document.addEventListener('input', (e) => {
     const el = e.target;
-    if ((el.tagName === 'INPUT' && el.type === 'text') || el.tagName === 'TEXTAREA') {
+    if (!el || !el.tagName) return;
+    const skip = el.type === 'date' || el.type === 'time' || el.type === 'datetime-local'
+              || el.type === 'number' || el.type === 'email' || el.type === 'password';
+    if (skip) return;
+    if ((el.tagName === 'INPUT' && (el.type === 'text' || !el.type)) || el.tagName === 'TEXTAREA') {
       const s = el.selectionStart, en = el.selectionEnd;
       el.value = el.value.toUpperCase();
       try { el.setSelectionRange(s, en); } catch(_) {}

@@ -317,7 +317,7 @@ table.preview tr.row-err td { background: var(--danger-tint); }
     </div>
     <div class="splash-title">
       Auditoria de Pallets
-      <small>Sistema Enterprise v34 · Logistica</small>
+      <small>Sistema Enterprise· Logistica</small>
     </div>
     <div class="splash-divider"></div>
 
@@ -1113,18 +1113,6 @@ function updateNavBadge() {
   badge.textContent = count;
   badge.classList.toggle('hidden', count===0);
 }
-
-// ════════════════════════════════════════════════════════════════
-//  MESA — CARGA  ·  v34
-//  CAMBIOS EXCLUSIVOS EN ESTE MÓDULO:
-//  · Instruccion del textarea actualizada al nuevo formato de 6 columnas
-//  · mesaParsePaste() reescrito para Tipo|Unidad|Cliente|Fecha|Hora|Cortina
-//  · Validacion de fecha (YYYY-MM-DD) y hora (HH:mm / HH:mm:ss)
-//  · mesaRenderPreview() ampliado con columnas Fecha UE y Hora UE + badges de validacion
-//  · Fila manual ampliada con campos Fecha UE y Hora UE
-//  · Resumen de validacion del lote (filas ok / advertencias / errores)
-//  · mesaAddManual() actualizado para capturar fecha y hora
-// ════════════════════════════════════════════════════════════════
 function renderMesaCarga() {
   const tab = document.getElementById('tab-mesa-carga');
   if (!tab) return;
@@ -1141,10 +1129,10 @@ function renderMesaCarga() {
       <div class="card-title ct-mesa"><span class="ct-dot"></span>Pegar desde Excel</div>
       <div class="note info">
         Formato de columnas (separadas por <strong>Tab</strong>):<br>
-        <strong>Tipo de Embarque&nbsp;&nbsp;Unidad de Envio&nbsp;&nbsp;Cliente&nbsp;&nbsp;Fecha UE (YYYY-MM-DD)&nbsp;&nbsp;Hora UE (HH:MM)&nbsp;&nbsp;Cortina (opcional)</strong><br>
+        <strong>Tipo de Embarque&nbsp;&nbsp;Unidad de Envio&nbsp;&nbsp;Cliente&nbsp;&nbsp;Fecha UE (DD/MM/YYYY)&nbsp;&nbsp;Hora UE (HH:MM)&nbsp;&nbsp;Cortina (opcional)</strong><br>
         <span style="color:var(--gray-500)">Ejemplo:</span>
         <code style="font-family:var(--f-mono);font-size:10px;display:block;margin-top:4px;background:var(--gray-100);padding:6px 8px;border-radius:4px;letter-spacing:0">
-          Exportacion&nbsp;&nbsp;UE-45821&nbsp;&nbsp;WALMART&nbsp;&nbsp;2025-07-15&nbsp;&nbsp;14:30&nbsp;&nbsp;DOOR5<br>
+          Exportacion&nbsp;&nbsp;UE-45821&nbsp;&nbsp;WALMART&nbsp;&nbsp;15/07/2025&nbsp;&nbsp;14:30&nbsp;&nbsp;DOOR5<br>
         </code>
       </div>
       <div class="excel-zone">
@@ -1177,7 +1165,7 @@ function renderMesaCarga() {
       <div class="form-row-2">
         <div>
           <label>Fecha UE de Envio <span class="req">*</span></label>
-          <input type="date" id="mm-ue-fecha">
+          <input type="text" id="mm-ue-fecha" placeholder="DD/MM/YYYY" maxlength="10">
         </div>
         <div>
           <label>Hora UE de Envio <span class="req">*</span></label>
@@ -1232,38 +1220,52 @@ function renderMesaCarga() {
 
 // ── Validadores de formato ────────────────────────────────────────
 /**
- * Intenta normalizar distintos formatos de fecha que puede exportar Excel
- * (YYYY-MM-DD, DD/MM/YYYY, MM/DD/YYYY) y devuelve un objeto con
- * { valid, normalized, hint }.
+ * Parser de Fecha UE.
+ * Formato canónico de entrada: DD/MM/YYYY (visualización y pegado desde Excel hispanico).
+ * También acepta DD-MM-YYYY, YYYY-MM-DD (ISO) y YYYY/MM/DD como entradas toleradas.
+ * Siempre normaliza la salida a YYYY-MM-DD para el backend.
+ * Devuelve { valid, normalized (YYYY-MM-DD), display (DD/MM/YYYY), hint }.
  */
 function parseUEFecha(raw) {
-  if (!raw || !raw.toString().trim()) return { valid: false, normalized: '', hint: 'Vacía' };
+  if (!raw || !raw.toString().trim()) return { valid: false, normalized: '', display: '', hint: 'Vacia' };
   const s = raw.toString().trim();
 
-  // Formato ISO: YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-    const [y,m,d] = s.split('-').map(Number);
-    if (m>=1&&m<=12&&d>=1&&d<=31) return { valid: true, normalized: s, hint: '' };
-    return { valid: false, normalized: s, hint: 'Fecha invalida' };
+  // ── Formato canónico: DD/MM/YYYY o DD-MM-YYYY ─────────────────
+  const mDDMM = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (mDDMM) {
+    const d = Number(mDDMM[1]), m = Number(mDDMM[2]), y = Number(mDDMM[3]);
+    if (d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 2000 && y <= 2099) {
+      const normalized = y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      const display    = String(d).padStart(2,'0') + '/' + String(m).padStart(2,'0') + '/' + y;
+      return { valid: true, normalized, display, hint: '' };
+    }
+    return { valid: false, normalized: s, display: s, hint: 'Fecha invalida (verificar dia y mes)' };
   }
-  // DD/MM/YYYY o MM/DD/YYYY (Excel hispanico)
-  if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/.test(s)) {
-    const parts = s.split(/[\/\-]/);
-    // Asumir DD/MM/YYYY si dia > 12 o si la convención local lo indica
-    let [a, b, y] = parts.map(Number);
-    // Si primer segmento > 12, debe ser dia
-    const iso = y+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');
-    if (a>=1&&a<=31&&b>=1&&b<=12) return { valid: true, normalized: iso, hint: 'Interpretado DD/MM/YYYY' };
-    // Si primer segmento <= 12, advertir ambigüedad pero aceptar
-    const iso2 = y+'-'+String(a).padStart(2,'0')+'-'+String(b).padStart(2,'0');
-    return { valid: true, normalized: iso2, hint: 'Formato ambiguo, verificar' };
+
+  // ── Formato ISO tolerado: YYYY-MM-DD ──────────────────────────
+  const mISO = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (mISO) {
+    const y = Number(mISO[1]), m = Number(mISO[2]), d = Number(mISO[3]);
+    if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+      const normalized = s;
+      const display    = String(d).padStart(2,'0') + '/' + String(m).padStart(2,'0') + '/' + y;
+      return { valid: true, normalized, display, hint: 'Convertido de ISO YYYY-MM-DD' };
+    }
+    return { valid: false, normalized: s, display: s, hint: 'Fecha ISO invalida' };
   }
-  // YYYY/MM/DD
-  if (/^\d{4}[\/]\d{2}[\/]\d{2}$/.test(s)) {
-    const [y,m,d] = s.split('/').map(Number);
-    if (m>=1&&m<=12&&d>=1&&d<=31) return { valid: true, normalized: y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0'), hint: '' };
+
+  // ── YYYY/MM/DD ────────────────────────────────────────────────
+  const mYYYY = s.match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
+  if (mYYYY) {
+    const y = Number(mYYYY[1]), m = Number(mYYYY[2]), d = Number(mYYYY[3]);
+    if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+      const normalized = y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      const display    = String(d).padStart(2,'0') + '/' + String(m).padStart(2,'0') + '/' + y;
+      return { valid: true, normalized, display, hint: 'Convertido de YYYY/MM/DD' };
+    }
   }
-  return { valid: false, normalized: s, hint: 'Formato no reconocido (usar YYYY-MM-DD)' };
+
+  return { valid: false, normalized: s, display: s, hint: 'Formato no reconocido (usar DD/MM/YYYY)' };
 }
 
 /**
@@ -1302,7 +1304,7 @@ function parseUEHora(raw) {
  *   0: Tipo de Embarque  (req)
  *   1: Unidad de Envio   (req)
  *   2: Cliente           (req)
- *   3: Fecha UE          (req)
+ *   3: Fecha UE          (req) — formato canónico DD/MM/YYYY
  *   4: Hora UE           (req)
  *   5: Cortina           (opcional)
  *
@@ -1361,6 +1363,7 @@ function mesaParsePaste() {
       unidad,
       cliente,
       ue_fecha:  fechaV.valid ? fechaV.normalized : fechaRaw,
+      _ue_fecha_display: fechaV.valid ? fechaV.display : fechaRaw,
       ue_hora:   horaV.valid  ? horaV.normalized  : horaRaw,
       cortina,
       _fechaHint: fechaV.hint,
@@ -1452,7 +1455,7 @@ function mesaRenderPreview() {
         <td>${f.tipo_embarque||'<span class="val-err">Falta</span>'}</td>
         <td><strong>${f.unidad||'<span class="val-err">Falta</span>'}</strong></td>
         <td>${f.cliente||'<span class="val-err">Falta</span>'}</td>
-        <td>${f.ue_fecha||'<span class="val-err">Falta</span>'}${fechaBadge}</td>
+        <td>${f._ue_fecha_display||f.ue_fecha||'<span class="val-err">Falta</span>'}${fechaBadge}</td>
         <td>${f.ue_hora||'<span class="val-err">Falta</span>'}${horaBadge}</td>
         <td>${f.cortina||'<span style="color:var(--warn);font-size:10px">pendiente</span>'}</td>
         <td><button onclick="mesaQuitarFila(${i})" style="background:var(--red);color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer">X</button></td>
@@ -1485,21 +1488,22 @@ function mesaAddManual() {
 
   const fechaV = parseUEFecha(fecha);
   const horaV  = parseUEHora(hora);
-  if (!fechaV.valid) return toast('Formato de fecha incorrecto: '+fechaV.hint,'error');
+  if (!fechaV.valid) return toast('Formato de fecha incorrecto: '+fechaV.hint+' (usar DD/MM/YYYY)','error');
   if (!horaV.valid)  return toast('Formato de hora incorrecto: '+horaV.hint,'error');
 
   const idx = mesaFilas.length + 1;
   mesaFilas.push({
     _idx: idx,
     _errores: [],
-    _advertencias: [],
+    _advertencias: fechaV.hint ? [fechaV.hint] : [],
     tipo_embarque: tipo.toUpperCase(),
     unidad,
     cliente,
     ue_fecha: fechaV.normalized,
+    _ue_fecha_display: fechaV.display,
     ue_hora:  horaV.normalized,
     cortina:  cortNum ? 'DOOR'+cortNum : '',
-    _fechaOk: true, _horaOk: true, _fechaHint: '', _horaHint: ''
+    _fechaOk: true, _horaOk: true, _fechaHint: fechaV.hint||'', _horaHint: ''
   });
 
   mesaRenderPreview();
@@ -1587,7 +1591,7 @@ function mesaAsignacionItemHTML(p, estado) {
         <div class="pp-title">${unidad} · ${cliente}<span class="status ${estado.toLowerCase()}" style="margin-left:6px">${estado}</span></div>
         <div class="pp-meta">
           ${tipoEmb} · ${cortina?'<strong>'+cortina+'</strong>':'<span class="status cancelado">SIN CORTINA</span>'}
-          ${ueFecha?'<br>UE: '+ueFecha+(ueHora?' '+ueHora:''):''}
+          ${ueFecha?'<br>UE: '+formatISOtoDisplay_(ueFecha)+(ueHora?' '+ueHora:''):''}
           ${ultimoAud?'<br>'+ultimoAud:''}
           ${p.nota_mesa?'<br>'+p.nota_mesa:''}
         </div>
@@ -1628,7 +1632,7 @@ function abrirEditarAsig(id) {
       <div><label>Cortina</label><input type="text" id="ea-cortina" value="${e.cortina||''}" placeholder="DOOR000"></div>
     </div>
     <div class="form-row-2">
-      <div><label>Fecha UE de Envio</label><input type="date" id="ea-ue-fecha" value="${e.ue_fecha||''}"></div>
+      <div><label>Fecha UE de Envio</label><input type="text" id="ea-ue-fecha" placeholder="DD/MM/YYYY" maxlength="10" value="${formatISOtoDisplay_(e.ue_fecha||'')}"></div>
       <div><label>Hora UE de Envio</label><input type="time" id="ea-ue-hora" value="${e.ue_hora||''}"></div>
     </div>
     <button class="btn btn-primary" onclick="guardarEditarAsig('${id}')">Guardar cambios</button>
@@ -1637,12 +1641,15 @@ function abrirEditarAsig(id) {
 }
 
 async function guardarEditarAsig(id) {
+  const fechaRawEdit = document.getElementById('ea-ue-fecha').value.trim();
+  const fechaEditV   = fechaRawEdit ? parseUEFecha(fechaRawEdit) : { valid: true, normalized: '' };
+  if (fechaRawEdit && !fechaEditV.valid) return toast('Fecha invalida: ' + fechaEditV.hint, 'error');
   const cambios = {
     tipo_embarque: document.getElementById('ea-tipo').value.trim(),
     unidad_envio:  document.getElementById('ea-unidad').value.trim(),
     cliente:       document.getElementById('ea-cliente').value.trim(),
     cortina:       document.getElementById('ea-cortina').value.trim(),
-    ue_fecha:      document.getElementById('ea-ue-fecha').value,
+    ue_fecha:      fechaEditV.normalized,
     ue_hora:       document.getElementById('ea-ue-hora').value
   };
   toast('Guardando...');
@@ -2057,7 +2064,7 @@ async function despachoBuscar() {
     <div class="dt-item"><span class="dt-label">Total Prime</span><span class="dt-value">${res.data.total_prime||0}</span></div>
     <div class="dt-item"><span class="dt-label">Cant. MC (Mesa)</span><span class="dt-value">${res.data.cantidad_mc||0}</span></div>
     <div class="dt-item"><span class="dt-label">Dif. Prime/MC</span><span class="dt-value">${res.data.dif_prime_mc!=null?res.data.dif_prime_mc:'—'}</span></div>
-    ${res.data.ue_fecha?'<div class="dt-item"><span class="dt-label">UE Fecha/Hora</span><span class="dt-value">'+res.data.ue_fecha+' '+(res.data.ue_hora||'')+'</span></div>':''}
+    ${res.data.ue_fecha?'<div class="dt-item"><span class="dt-label">UE Fecha/Hora</span><span class="dt-value">'+formatISOtoDisplay_(res.data.ue_fecha)+' '+(res.data.ue_hora||'')+'</span></div>':''}
     ${res.data.seguimiento_despacho?'<div class="dt-item dt-yellow" style="grid-column:1/-1"><span class="dt-label">Seguimiento previo</span><span class="dt-value">'+res.data.seguimiento_despacho+'</span></div>':''}
   `;
   const segEl=document.getElementById('dp-seguimiento');
@@ -2234,7 +2241,7 @@ async function exportarReportePDF() {
   const r=rep.resumen,a=rep.tabs?.embarque?.auditor||{},mm=rep.tabs?.embarque?.mesa||{},dp=rep.tabs?.embarque?.despacho||{};
   sectionHeader('Auditoria de embarque');
   dataRow('Unidad de Envio',r.unidad);dataRow('Cliente',r.cliente);dataRow('Cortina',r.cortina);
-  dataRow('UE Fecha / Hora',((r.ue_fecha||'')+' '+(r.ue_hora||'')).trim()||'—');
+  dataRow('UE Fecha / Hora',(formatISOtoDisplay_((r.ue_fecha||'').toString())+' '+(r.ue_hora||'')).trim()||'—');
   dataRow('Estado Global',r.estado_global,{bgColor:statusBg(r.estado_global)});
   dataRow('Resultado Final',r.resultado,{bgColor:statusBg(r.resultado)});
   dataRow('Pallets CHEP',r.total_chep||0);dataRow('Pallets Blancas',r.total_blancas||0);dataRow('Total Pallets',r.total_pallets||0);
@@ -2254,7 +2261,7 @@ function renderReporteUnidad(rep) {
   const target=inSup?document.getElementById('reporte-resultado'):document.getElementById('modal-reporte-body');
   if(!inSup){document.getElementById('modal-reporte').classList.add('open');}
   const kpiStrip=`<div class="kpi-strip"><div class="kpi kpi-brand"><div class="kpi-label">Fotografias</div><div class="kpi-value">${resumen.total_fotografias}</div></div><div class="kpi kpi-yellow"><div class="kpi-label">Total Pallets</div><div class="kpi-value">${resumen.total_pallets}</div><div class="kpi-foot">${resumen.total_chep} CHEP · ${resumen.total_blancas} Bl.</div></div><div class="kpi"><div class="kpi-label">Auditores</div><div class="kpi-value">${resumen.conteo_auditores||0}</div></div><div class="kpi kpi-ok"><div class="kpi-label">Resultado</div><div class="kpi-value" style="font-size:18px">${resumen.resultado}</div></div></div>`;
-  const headerInfo=`<div class="card"><div class="card-title"><span class="ct-dot"></span>${resumen.unidad} · ${resumen.cliente}</div><div class="detail-grid"><div class="dt-item dt-brand"><span class="dt-label">Estado Global</span><span class="dt-value"><span class="status ${(resumen.estado_global||'').toLowerCase()}">${resumen.estado_global||'—'}</span></span></div><div class="dt-item"><span class="dt-label">Cortina</span><span class="dt-value">${resumen.cortina||'—'}</span></div><div class="dt-item"><span class="dt-label">UE Fecha / Hora</span><span class="dt-value">${resumen.ue_fecha||'—'} ${resumen.ue_hora||''}</span></div><div class="dt-item"><span class="dt-label">Areas</span><span class="dt-value" style="font-size:11px">${(resumen.areas_participantes||[]).join(' · ')||'—'}</span></div>${resumen.seguimiento_despacho?'<div class="dt-item dt-yellow" style="grid-column:1/-1"><span class="dt-label">Seguimiento</span><span class="dt-value">'+resumen.seguimiento_despacho+'</span></div>':''}</div></div>`;
+  const headerInfo=`<div class="card"><div class="card-title"><span class="ct-dot"></span>${resumen.unidad} · ${resumen.cliente}</div><div class="detail-grid"><div class="dt-item dt-brand"><span class="dt-label">Estado Global</span><span class="dt-value"><span class="status ${(resumen.estado_global||'').toLowerCase()}">${resumen.estado_global||'—'}</span></span></div><div class="dt-item"><span class="dt-label">Cortina</span><span class="dt-value">${resumen.cortina||'—'}</span></div><div class="dt-item"><span class="dt-label">UE Fecha / Hora</span><span class="dt-value">${formatISOtoDisplay_(resumen.ue_fecha)||'—'} ${resumen.ue_hora||''}</span></div><div class="dt-item"><span class="dt-label">Areas</span><span class="dt-value" style="font-size:11px">${(resumen.areas_participantes||[]).join(' · ')||'—'}</span></div>${resumen.seguimiento_despacho?'<div class="dt-item dt-yellow" style="grid-column:1/-1"><span class="dt-label">Seguimiento</span><span class="dt-value">'+resumen.seguimiento_despacho+'</span></div>':''}</div></div>`;
   const a=tabs.embarque.auditor||{},m=tabs.embarque.mesa||{},dp=tabs.embarque.despacho||{};
   const embarqueArea=`<div class="area-content active" data-area="embarque"><div class="card"><div class="card-title"><span class="ct-dot"></span>Auditor</div><div class="detail-grid"><div class="dt-item"><span class="dt-label">Nombre</span><span class="dt-value">${a.nombre||'—'}</span></div><div class="dt-item"><span class="dt-label">Turno / Cuadrilla</span><span class="dt-value">${a.turno||'—'} / ${a.cuadrilla||'—'}</span></div><div class="dt-item"><span class="dt-label">Tipo Auditoria</span><span class="dt-value">${a.tipo_auditoria||'—'}</span></div><div class="dt-item ${(a.status_mc||'').includes('Incorrecto')?'dt-danger':'dt-ok'}"><span class="dt-label">Status MC</span><span class="dt-value">${a.status_mc||'—'}</span></div>${a.motivo_error?'<div class="dt-item dt-danger"><span class="dt-label">Motivo Error</span><span class="dt-value">'+a.motivo_error+'</span></div>':''}</div></div><div class="card"><div class="card-title ct-mesa"><span class="ct-dot"></span>Mesa de Control</div><div class="detail-grid"><div class="dt-item"><span class="dt-label">Origen</span><span class="dt-value">${m.origen||'—'}</span></div><div class="dt-item"><span class="dt-label">Enriquece por</span><span class="dt-value">${m.enriquece_nombre||'—'}</span></div><div class="dt-item dt-brand"><span class="dt-label">Total Prime</span><span class="dt-value">${m.total_prime||0}</span></div><div class="dt-item dt-brand"><span class="dt-label">Cantidad MC</span><span class="dt-value">${m.cantidad_mc||0}</span></div></div></div><div class="card"><div class="card-title ct-despacho"><span class="ct-dot"></span>Despacho</div><div class="detail-grid"><div class="dt-item"><span class="dt-label">Analista</span><span class="dt-value">${dp.nombre||'—'}</span></div><div class="dt-item ${Number(dp.dif_prime_mc)===0?'dt-ok':'dt-danger'}"><span class="dt-label">Dif. Prime/MC</span><span class="dt-value">${dp.dif_prime_mc!=null?dp.dif_prime_mc:'—'}</span></div><div class="dt-item ${Number(dp.dif_mc_factura)===0?'dt-ok':'dt-danger'}"><span class="dt-label">Dif. MC/Factura</span><span class="dt-value">${dp.dif_mc_factura!=null?dp.dif_mc_factura:'—'}</span></div><div class="dt-item ${dp.resultado==='OK'?'dt-ok':'dt-danger'}"><span class="dt-label">Resultado</span><span class="dt-value">${dp.resultado||'—'}</span></div></div></div></div>`;
   const reciboItems=tabs.recibo.items||[];
@@ -2412,6 +2419,16 @@ async function getInstitutionalLogo(){
 // ════════════════════════════════════════════════════════════════
 //  UTILS
 // ════════════════════════════════════════════════════════════════
+/**
+ * Convierte YYYY-MM-DD almacenado en backend a DD/MM/YYYY para visualización.
+ * Si el valor ya está en DD/MM/YYYY o no es reconocible, lo devuelve tal cual.
+ */
+function formatISOtoDisplay_(iso) {
+  if (!iso) return '';
+  const m = String(iso).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return m[3]+'/'+m[2]+'/'+m[1];
+  return iso; // ya viene en otro formato; devolver sin transformar
+}
 function toggleSelect(el,groupId,extraClass){
   document.querySelectorAll('#'+groupId+' .toggle-opt').forEach(o=>o.classList.remove('selected','ok','yellow'));
   el.classList.add('selected');

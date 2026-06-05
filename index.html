@@ -317,7 +317,7 @@ table.preview tr.row-err td { background: var(--danger-tint); }
     </div>
     <div class="splash-title">
       Auditoria de Pallets
-      <small>Sistema Enterprise· Logistica</small>
+      <small>Sistema Enterprise · Logistica</small>
     </div>
     <div class="splash-divider"></div>
 
@@ -1113,6 +1113,7 @@ function updateNavBadge() {
   badge.textContent = count;
   badge.classList.toggle('hidden', count===0);
 }
+
 function renderMesaCarga() {
   const tab = document.getElementById('tab-mesa-carga');
   if (!tab) return;
@@ -1121,7 +1122,7 @@ function renderMesaCarga() {
       <div class="section-icon">📋</div>
       <div>
         <div class="section-title">Carga de Embarques del Dia</div>
-        <div class="section-desc">Origen del flujo · Asignaciones persistentes · Editables hasta el cierre</div>
+        <div class="section-desc">Origen del flujo · Asignaciones · Editables hasta el cierre</div>
       </div>
     </div>
 
@@ -1129,10 +1130,10 @@ function renderMesaCarga() {
       <div class="card-title ct-mesa"><span class="ct-dot"></span>Pegar desde Excel</div>
       <div class="note info">
         Formato de columnas (separadas por <strong>Tab</strong>):<br>
-        <strong>Tipo de Embarque&nbsp;&nbsp;Unidad de Envio&nbsp;&nbsp;Cliente&nbsp;&nbsp;Fecha UE (DD/MM/YYYY)&nbsp;&nbsp;Hora UE (HH:MM)&nbsp;&nbsp;Cortina (opcional)</strong><br>
+        <strong>Tipo de Embarque&nbsp;&nbsp;Unidad de Envio&nbsp;&nbsp;Cliente&nbsp;&nbsp;Fecha y Hora UE (DD/MM/YYYY HH:MM)&nbsp;&nbsp;Cortina (opcional)</strong><br>
         <span style="color:var(--gray-500)">Ejemplo:</span>
         <code style="font-family:var(--f-mono);font-size:10px;display:block;margin-top:4px;background:var(--gray-100);padding:6px 8px;border-radius:4px;letter-spacing:0">
-          Exportacion&nbsp;&nbsp;UE-45821&nbsp;&nbsp;WALMART&nbsp;&nbsp;15/07/2025&nbsp;&nbsp;14:30&nbsp;&nbsp;DOOR5<br>
+          Exportacion&nbsp;&nbsp;UE-45821&nbsp;&nbsp;WALMART&nbsp;&nbsp;05/06/2026 14:30&nbsp;&nbsp;DOOR5<br>
         </code>
       </div>
       <div class="excel-zone">
@@ -1163,14 +1164,11 @@ function renderMesaCarga() {
         </div>
       </div>
       <div class="form-row-2">
-        <div>
-          <label>Fecha UE de Envio <span class="req">*</span></label>
-          <input type="text" id="mm-ue-fecha" placeholder="DD/MM/YYYY" maxlength="10">
-        </div>
-        <div>
-          <label>Hora UE de Envio <span class="req">*</span></label>
-          <input type="time" id="mm-ue-hora">
-        </div>
+      <div style="grid-column:1/-1">
+          <label>Fecha y Hora UE de Envio <span class="req">*</span></label>
+          <input type="text" id="mm-ue-datetime" placeholder="" maxlength="16" style="font-family:var(--f-mono)">
+          <div style="font-size:10px;color:var(--gray-500);margin-top:4px;font-family:var(--f-mono);letter-spacing:.05em">Formato: DD/MM/YYYY HH:MM</div>
+      </div>
       </div>
       <div class="form-row">
         <label>Cortina <span class="opt">Opcional</span></label>
@@ -1218,142 +1216,113 @@ function renderMesaCarga() {
   setTimeout(() => { syncPendientes(); }, 100);
 }
 
-// ── Validadores de formato ────────────────────────────────────────
-/**
- * Parser de Fecha UE.
- * Formato canónico de entrada: DD/MM/YYYY (visualización y pegado desde Excel hispanico).
- * También acepta DD-MM-YYYY, YYYY-MM-DD (ISO) y YYYY/MM/DD como entradas toleradas.
- * Siempre normaliza la salida a YYYY-MM-DD para el backend.
- * Devuelve { valid, normalized (YYYY-MM-DD), display (DD/MM/YYYY), hint }.
- */
-function parseUEFecha(raw) {
-  if (!raw || !raw.toString().trim()) return { valid: false, normalized: '', display: '', hint: 'Vacia' };
+function parseUEDatetime(raw) {
+  if (!raw || !raw.toString().trim()) {
+    return { valid: false, normalized_fecha: '', normalized_hora: '', display: '', hint: 'Vacio' };
+  }
   const s = raw.toString().trim();
 
-  // ── Formato canónico: DD/MM/YYYY o DD-MM-YYYY ─────────────────
-  const mDDMM = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if (mDDMM) {
-    const d = Number(mDDMM[1]), m = Number(mDDMM[2]), y = Number(mDDMM[3]);
-    if (d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 2000 && y <= 2099) {
-      const normalized = y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-      const display    = String(d).padStart(2,'0') + '/' + String(m).padStart(2,'0') + '/' + y;
-      return { valid: true, normalized, display, hint: '' };
-    }
-    return { valid: false, normalized: s, display: s, hint: 'Fecha invalida (verificar dia y mes)' };
+  const mCombined = s.match(
+    /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/
+  );
+  if (mCombined) {
+    const d=Number(mCombined[1]),m=Number(mCombined[2]),y=Number(mCombined[3]);
+    const h=Number(mCombined[4]),min=Number(mCombined[5]);
+    if (d<1||d>31||m<1||m>12||y<2000||y>2099)
+      return { valid:false, normalized_fecha:'', normalized_hora:'', display:s, hint:'Fecha invalida' };
+    if (h<0||h>23||min<0||min>59)
+      return { valid:false, normalized_fecha:'', normalized_hora:'', display:s, hint:'Hora fuera de rango' };
+    const nf = y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const nh = String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');
+    const dp = String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+y+' '+nh;
+    return { valid:true, normalized_fecha:nf, normalized_hora:nh, display:dp, hint:'' };
   }
 
-  // ── Formato ISO tolerado: YYYY-MM-DD ──────────────────────────
-  const mISO = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  // Caso 2: ISO "YYYY-MM-DD HH:MM"
+  const mISO = s.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/);
   if (mISO) {
-    const y = Number(mISO[1]), m = Number(mISO[2]), d = Number(mISO[3]);
-    if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
-      const normalized = s;
-      const display    = String(d).padStart(2,'0') + '/' + String(m).padStart(2,'0') + '/' + y;
-      return { valid: true, normalized, display, hint: 'Convertido de ISO YYYY-MM-DD' };
-    }
-    return { valid: false, normalized: s, display: s, hint: 'Fecha ISO invalida' };
+    const y=Number(mISO[1]),m=Number(mISO[2]),d=Number(mISO[3]);
+    const h=Number(mISO[4]),min=Number(mISO[5]);
+    if (m<1||m>12||d<1||d>31||h<0||h>23||min<0||min>59)
+      return { valid:false, normalized_fecha:'', normalized_hora:'', display:s, hint:'Valor fuera de rango' };
+    const nf = y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const nh = String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');
+    const dp = String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+y+' '+nh;
+    return { valid:true, normalized_fecha:nf, normalized_hora:nh, display:dp, hint:'Convertido de ISO' };
   }
 
-  // ── YYYY/MM/DD ────────────────────────────────────────────────
-  const mYYYY = s.match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
-  if (mYYYY) {
-    const y = Number(mYYYY[1]), m = Number(mYYYY[2]), d = Number(mYYYY[3]);
-    if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
-      const normalized = y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-      const display    = String(d).padStart(2,'0') + '/' + String(m).padStart(2,'0') + '/' + y;
-      return { valid: true, normalized, display, hint: 'Convertido de YYYY/MM/DD' };
+  // Caso 3: solo fecha sin hora (acepta, hora queda vacía con advertencia)
+  const mDateOnly = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (mDateOnly) {
+    const d=Number(mDateOnly[1]),m=Number(mDateOnly[2]),y=Number(mDateOnly[3]);
+    if (d>=1&&d<=31&&m>=1&&m<=12&&y>=2000&&y<=2099) {
+      const nf = y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      const dp = String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+y;
+      return { valid:true, normalized_fecha:nf, normalized_hora:'', display:dp, hint:'Sin hora — agregar HH:MM' };
     }
   }
 
-  return { valid: false, normalized: s, display: s, hint: 'Formato no reconocido (usar DD/MM/YYYY)' };
+  return { valid:false, normalized_fecha:'', normalized_hora:'', display:s,
+           hint:'Formato no reconocido (usar DD/MM/YYYY HH:MM)' };
 }
 
-/**
- * Intenta normalizar formatos de hora que puede exportar Excel
- * (HH:mm, HH:mm:ss, H:mm, formato 12h con AM/PM) y devuelve
- * { valid, normalized, hint }.
- */
-function parseUEHora(raw) {
-  if (!raw || !raw.toString().trim()) return { valid: false, normalized: '', hint: 'Vacia' };
-  const s = raw.toString().trim().toUpperCase();
-
-  // HH:mm o H:mm
-  const m24 = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
-  if (m24) {
-    const h = Number(m24[1]), min = Number(m24[2]);
-    if (h>=0&&h<=23&&min>=0&&min<=59)
-      return { valid: true, normalized: String(h).padStart(2,'0')+':'+String(min).padStart(2,'0'), hint: '' };
-    return { valid: false, normalized: s, hint: 'Hora fuera de rango' };
-  }
-  // 12h AM/PM: 2:30 PM, 14:00 PM
-  const m12 = s.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
-  if (m12) {
-    let h = Number(m12[1]), min = Number(m12[2]);
-    const ampm = m12[3];
-    if (ampm==='PM'&&h<12) h+=12;
-    if (ampm==='AM'&&h===12) h=0;
-    if (h>=0&&h<=23&&min>=0&&min<=59)
-      return { valid: true, normalized: String(h).padStart(2,'0')+':'+String(min).padStart(2,'0'), hint: 'Convertido de 12h' };
-  }
-  return { valid: false, normalized: s, hint: 'Formato no reconocido (usar HH:MM)' };
+function parseUEFecha(raw) {
+  const r = parseUEDatetime((raw||'').toString().trim() + ' 00:00');
+  return { valid: r.valid, normalized: r.normalized_fecha, display:
+    r.normalized_fecha
+      ? r.normalized_fecha.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$3/$2/$1')
+      : raw,
+    hint: r.hint };
 }
 
-/**
- * Parser principal del pegado desde Excel.
- * Columnas esperadas (Tab-delimitadas):
- *   0: Tipo de Embarque  (req)
- *   1: Unidad de Envio   (req)
- *   2: Cliente           (req)
- *   3: Fecha UE          (req) — formato canónico DD/MM/YYYY
- *   4: Hora UE           (req)
- *   5: Cortina           (opcional)
- *
- * Genera mesaFilas[] con campos normalizados y metadatos de validacion
- * (_fechaV, _horaV) que se usan para mostrar badges en la preview.
- */
 function mesaParsePaste() {
   const raw = (document.getElementById('mesa-paste').value||'').trim();
   if (!raw) { mesaFilas = []; mesaRenderPreview(); return; }
 
   const lines = raw.split(/\r?\n/).filter(l => l.trim());
   mesaFilas = lines.map((line, idx) => {
-    // Separador: Tab es el estándar de Excel; fallback a punto y coma si no hay tabs
     const sep = line.includes('\t') ? '\t' : ';';
     const parts = line.split(sep).map(s => s.trim());
 
     const tipo    = (parts[0]||'').toUpperCase();
     const unidad  = (parts[1]||'').toUpperCase();
     const cliente = (parts[2]||'').toUpperCase();
-    const fechaRaw= parts[3]||'';
-    const horaRaw = parts[4]||'';
-    const cortinaRaw = (parts[5]||'').toUpperCase();
 
-    const fechaV = parseUEFecha(fechaRaw);
-    const horaV  = parseUEHora(horaRaw);
+    const col3 = (parts[3]||'').trim();
+    const col4 = (parts[4]||'').trim();
+    const col5 = (parts[5]||'').trim();
 
-    // Cortina: si el valor empieza con DOOR, aceptar; si es número puro, prefijar; si vacío, ok
-    let cortina = '';
-    if (cortinaRaw) {
-      if (/^DOOR\d+$/.test(cortinaRaw)) {
-        cortina = cortinaRaw;
-      } else if (/^\d+$/.test(cortinaRaw)) {
-        cortina = 'DOOR' + cortinaRaw;
-      } else {
-        cortina = cortinaRaw; // Acepta tal cual y deja que el backend valide
-      }
+    const col3HasTime = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}\s+\d{1,2}:\d{2}/.test(col3) ||
+                        /\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}/.test(col3);
+
+    let datetimeRaw, cortinaRaw;
+    if (col3HasTime) {
+      
+      datetimeRaw = col3;
+      cortinaRaw  = col4.toUpperCase();
+    } else {
+      datetimeRaw = col3 && col4 ? col3 + ' ' + col4 : col3;
+      cortinaRaw  = col5.toUpperCase();
     }
 
-    // Determinar estado de la fila
+    const dtV = parseUEDatetime(datetimeRaw);
+
+    let cortina = '';
+    if (cortinaRaw) {
+      if (/^DOOR\d+$/.test(cortinaRaw))  cortina = cortinaRaw;
+      else if (/^\d+$/.test(cortinaRaw)) cortina = 'DOOR' + cortinaRaw;
+      else                               cortina = cortinaRaw;
+    }
+
     const errores = [];
-    if (!tipo)   errores.push('Tipo de embarque requerido');
-    if (!unidad) errores.push('Unidad de envio requerida');
-    if (!cliente)errores.push('Cliente requerido');
-    if (!fechaV.valid) errores.push('Fecha: ' + (fechaV.hint||'invalida'));
-    if (!horaV.valid)  errores.push('Hora: '  + (horaV.hint||'invalida'));
+    if (!tipo)      errores.push('Tipo de embarque requerido');
+    if (!unidad)    errores.push('Unidad de envio requerida');
+    if (!cliente)   errores.push('Cliente requerido');
+    if (!col3)      errores.push('Fecha y Hora UE requeridas');
+    else if (!dtV.valid) errores.push('Fecha/Hora: ' + (dtV.hint||'invalida'));
 
     const advertencias = [];
-    if (fechaV.valid && fechaV.hint) advertencias.push(fechaV.hint);
-    if (horaV.valid  && horaV.hint)  advertencias.push(horaV.hint);
+    if (dtV.valid && dtV.hint) advertencias.push(dtV.hint);
 
     return {
       _idx: idx + 1,
@@ -1362,24 +1331,18 @@ function mesaParsePaste() {
       tipo_embarque: tipo,
       unidad,
       cliente,
-      ue_fecha:  fechaV.valid ? fechaV.normalized : fechaRaw,
-      _ue_fecha_display: fechaV.valid ? fechaV.display : fechaRaw,
-      ue_hora:   horaV.valid  ? horaV.normalized  : horaRaw,
+      ue_fecha:          dtV.normalized_fecha,
+      ue_hora:           dtV.normalized_hora,
+      _ue_fecha_display: dtV.display,
       cortina,
-      _fechaHint: fechaV.hint,
-      _horaHint:  horaV.hint,
-      _fechaOk:   fechaV.valid,
-      _horaOk:    horaV.valid
+      _dtOk:   dtV.valid,
+      _dtHint: dtV.hint
     };
-  }).filter(f => f.unidad || f.tipo_embarque); // eliminar filas completamente vacías
+  }).filter(f => f.unidad || f.tipo_embarque); 
 
   mesaRenderPreview();
 }
 
-/**
- * Renderiza la tabla de previsualización con las columnas extendidas
- * (Fecha UE, Hora UE) y badges de validación por celda.
- */
 function mesaRenderPreview() {
   const card    = document.getElementById('mesa-preview-card');
   const wrap    = document.getElementById('mesa-preview-table');
@@ -1398,7 +1361,6 @@ function mesaRenderPreview() {
 
   document.getElementById('mesa-preview-count').textContent = total;
 
-  // Resumen de validacion
   summary.innerHTML = `
     <div class="parse-summary">
       <div class="ps-item ps-ok">Correctas: ${filaOk}</div>
@@ -1408,7 +1370,6 @@ function mesaRenderPreview() {
     </div>
   `;
 
-  // Bloquear envio si hay errores
   const hayErrores = filaErr > 0;
   if (btnEnv) btnEnv.disabled = hayErrores;
   if (errBox) {
@@ -1421,7 +1382,6 @@ function mesaRenderPreview() {
     }
   }
 
-  // Tabla de previsualización
   let html = `
     <table class="preview">
       <thead>
@@ -1430,8 +1390,7 @@ function mesaRenderPreview() {
           <th>Tipo</th>
           <th>Unidad</th>
           <th>Cliente</th>
-          <th>Fecha UE</th>
-          <th>Hora UE</th>
+          <th>Fecha y Hora UE</th>
           <th>Cortina</th>
           <th></th>
         </tr>
@@ -1440,14 +1399,10 @@ function mesaRenderPreview() {
 
   mesaFilas.forEach((f, i) => {
     const rowCls = f._errores.length>0 ? 'row-err' : (f._advertencias.length>0 ? 'row-warn' : 'row-ok');
-
-    const fechaBadge = f._fechaOk
-      ? (f._fechaHint ? '<br><span class="val-warn">'+f._fechaHint+'</span>' : '')
-      : '<br><span class="val-err">'+(f._fechaHint||'Invalida')+'</span>';
-
-    const horaBadge = f._horaOk
-      ? (f._horaHint ? '<br><span class="val-warn">'+f._horaHint+'</span>' : '')
-      : '<br><span class="val-err">'+(f._horaHint||'Invalida')+'</span>';
+    const dtDisplay = f._ue_fecha_display || (f.ue_fecha ? f.ue_fecha + (f.ue_hora ? ' ' + f.ue_hora : '') : '');
+    const dtBadge = f._dtOk
+      ? (f._dtHint ? '<br><span class="val-warn">'+f._dtHint+'</span>' : '')
+      : '<br><span class="val-err">'+(f._dtHint||'Invalida')+'</span>';
 
     html += `
       <tr class="${rowCls}">
@@ -1455,8 +1410,7 @@ function mesaRenderPreview() {
         <td>${f.tipo_embarque||'<span class="val-err">Falta</span>'}</td>
         <td><strong>${f.unidad||'<span class="val-err">Falta</span>'}</strong></td>
         <td>${f.cliente||'<span class="val-err">Falta</span>'}</td>
-        <td>${f._ue_fecha_display||f.ue_fecha||'<span class="val-err">Falta</span>'}${fechaBadge}</td>
-        <td>${f.ue_hora||'<span class="val-err">Falta</span>'}${horaBadge}</td>
+        <td style="font-family:var(--f-mono);white-space:nowrap">${dtDisplay||'<span class="val-err">Falta</span>'}${dtBadge}</td>
         <td>${f.cortina||'<span style="color:var(--warn);font-size:10px">pendiente</span>'}</td>
         <td><button onclick="mesaQuitarFila(${i})" style="background:var(--red);color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer">X</button></td>
       </tr>`;
@@ -1468,55 +1422,44 @@ function mesaRenderPreview() {
 
 function mesaQuitarFila(idx) { mesaFilas.splice(idx,1); mesaFilas.forEach((f,i)=>f._idx=i+1); mesaRenderPreview(); }
 
-/**
- * Alta manual de una fila individual.
- * Campos Fecha UE y Hora UE ahora son obligatorios en el formulario manual.
- */
 function mesaAddManual() {
-  const tipo    = document.getElementById('mm-tipo').value.trim();
-  const unidad  = document.getElementById('mm-unidad').value.trim().toUpperCase();
-  const cliente = document.getElementById('mm-cliente').value.trim().toUpperCase();
-  const fecha   = document.getElementById('mm-ue-fecha').value.trim();
-  const hora    = document.getElementById('mm-ue-hora').value.trim();
-  const cortNum = document.getElementById('mm-cortina').value.trim();
+  const tipo     = document.getElementById('mm-tipo').value.trim();
+  const unidad   = document.getElementById('mm-unidad').value.trim().toUpperCase();
+  const cliente  = document.getElementById('mm-cliente').value.trim().toUpperCase();
+  const datetime = document.getElementById('mm-ue-datetime').value.trim();
+  const cortNum  = document.getElementById('mm-cortina').value.trim();
 
-  if (!unidad) return toast('Unidad de envio obligatoria','error');
-  if (!tipo)   return toast('Tipo de embarque obligatorio','error');
-  if (!cliente)return toast('Cliente obligatorio','error');
-  if (!fecha)  return toast('Fecha UE de Envio obligatoria','error');
-  if (!hora)   return toast('Hora UE de Envio obligatoria','error');
+  if (!unidad)   return toast('Unidad de envio obligatoria','error');
+  if (!tipo)     return toast('Tipo de embarque obligatorio','error');
+  if (!cliente)  return toast('Cliente obligatorio','error');
+  if (!datetime) return toast('Fecha y Hora UE obligatorias (DD/MM/YYYY HH:MM)','error');
 
-  const fechaV = parseUEFecha(fecha);
-  const horaV  = parseUEHora(hora);
-  if (!fechaV.valid) return toast('Formato de fecha incorrecto: '+fechaV.hint+' (usar DD/MM/YYYY)','error');
-  if (!horaV.valid)  return toast('Formato de hora incorrecto: '+horaV.hint,'error');
+  const dtV = parseUEDatetime(datetime);
+  if (!dtV.valid) return toast('Formato incorrecto: ' + dtV.hint,'error');
 
   const idx = mesaFilas.length + 1;
   mesaFilas.push({
     _idx: idx,
     _errores: [],
-    _advertencias: fechaV.hint ? [fechaV.hint] : [],
+    _advertencias: dtV.hint ? [dtV.hint] : [],
     tipo_embarque: tipo.toUpperCase(),
     unidad,
     cliente,
-    ue_fecha: fechaV.normalized,
-    _ue_fecha_display: fechaV.display,
-    ue_hora:  horaV.normalized,
+    ue_fecha:          dtV.normalized_fecha,
+    ue_hora:           dtV.normalized_hora,
+    _ue_fecha_display: dtV.display,
     cortina:  cortNum ? 'DOOR'+cortNum : '',
-    _fechaOk: true, _horaOk: true, _fechaHint: fechaV.hint||'', _horaHint: ''
+    _dtOk: true, _dtHint: dtV.hint||''
   });
 
   mesaRenderPreview();
-  ['mm-tipo','mm-unidad','mm-cliente','mm-ue-fecha','mm-ue-hora','mm-cortina'].forEach(id => {
+  ['mm-tipo','mm-unidad','mm-cliente','mm-ue-datetime','mm-cortina'].forEach(id => {
     const e = document.getElementById(id);
     if (e) e.value = '';
   });
   toast('Fila agregada','success');
 }
 
-/**
- * Envio del lote al backend. Solo se envian filas sin errores.
- */
 async function mesaEnviar() {
   const filasValidas = mesaFilas.filter(f => f._errores.length === 0);
   if (!filasValidas.length) return toast('Sin filas validas para enviar','error');
@@ -1632,8 +1575,11 @@ function abrirEditarAsig(id) {
       <div><label>Cortina</label><input type="text" id="ea-cortina" value="${e.cortina||''}" placeholder="DOOR000"></div>
     </div>
     <div class="form-row-2">
-      <div><label>Fecha UE de Envio</label><input type="text" id="ea-ue-fecha" placeholder="DD/MM/YYYY" maxlength="10" value="${formatISOtoDisplay_(e.ue_fecha||'')}"></div>
-      <div><label>Hora UE de Envio</label><input type="time" id="ea-ue-hora" value="${e.ue_hora||''}"></div>
+      <div style="grid-column:1/-1">
+        <label>Fecha y Hora UE de Envio</label>
+        <input type="text" id="ea-ue-datetime" placeholder="" maxlength="16" style="font-family:var(--f-mono)" value="${formatISOtoDisplay_(e.ue_fecha||'')}${e.ue_hora?' '+e.ue_hora:''}">
+        <div style="font-size:10px;color:var(--gray-500);margin-top:4px;font-family:var(--f-mono)">Formato: DD/MM/YYYY HH:MM</div>
+      </div>
     </div>
     <button class="btn btn-primary" onclick="guardarEditarAsig('${id}')">Guardar cambios</button>
   `;
@@ -1641,16 +1587,16 @@ function abrirEditarAsig(id) {
 }
 
 async function guardarEditarAsig(id) {
-  const fechaRawEdit = document.getElementById('ea-ue-fecha').value.trim();
-  const fechaEditV   = fechaRawEdit ? parseUEFecha(fechaRawEdit) : { valid: true, normalized: '' };
-  if (fechaRawEdit && !fechaEditV.valid) return toast('Fecha invalida: ' + fechaEditV.hint, 'error');
+  const datetimeRawEdit = (document.getElementById('ea-ue-datetime')?.value || '').trim();
+  const dtEditV = datetimeRawEdit ? parseUEDatetime(datetimeRawEdit) : { valid: true, normalized_fecha: '', normalized_hora: '' };
+  if (datetimeRawEdit && !dtEditV.valid) return toast('Fecha/Hora invalida: ' + dtEditV.hint, 'error');
   const cambios = {
     tipo_embarque: document.getElementById('ea-tipo').value.trim(),
     unidad_envio:  document.getElementById('ea-unidad').value.trim(),
     cliente:       document.getElementById('ea-cliente').value.trim(),
     cortina:       document.getElementById('ea-cortina').value.trim(),
-    ue_fecha:      fechaEditV.normalized,
-    ue_hora:       document.getElementById('ea-ue-hora').value
+    ue_fecha:      dtEditV.normalized_fecha,
+    ue_hora:       dtEditV.normalized_hora
   };
   toast('Guardando...');
   const res = await apiPost('mesa_edit_asignacion', { id, cambios, usuario: session.name });
@@ -2419,15 +2365,12 @@ async function getInstitutionalLogo(){
 // ════════════════════════════════════════════════════════════════
 //  UTILS
 // ════════════════════════════════════════════════════════════════
-/**
- * Convierte YYYY-MM-DD almacenado en backend a DD/MM/YYYY para visualización.
- * Si el valor ya está en DD/MM/YYYY o no es reconocible, lo devuelve tal cual.
- */
+
 function formatISOtoDisplay_(iso) {
   if (!iso) return '';
   const m = String(iso).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) return m[3]+'/'+m[2]+'/'+m[1];
-  return iso; // ya viene en otro formato; devolver sin transformar
+  return iso; 
 }
 function toggleSelect(el,groupId,extraClass){
   document.querySelectorAll('#'+groupId+' .toggle-opt').forEach(o=>o.classList.remove('selected','ok','yellow'));
@@ -2457,7 +2400,6 @@ window.onload=()=>{
     const skip=el.type==='date'||el.type==='time'||el.type==='datetime-local'||el.type==='number'||el.type==='email'||el.type==='password';
     if(skip)return;
     if((el.tagName==='INPUT'&&(el.type==='text'||!el.type))||el.tagName==='TEXTAREA'){
-      // No aplicar uppercase al textarea del parser Excel para no alterar valores pegados
       if(el.id==='mesa-paste'||el.id==='mesa-nota'||el.id==='r-notas'||el.id==='dp-seguimiento'||el.id==='cancel-obs')return;
       const s=el.selectionStart,en=el.selectionEnd;
       el.value=el.value.toUpperCase();

@@ -317,7 +317,7 @@ table.preview tr.row-err td { background: var(--danger-tint); }
     </div>
     <div class="splash-title">
       Auditoria de Pallets
-      <small>Sistema Enterprise · Logistica</small>
+      <small>Sistema Enterprise  · Logistica</small>
     </div>
     <div class="splash-divider"></div>
 
@@ -1017,7 +1017,7 @@ function renderAuditorPendientes() {
   tab.innerHTML = `
     <div class="section-head">
       <div class="section-icon">⏳</div>
-      <div><div class="section-title">Pendientes y Herencias</div><div class="section-desc">Asignaciones de Mesa + herencias del turno anterior</div></div>
+      <div><div class="section-title">Pendientes y Herencias</div><div class="section-desc">Herencias del turno anterior · Asignaciones de Mesa</div></div>
     </div>
     <div class="sync-banner">
       <span class="sb-icon"></span>
@@ -1047,14 +1047,14 @@ function renderPendientesAuditor() {
   const nuevos    = items.filter(p => (p._estado||p.estado)==='NUEVO');
   const herencias = items.filter(p => (p._estado||p.estado)==='HERENCIA');
   let html = '';
-  if (nuevos.length) {
-    html += '<div class="pendiente-panel"><div class="pp-head brand">Asignaciones de Mesa<span class="pp-count">'+nuevos.length+'</span></div>';
-    nuevos.forEach(p => html += pendienteItemHTML(p,'nuevo'));
+  if (herencias.length) {
+    html += '<div class="pendiente-panel"><div class="pp-head brand">Herencias — Turno Anterior<span class="pp-count">'+herencias.length+'</span></div>';
+    herencias.forEach(p => html += pendienteItemHTML(p,'herencia'));
     html += '</div>';
   }
-  if (herencias.length) {
-    html += '<div class="pendiente-panel"><div class="pp-head yellow">Herencias<span class="pp-count">'+herencias.length+'</span></div>';
-    herencias.forEach(p => html += pendienteItemHTML(p,'herencia'));
+  if (nuevos.length) {
+    html += '<div class="pendiente-panel"><div class="pp-head dark">Asignaciones de Mesa<span class="pp-count">'+nuevos.length+'</span></div>';
+    nuevos.forEach(p => html += pendienteItemHTML(p,'nuevo'));
     html += '</div>';
   }
   container.innerHTML = html;
@@ -1238,7 +1238,6 @@ function parseUEDatetime(raw) {
     return { valid:true, normalized_fecha:nf, normalized_hora:nh, display:dp, hint:'' };
   }
 
-  // Caso 2: ISO "YYYY-MM-DD HH:MM"
   const mISO = s.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/);
   if (mISO) {
     const y=Number(mISO[1]),m=Number(mISO[2]),d=Number(mISO[3]);
@@ -1251,7 +1250,6 @@ function parseUEDatetime(raw) {
     return { valid:true, normalized_fecha:nf, normalized_hora:nh, display:dp, hint:'Convertido de ISO' };
   }
 
-  // Caso 3: solo fecha sin hora (acepta, hora queda vacía con advertencia)
   const mDateOnly = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
   if (mDateOnly) {
     const d=Number(mDateOnly[1]),m=Number(mDateOnly[2]),y=Number(mDateOnly[3]);
@@ -1281,6 +1279,7 @@ function mesaParsePaste() {
 
   const lines = raw.split(/\r?\n/).filter(l => l.trim());
   mesaFilas = lines.map((line, idx) => {
+   
     const sep = line.includes('\t') ? '\t' : ';';
     const parts = line.split(sep).map(s => s.trim());
 
@@ -1297,7 +1296,6 @@ function mesaParsePaste() {
 
     let datetimeRaw, cortinaRaw;
     if (col3HasTime) {
-      
       datetimeRaw = col3;
       cortinaRaw  = col4.toUpperCase();
     } else {
@@ -1338,7 +1336,7 @@ function mesaParsePaste() {
       _dtOk:   dtV.valid,
       _dtHint: dtV.hint
     };
-  }).filter(f => f.unidad || f.tipo_embarque); 
+  }).filter(f => f.unidad || f.tipo_embarque); // eliminar filas completamente vacías
 
   mesaRenderPreview();
 }
@@ -2365,12 +2363,15 @@ async function getInstitutionalLogo(){
 // ════════════════════════════════════════════════════════════════
 //  UTILS
 // ════════════════════════════════════════════════════════════════
-
+/**
+ * Convierte YYYY-MM-DD almacenado en backend a DD/MM/YYYY para visualización.
+ * Si el valor ya está en DD/MM/YYYY o no es reconocible, lo devuelve tal cual.
+ */
 function formatISOtoDisplay_(iso) {
   if (!iso) return '';
   const m = String(iso).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) return m[3]+'/'+m[2]+'/'+m[1];
-  return iso; 
+  return iso; // ya viene en otro formato; devolver sin transformar
 }
 function toggleSelect(el,groupId,extraClass){
   document.querySelectorAll('#'+groupId+' .toggle-opt').forEach(o=>o.classList.remove('selected','ok','yellow'));
@@ -2400,6 +2401,7 @@ window.onload=()=>{
     const skip=el.type==='date'||el.type==='time'||el.type==='datetime-local'||el.type==='number'||el.type==='email'||el.type==='password';
     if(skip)return;
     if((el.tagName==='INPUT'&&(el.type==='text'||!el.type))||el.tagName==='TEXTAREA'){
+      // No aplicar uppercase al textarea del parser Excel para no alterar valores pegados
       if(el.id==='mesa-paste'||el.id==='mesa-nota'||el.id==='r-notas'||el.id==='dp-seguimiento'||el.id==='cancel-obs')return;
       const s=el.selectionStart,en=el.selectionEnd;
       el.value=el.value.toUpperCase();

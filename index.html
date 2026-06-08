@@ -172,6 +172,7 @@ input:disabled, select:disabled { opacity: .55; cursor: not-allowed; background:
 .pp-head.brand { background: var(--red); }
 .pp-head.yellow { background: var(--yellow); color: var(--ink); }
 .pp-head.dark { background: var(--ink); }
+.pp-head.desp { background: var(--gray-700); }
 .pp-head .pp-count { margin-left: auto; background: rgba(255,255,255,.22); padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; }
 .pp-head.yellow .pp-count { background: rgba(15,17,21,.12); color: var(--ink); }
 .pp-item { padding: 12px 16px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: flex-start; gap: 12px; }
@@ -233,7 +234,6 @@ table.preview td { padding: 8px 10px; border-bottom: 1px solid var(--gray-100); 
 table.preview tr.row-ok td { background: rgba(10,127,62,.04); }
 table.preview tr.row-warn td { background: rgba(253,208,0,.10); }
 table.preview tr.row-err td { background: var(--danger-tint); }
-/* ── NUEVO: badge de validación en celdas ── */
 .val-ok   { color: var(--ok);   font-size: 10px; font-weight: 700; }
 .val-warn { color: var(--warn); font-size: 10px; font-weight: 700; }
 .val-err  { color: var(--red);  font-size: 10px; font-weight: 700; }
@@ -294,17 +294,85 @@ table.preview tr.row-err td { background: var(--danger-tint); }
 .cancel-row .cr-unit { font-size: 12px; font-weight: 700; color: #C0392B; flex: 1; }
 .cancel-row .cr-meta { font-size: 10px; color: var(--gray-700); }
 .cancel-row .cr-badge { font-family: var(--f-mono); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: #C0392B; color: var(--white); padding: 3px 9px; border-radius: 99px; }
-
-/* ── NUEVO: Resumen de validación del lote pegado ── */
-.parse-summary {
-  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; padding: 10px 14px;
-  background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-md);
-  font-family: var(--f-mono); font-size: 11px;
-}
+.parse-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; padding: 10px 14px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-md); font-family: var(--f-mono); font-size: 11px; }
 .parse-summary .ps-item { display: flex; align-items: center; gap: 5px; font-weight: 700; }
 .parse-summary .ps-ok   { color: var(--ok); }
 .parse-summary .ps-warn { color: var(--warn); }
 .parse-summary .ps-err  { color: var(--red); }
+
+/* ── NUEVO: Cortina destacada (Auditor) ── */
+.cortina-badge {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--ink) 0%, #2A2D33 100%);
+  border-radius: var(--r-md); padding: 14px 18px; margin-bottom: 14px;
+  box-shadow: var(--shadow-md);
+}
+.cortina-badge .cb-label {
+  font-family: var(--f-mono); font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .18em; color: rgba(255,255,255,.55);
+  white-space: nowrap;
+}
+.cortina-badge .cb-value {
+  font-family: var(--f-display); font-size: 28px; font-weight: 800;
+  color: var(--yellow); letter-spacing: -.02em; line-height: 1;
+}
+.cortina-badge .cb-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--ok);
+  flex-shrink: 0; box-shadow: 0 0 0 3px rgba(10,127,62,.25);
+}
+
+/* ── NUEVO: PDF Viewer Inline (Supervisor) ── */
+.pdf-viewer-wrap {
+  border: 1px solid var(--gray-200); border-radius: var(--r-md);
+  overflow: hidden; margin-top: 10px; background: var(--gray-900);
+  box-shadow: var(--shadow-md);
+}
+.pdf-viewer-toolbar {
+  background: var(--ink); padding: 8px 14px; display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+}
+.pdf-viewer-toolbar span {
+  font-family: var(--f-mono); font-size: 10px; color: rgba(255,255,255,.65);
+  letter-spacing: .1em; text-transform: uppercase; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pdf-viewer-toolbar a {
+  padding: 5px 12px; border-radius: var(--r-xs); font-family: var(--f-mono);
+  font-size: 10px; font-weight: 700; text-decoration: none; letter-spacing: .08em;
+  text-transform: uppercase; white-space: nowrap;
+}
+.pdf-viewer-toolbar a.btn-open { background: var(--yellow); color: var(--ink); }
+.pdf-viewer-toolbar a.btn-dl   { background: rgba(255,255,255,.12); color: var(--white); }
+.pdf-viewer-iframe { width: 100%; height: 520px; border: none; display: block; }
+
+/* ── NUEVO: Sección Enriquecidas en Despacho ── */
+.desp-enriquecidas { margin-bottom: 16px; }
+.desp-enriquecidas .de-head {
+  background: var(--gray-700); color: var(--white); border-radius: var(--r-md) var(--r-md) 0 0;
+  padding: 12px 16px; font-family: var(--f-display); font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+}
+.desp-enriquecidas .de-head .de-count {
+  margin-left: auto; background: rgba(255,255,255,.18); padding: 2px 9px;
+  border-radius: 99px; font-size: 11px;
+}
+.desp-enriquecidas .de-body { border: 1px solid var(--gray-200); border-top: none; border-radius: 0 0 var(--r-md) var(--r-md); }
+.desp-enriquecidas .de-item {
+  padding: 12px 16px; border-bottom: 1px solid var(--gray-100);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.desp-enriquecidas .de-item:last-child { border-bottom: none; }
+.desp-enriquecidas .de-item:hover { background: var(--gray-50); }
+.de-icon {
+  width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--gray-700);
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+  flex-shrink: 0; color: var(--white); font-family: var(--f-mono); font-weight: 800;
+}
+.de-prime-chip {
+  display: inline-flex; align-items: center; gap: 4px; background: var(--red-tint);
+  color: var(--red); border-radius: 99px; padding: 2px 8px;
+  font-family: var(--f-mono); font-size: 9px; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase;
+}
 </style>
 </head>
 <body>
@@ -344,7 +412,7 @@ table.preview tr.row-err td { background: var(--danger-tint); }
           <div class="role-badge despacho">DES</div>
           <div class="role-text">
             <div class="role-name">Analista Despacho</div>
-            <div class="role-desc">Validacion MC vs Factura · Cierre</div>
+            <div class="role-desc">Enriquecidas · Validacion MC vs Factura · Cierre</div>
           </div>
           <div class="role-arrow">›</div>
         </div>
@@ -674,7 +742,7 @@ function switchTab(id) {
   const n = document.querySelector('[data-tab="'+id+'"]'); if (n) n.classList.add('active');
   if (id==='auditor-pendientes') renderPendientesAuditor();
   if (id==='mesa-carga')         syncPendientes();
-  if (id==='despacho-cierre')    loadDespachoList();
+  if (id==='despacho-cierre')    loadDespachoEnriquecidas();
   if (id==='sup-dashboard')      loadDashboard();
 }
 
@@ -693,7 +761,7 @@ function renderLogout() {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  AUDITOR — RECIBO
+//  AUDITOR — RECIBO  (v2: + Estatus MC + fix evidencias)
 // ════════════════════════════════════════════════════════════════
 function renderAuditorRecibo() {
   const tab = document.getElementById('tab-auditor-recibo');
@@ -730,6 +798,7 @@ function renderAuditorRecibo() {
         <div><label>Pallets CHEP <span class="req">*</span></label><input type="number" id="r-chep" min="0" placeholder="0"></div>
         <div><label>Pallets Blancas <span class="req">*</span></label><input type="number" id="r-blancas" min="0" placeholder="0"></div>
       </div>
+
       <div class="form-row">
         <label>Avance (%) <span class="req">*</span></label>
         <select id="r-avance"><option value="">— Seleccionar —</option><option>Inicio</option><option>25%</option><option>50%</option><option>75%</option><option>Completo</option></select>
@@ -785,6 +854,7 @@ async function submitRecibo() {
   if (!avance)                   return toast('Selecciona avance','error');
   if (!estado)                   return toast('Selecciona estado','error');
   if (!photos.recibo.length)     return toast('Evidencia fotografica obligatoria','error');
+
   const cortina = 'DOOR'+cortinaNum;
   const data = {
     id, sto, master_receipt: master, cortina, planta_recibo: planta,
@@ -798,7 +868,10 @@ async function submitRecibo() {
   const res = await apiPost('auditor_save_recibo', { data });
   if (!res||!res.ok) return toast('Error al guardar','error');
   const newId = res.data.id;
-  if (photos.recibo.length) uploadEvidencesBatch(newId,'recibo','recibo',photos.recibo).catch(()=>{});
+  // FIX: pasar modulo='recibo' explícitamente para que backend escriba en columna correcta
+  if (photos.recibo.length) {
+    uploadEvidencesBatch(newId, 'recibo', 'recibo', photos.recibo).catch(()=>{});
+  }
   toast('Recibo '+(res.data.estado==='HERENCIA'?'guardado como herencia':'finalizado'),'success');
   resetReciboForm();
   syncPendientes();
@@ -808,9 +881,12 @@ function resetReciboForm() {
   ['r-id','r-sto','r-master','r-cortina','r-monta','r-chep','r-blancas','r-notas'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
   document.getElementById('r-planta').value = '';
   document.getElementById('r-avance').value = '';
-  document.querySelectorAll('#r-tipo .toggle-opt, #r-estado .toggle-opt').forEach(o => o.classList.remove('selected','ok','yellow'));
-  document.querySelector('#r-estado .toggle-opt').classList.add('selected','ok');
-  document.querySelectorAll('#r-estado .toggle-opt')[1].classList.add('yellow');
+  document.querySelectorAll('#r-tipo .toggle-opt').forEach(o => o.classList.remove('selected','ok','yellow'));
+  document.querySelectorAll('#r-estado .toggle-opt').forEach((o,i) => {
+    o.classList.remove('selected','ok','yellow');
+    if (i===0) o.classList.add('selected','ok');
+    if (i===1) o.classList.add('yellow');
+  });
   document.getElementById('r-monta-req').style.display = 'inline';
   document.getElementById('r-monta-opt').style.display = 'none';
   photos.recibo = []; renderPhotos('recibo');
@@ -931,7 +1007,7 @@ async function submitEmbarque() {
   const estado  = getToggleValue('e-estado');
   if (!tipoAud)  return toast('Selecciona tipo de auditoria','error');
   if (chep===''||blancas==='') return toast('Captura pallets','error');
-  if (!statusMC) return toast('Indica el status MC','error');
+  if (!statusMC) return toast('Indica el Estatus MC','error');
   if (statusMC.includes('Incorrecto')&&!motivo) return toast('Motivo de error MC obligatorio','error');
   if (!avance)   return toast('Selecciona avance','error');
   if (!estado)   return toast('Selecciona estado','error');
@@ -971,6 +1047,7 @@ function cancelEmbarqueForm() {
   photos.embarque = []; renderPhotos('embarque');
 }
 
+// FIX: Cortina ahora muestra badge prominente antes del formulario
 function iniciarEmbarqueDesdePendiente(id) {
   const p = pendientes.find(x => x.id === id);
   if (!p) return toast('Pendiente no encontrado','error');
@@ -980,13 +1057,23 @@ function iniciarEmbarqueDesdePendiente(id) {
   document.getElementById('embarque-empty').style.display = 'none';
   document.getElementById('embarque-form').style.display = 'block';
   document.getElementById('e-id').value = id;
+
+  // Construir detalle de asignacion con cortina prominente
   document.getElementById('embarque-asig-info').style.display = 'block';
+  const unidadVal = p.unidad_envio||p.datos?.unidad_envio||'—';
+  const clienteVal = p.cliente||p.datos?.cliente||'—';
+  const tipoVal = p.tipo_embarque||p.datos?.tipo_embarque||'—';
+
   document.getElementById('embarque-asig-detalle').innerHTML = `
-    <div class="dt-item dt-brand"><span class="dt-label">Unidad de envio</span><span class="dt-value">${p.unidad_envio||p.datos?.unidad_envio||'—'}</span></div>
-    <div class="dt-item dt-brand"><span class="dt-label">Cliente</span><span class="dt-value">${p.cliente||p.datos?.cliente||'—'}</span></div>
-    <div class="dt-item"><span class="dt-label">Tipo de embarque</span><span class="dt-value">${p.tipo_embarque||p.datos?.tipo_embarque||'—'}</span></div>
-    <div class="dt-item dt-yellow"><span class="dt-label">Cortina</span><span class="dt-value">${cortina}</span></div>
+    <div class="dt-item dt-brand"><span class="dt-label">Unidad de envio</span><span class="dt-value">${unidadVal}</span></div>
+    <div class="dt-item dt-brand"><span class="dt-label">Cliente</span><span class="dt-value">${clienteVal}</span></div>
+    <div class="dt-item"><span class="dt-label">Tipo de embarque</span><span class="dt-value">${tipoVal}</span></div>
+    <div class="dt-item" style="border-left-color:var(--yellow);background:var(--yellow-tint);grid-column:1/-1">
+      <span class="dt-label" style="color:var(--warn)">Cortina Asignada</span>
+      <span class="dt-value" style="font-size:22px;font-family:var(--f-display);color:var(--ink);letter-spacing:-.02em">${cortina}</span>
+    </div>
   `;
+
   if (p.estado==='HERENCIA'&&p.datos) {
     const d = p.datos;
     if (d.usuario_monta) document.getElementById('e-monta').value = d.usuario_monta.replace(/^SMO/i,'');
@@ -1009,7 +1096,7 @@ function iniciarEmbarqueDesdePendiente(id) {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  AUDITOR — PENDIENTES
+//  AUDITOR — PENDIENTES  (con cortina badge prominente)
 // ════════════════════════════════════════════════════════════════
 function renderAuditorPendientes() {
   const tab = document.getElementById('tab-auditor-pendientes');
@@ -1060,24 +1147,30 @@ function renderPendientesAuditor() {
   container.innerHTML = html;
 }
 
+// FIX: cortina se muestra con mayor prominencia en la lista de pendientes
 function pendienteItemHTML(p, tipo) {
   const unidad   = p.unidad_envio||p.datos?.unidad_envio||'—';
   const cliente  = p.cliente||p.datos?.cliente||'—';
   const cortina  = p.cortina||p.datos?.cortina||'';
   const tipoEmb  = p.tipo_embarque||p.datos?.tipo_embarque||'—';
   const sinCortina = !cortina;
+  const esRecibo = !!(p.sto||p.datos?.sto||p.datos?.master_receipt||p.master_receipt);
+  const cortinaBadge = sinCortina
+    ? '<span class="status cancelado">Sin cortina</span>'
+    : `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--ink);color:var(--yellow);padding:3px 10px;border-radius:6px;font-family:var(--f-mono);font-weight:800;font-size:12px;letter-spacing:.04em">${cortina}</span>`;
   return `
     <div class="pp-item">
       <div class="pp-icon">${tipo==='nuevo'?'🆕':'⟲'}</div>
       <div class="pp-body">
         <div class="pp-title">${unidad} · ${cliente}</div>
-        <div class="pp-meta">
-          ${tipoEmb} · ${cortina?'<strong>'+cortina+'</strong>':'<span class="status cancelado">Sin cortina</span>'}
-          ${tipo==='herencia'?'<br>Ultimo: '+(p.ultimo_auditor||'—')+' · '+(p.ultimo_turno||'—'):''}
-          ${p.nota_mesa?'<br>'+p.nota_mesa:''}
+        <div class="pp-meta" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px">
+          <span style="color:var(--gray-500);font-size:11px">${tipoEmb}</span>
+          ${cortinaBadge}
+          ${tipo==='herencia'?'<span style="font-size:10px;color:var(--gray-500)">Ultimo: '+(p.ultimo_auditor||'—')+' · '+(p.ultimo_turno||'—')+'</span>':''}
         </div>
+        ${p.nota_mesa?'<div class="note info" style="margin-top:8px;font-size:11px">'+p.nota_mesa+'</div>':''}
         <div class="pp-actions">
-          <button class="pp-btn ${sinCortina?'ghost':'primary'}" ${sinCortina?'disabled':''} onclick="iniciarEmbarqueDesdePendiente('${p.id}')">
+          <button class="pp-btn ${sinCortina?'ghost':'primary'}" ${sinCortina?'disabled':''} onclick="${esRecibo?'iniciarReciboDesdePendiente':'iniciarEmbarqueDesdePendiente'}('${p.id}')">
             ${sinCortina?'Sin cortina':(tipo==='nuevo'?'Iniciar':'Continuar')}
           </button>
           <button class="pp-btn ghost" onclick="verDetallePendiente('${p.id}')">Detalle</button>
@@ -1089,21 +1182,69 @@ function pendienteItemHTML(p, tipo) {
 function verDetallePendiente(id) {
   const p = pendientes.find(x => x.id === id);
   if (!p) return;
+  const cortina = p.cortina||p.datos?.cortina||'SIN CORTINA';
   const fields = [
     ['ID', p.id],['Unidad de Envio', p.unidad_envio||p.datos?.unidad_envio||'—'],
     ['Cliente', p.cliente||p.datos?.cliente||'—'],['Tipo de Embarque', p.tipo_embarque||p.datos?.tipo_embarque||'—'],
-    ['Cortina', p.cortina||p.datos?.cortina||'SIN CORTINA'],
+    ['Cortina', cortina],
     ['Mesa origen', p.mesa_origen||'—'],['Estado', p._estado||p.estado||'—'],['Fecha creacion', p.fecha_creacion||'—']
   ];
-  let body = '<div class="detail-grid">';
+  let body = '';
+  // Cortina destacada al inicio
+  if (cortina !== 'SIN CORTINA') {
+    body += `<div class="cortina-badge"><div><div class="cb-label">Cortina Asignada</div><div class="cb-value">${cortina}</div></div><div class="cb-dot"></div></div>`;
+  }
+  body += '<div class="detail-grid">';
   fields.forEach(f => body += '<div class="dt-item"><span class="dt-label">'+f[0]+'</span><span class="dt-value">'+f[1]+'</span></div>');
   body += '</div>';
   if (p.nota_mesa) body += '<div class="note info" style="margin-top:12px"><strong>Nota de mesa:</strong> '+p.nota_mesa+'</div>';
   body += '<div style="height:14px"></div>';
-  body += '<button class="btn btn-primary" onclick="iniciarEmbarqueDesdePendiente(\''+p.id+'\')">Tomar este embarque →</button>';
+  const esRecibo = !!(p.sto||p.datos?.sto||p.datos?.master_receipt||p.master_receipt);
+  if (esRecibo) {
+    body += '<button class="btn btn-primary" onclick="iniciarReciboDesdePendiente(\''+p.id+'\')">Continuar este recibo →</button>';
+  } else {
+    body += '<button class="btn btn-primary" onclick="iniciarEmbarqueDesdePendiente(\''+p.id+'\')">Tomar este embarque →</button>';
+  }
   document.getElementById('modal-detail-title').textContent = 'Detalle de Pendiente';
   document.getElementById('modal-detail-body').innerHTML = body;
   document.getElementById('modal-detail').classList.add('open');
+}
+
+
+function iniciarReciboDesdePendiente(id) {
+  const p = pendientes.find(x => x.id === id);
+  if (!p) return toast('Pendiente no encontrado','error');
+  const cortina = p.cortina||(p.datos&&p.datos.cortina)||'';
+  if (!cortina) return toast('Este recibo no tiene cortina. Solicita a Mesa que la agregue.','warn');
+  // Navegar al tab de Recibo
+  switchTab('auditor-recibo');
+  // Pre-cargar campos del recibo desde el pendiente
+  document.getElementById('r-id').value = id;
+  document.getElementById('r-cortina').value = cortina.replace(/^DOOR/i,'');
+  // Pre-fill STO y master si vienen en p.datos
+  const sto = p.sto||p.datos?.sto||'';
+  const master = p.master_receipt||p.datos?.master_receipt||'';
+  const planta = p.planta_recibo||p.datos?.planta_recibo||'';
+  const notas  = p.notas||p.datos?.notas||'';
+  if (sto)    document.getElementById('r-sto').value = sto;
+  if (master) document.getElementById('r-master').value = master;
+  if (planta) document.getElementById('r-planta').value = planta;
+  if (notas)  document.getElementById('r-notas').value = notas;
+  // Mostrar banner de continuación
+  const herenciaBanner = document.getElementById('recibo-heritage');
+  if (herenciaBanner) {
+    herenciaBanner.classList.remove('hidden');
+    herenciaBanner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--yellow-tint);border:1px solid var(--yellow-dark);border-radius:var(--r-md);margin-bottom:14px">
+        <span style="font-size:18px">⟲</span>
+        <div>
+          <div style="font-family:var(--f-mono);font-size:10px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.1em">Continuando herencia</div>
+          <div style="font-size:12px;color:var(--ink-soft);margin-top:2px">ID: <strong>${id}</strong> · Cortina: <strong>${cortina}</strong></div>
+        </div>
+      </div>`;
+  }
+  document.getElementById('modal-detail').classList.remove('open');
+  toast('Recibo pre-cargado desde herencia', 'ok');
 }
 
 function updateNavBadge() {
@@ -1114,6 +1255,9 @@ function updateNavBadge() {
   badge.classList.toggle('hidden', count===0);
 }
 
+// ════════════════════════════════════════════════════════════════
+//  MESA — CARGA
+// ════════════════════════════════════════════════════════════════
 function renderMesaCarga() {
   const tab = document.getElementById('tab-mesa-carga');
   if (!tab) return;
@@ -1125,7 +1269,6 @@ function renderMesaCarga() {
         <div class="section-desc">Origen del flujo · Asignaciones · Editables hasta el cierre</div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title ct-mesa"><span class="ct-dot"></span>Pegar desde Excel</div>
       <div class="note info">
@@ -1137,12 +1280,9 @@ function renderMesaCarga() {
         </code>
       </div>
       <div class="excel-zone">
-        <textarea id="mesa-paste" rows="7"
-          placeholder=""
-          oninput="mesaParsePaste()"></textarea>
+        <textarea id="mesa-paste" rows="7" placeholder="" oninput="mesaParsePaste()"></textarea>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title ct-mesa"><span class="ct-dot"></span>Agregar Fila Manual</div>
       <div class="form-row-3">
@@ -1164,11 +1304,11 @@ function renderMesaCarga() {
         </div>
       </div>
       <div class="form-row-2">
-      <div style="grid-column:1/-1">
+        <div style="grid-column:1/-1">
           <label>Fecha y Hora UE de Envio <span class="req">*</span></label>
           <input type="text" id="mm-ue-datetime" placeholder="" maxlength="16" style="font-family:var(--f-mono)">
           <div style="font-size:10px;color:var(--gray-500);margin-top:4px;font-family:var(--f-mono);letter-spacing:.05em">Formato: DD/MM/YYYY HH:MM</div>
-      </div>
+        </div>
       </div>
       <div class="form-row">
         <label>Cortina <span class="opt">Opcional</span></label>
@@ -1179,7 +1319,6 @@ function renderMesaCarga() {
       </div>
       <button class="btn btn-dark btn-sm" onclick="mesaAddManual()">+ Agregar Fila</button>
     </div>
-
     <div class="card hidden" id="mesa-preview-card">
       <div class="card-title ct-mesa"><span class="ct-dot"></span>Previsualizacion (sin enviar) · <span id="mesa-preview-count">0</span> filas</div>
       <div id="mesa-parse-summary"></div>
@@ -1194,9 +1333,7 @@ function renderMesaCarga() {
       <div style="height:8px"></div>
       <button class="btn btn-ghost" onclick="mesaLimpiar()">Limpiar previsualizacion</button>
     </div>
-
     <div class="accent-line"></div>
-
     <div class="section-head" style="margin-top:6px">
       <div class="section-icon">🗂</div>
       <div>
@@ -1221,10 +1358,7 @@ function parseUEDatetime(raw) {
     return { valid: false, normalized_fecha: '', normalized_hora: '', display: '', hint: 'Vacio' };
   }
   const s = raw.toString().trim();
-
-  const mCombined = s.match(
-    /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/
-  );
+  const mCombined = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/);
   if (mCombined) {
     const d=Number(mCombined[1]),m=Number(mCombined[2]),y=Number(mCombined[3]);
     const h=Number(mCombined[4]),min=Number(mCombined[5]);
@@ -1237,7 +1371,6 @@ function parseUEDatetime(raw) {
     const dp = String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+y+' '+nh;
     return { valid:true, normalized_fecha:nf, normalized_hora:nh, display:dp, hint:'' };
   }
-
   const mISO = s.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{1,2}):(\d{2})(?::\d{2})?$/);
   if (mISO) {
     const y=Number(mISO[1]),m=Number(mISO[2]),d=Number(mISO[3]);
@@ -1249,7 +1382,6 @@ function parseUEDatetime(raw) {
     const dp = String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+y+' '+nh;
     return { valid:true, normalized_fecha:nf, normalized_hora:nh, display:dp, hint:'Convertido de ISO' };
   }
-
   const mDateOnly = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
   if (mDateOnly) {
     const d=Number(mDateOnly[1]),m=Number(mDateOnly[2]),y=Number(mDateOnly[3]);
@@ -1259,161 +1391,74 @@ function parseUEDatetime(raw) {
       return { valid:true, normalized_fecha:nf, normalized_hora:'', display:dp, hint:'Sin hora — agregar HH:MM' };
     }
   }
-
-  return { valid:false, normalized_fecha:'', normalized_hora:'', display:s,
-           hint:'Formato no reconocido (usar DD/MM/YYYY HH:MM)' };
-}
-
-function parseUEFecha(raw) {
-  const r = parseUEDatetime((raw||'').toString().trim() + ' 00:00');
-  return { valid: r.valid, normalized: r.normalized_fecha, display:
-    r.normalized_fecha
-      ? r.normalized_fecha.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$3/$2/$1')
-      : raw,
-    hint: r.hint };
+  return { valid:false, normalized_fecha:'', normalized_hora:'', display:s, hint:'Formato no reconocido (usar DD/MM/YYYY HH:MM)' };
 }
 
 function mesaParsePaste() {
   const raw = (document.getElementById('mesa-paste').value||'').trim();
   if (!raw) { mesaFilas = []; mesaRenderPreview(); return; }
-
   const lines = raw.split(/\r?\n/).filter(l => l.trim());
   mesaFilas = lines.map((line, idx) => {
-   
     const sep = line.includes('\t') ? '\t' : ';';
     const parts = line.split(sep).map(s => s.trim());
-
     const tipo    = (parts[0]||'').toUpperCase();
     const unidad  = (parts[1]||'').toUpperCase();
     const cliente = (parts[2]||'').toUpperCase();
-
     const col3 = (parts[3]||'').trim();
     const col4 = (parts[4]||'').trim();
     const col5 = (parts[5]||'').trim();
-
-    const col3HasTime = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}\s+\d{1,2}:\d{2}/.test(col3) ||
-                        /\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}/.test(col3);
-
+    const col3HasTime = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}\s+\d{1,2}:\d{2}/.test(col3)||/\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}/.test(col3);
     let datetimeRaw, cortinaRaw;
-    if (col3HasTime) {
-      datetimeRaw = col3;
-      cortinaRaw  = col4.toUpperCase();
-    } else {
-      datetimeRaw = col3 && col4 ? col3 + ' ' + col4 : col3;
-      cortinaRaw  = col5.toUpperCase();
-    }
-
+    if (col3HasTime) { datetimeRaw = col3; cortinaRaw = col4.toUpperCase(); }
+    else { datetimeRaw = col3 && col4 ? col3 + ' ' + col4 : col3; cortinaRaw = col5.toUpperCase(); }
     const dtV = parseUEDatetime(datetimeRaw);
-
     let cortina = '';
     if (cortinaRaw) {
-      if (/^DOOR\d+$/.test(cortinaRaw))  cortina = cortinaRaw;
+      if (/^DOOR\d+$/.test(cortinaRaw)) cortina = cortinaRaw;
       else if (/^\d+$/.test(cortinaRaw)) cortina = 'DOOR' + cortinaRaw;
-      else                               cortina = cortinaRaw;
+      else cortina = cortinaRaw;
     }
-
     const errores = [];
-    if (!tipo)      errores.push('Tipo de embarque requerido');
-    if (!unidad)    errores.push('Unidad de envio requerida');
-    if (!cliente)   errores.push('Cliente requerido');
-    if (!col3)      errores.push('Fecha y Hora UE requeridas');
+    if (!tipo) errores.push('Tipo de embarque requerido');
+    if (!unidad) errores.push('Unidad de envio requerida');
+    if (!cliente) errores.push('Cliente requerido');
+    if (!col3) errores.push('Fecha y Hora UE requeridas');
     else if (!dtV.valid) errores.push('Fecha/Hora: ' + (dtV.hint||'invalida'));
-
     const advertencias = [];
     if (dtV.valid && dtV.hint) advertencias.push(dtV.hint);
-
-    return {
-      _idx: idx + 1,
-      _errores: errores,
-      _advertencias: advertencias,
-      tipo_embarque: tipo,
-      unidad,
-      cliente,
-      ue_fecha:          dtV.normalized_fecha,
-      ue_hora:           dtV.normalized_hora,
-      _ue_fecha_display: dtV.display,
-      cortina,
-      _dtOk:   dtV.valid,
-      _dtHint: dtV.hint
-    };
-  }).filter(f => f.unidad || f.tipo_embarque); // eliminar filas completamente vacías
-
+    return { _idx:idx+1, _errores:errores, _advertencias:advertencias, tipo_embarque:tipo, unidad, cliente, ue_fecha:dtV.normalized_fecha, ue_hora:dtV.normalized_hora, _ue_fecha_display:dtV.display, cortina, _dtOk:dtV.valid, _dtHint:dtV.hint };
+  }).filter(f => f.unidad || f.tipo_embarque);
   mesaRenderPreview();
 }
 
 function mesaRenderPreview() {
-  const card    = document.getElementById('mesa-preview-card');
-  const wrap    = document.getElementById('mesa-preview-table');
+  const card = document.getElementById('mesa-preview-card');
+  const wrap = document.getElementById('mesa-preview-table');
   const summary = document.getElementById('mesa-parse-summary');
-  const errBox  = document.getElementById('mesa-preview-errors');
-  const btnEnv  = document.getElementById('mesa-btn-enviar');
+  const errBox = document.getElementById('mesa-preview-errors');
+  const btnEnv = document.getElementById('mesa-btn-enviar');
   if (!card||!wrap) return;
-
   if (!mesaFilas.length) { card.classList.add('hidden'); return; }
   card.classList.remove('hidden');
-
-  const total  = mesaFilas.length;
-  const filaOk = mesaFilas.filter(f => f._errores.length===0&&f._advertencias.length===0).length;
-  const filaWarn = mesaFilas.filter(f => f._errores.length===0&&f._advertencias.length>0).length;
-  const filaErr  = mesaFilas.filter(f => f._errores.length>0).length;
-
+  const total = mesaFilas.length;
+  const filaOk = mesaFilas.filter(f=>f._errores.length===0&&f._advertencias.length===0).length;
+  const filaWarn = mesaFilas.filter(f=>f._errores.length===0&&f._advertencias.length>0).length;
+  const filaErr = mesaFilas.filter(f=>f._errores.length>0).length;
   document.getElementById('mesa-preview-count').textContent = total;
-
-  summary.innerHTML = `
-    <div class="parse-summary">
-      <div class="ps-item ps-ok">Correctas: ${filaOk}</div>
-      ${filaWarn ? '<div class="ps-item ps-warn">Con advertencia: '+filaWarn+'</div>' : ''}
-      ${filaErr  ? '<div class="ps-item ps-err">Con error: '+filaErr+'</div>' : ''}
-      <div class="ps-item" style="color:var(--gray-500)">Total: ${total}</div>
-    </div>
-  `;
-
+  summary.innerHTML = `<div class="parse-summary"><div class="ps-item ps-ok">Correctas: ${filaOk}</div>${filaWarn?'<div class="ps-item ps-warn">Con advertencia: '+filaWarn+'</div>':''}${filaErr?'<div class="ps-item ps-err">Con error: '+filaErr+'</div>':''}<div class="ps-item" style="color:var(--gray-500)">Total: ${total}</div></div>`;
   const hayErrores = filaErr > 0;
   if (btnEnv) btnEnv.disabled = hayErrores;
   if (errBox) {
-    if (hayErrores) {
-      const msgs = mesaFilas.filter(f=>f._errores.length>0).map(f=>'Fila '+f._idx+': '+f._errores.join(' | ')).join('<br>');
-      errBox.style.display = 'block';
-      errBox.innerHTML = '<strong>Filas con errores (no se enviaran):</strong><br>'+msgs;
-    } else {
-      errBox.style.display = 'none';
-    }
+    if (hayErrores) { const msgs = mesaFilas.filter(f=>f._errores.length>0).map(f=>'Fila '+f._idx+': '+f._errores.join(' | ')).join('<br>'); errBox.style.display='block'; errBox.innerHTML='<strong>Filas con errores (no se enviaran):</strong><br>'+msgs; }
+    else errBox.style.display='none';
   }
-
-  let html = `
-    <table class="preview">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Tipo</th>
-          <th>Unidad</th>
-          <th>Cliente</th>
-          <th>Fecha y Hora UE</th>
-          <th>Cortina</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>`;
-
-  mesaFilas.forEach((f, i) => {
-    const rowCls = f._errores.length>0 ? 'row-err' : (f._advertencias.length>0 ? 'row-warn' : 'row-ok');
-    const dtDisplay = f._ue_fecha_display || (f.ue_fecha ? f.ue_fecha + (f.ue_hora ? ' ' + f.ue_hora : '') : '');
-    const dtBadge = f._dtOk
-      ? (f._dtHint ? '<br><span class="val-warn">'+f._dtHint+'</span>' : '')
-      : '<br><span class="val-err">'+(f._dtHint||'Invalida')+'</span>';
-
-    html += `
-      <tr class="${rowCls}">
-        <td><span style="font-family:var(--f-mono);color:var(--gray-500)">${f._idx}</span></td>
-        <td>${f.tipo_embarque||'<span class="val-err">Falta</span>'}</td>
-        <td><strong>${f.unidad||'<span class="val-err">Falta</span>'}</strong></td>
-        <td>${f.cliente||'<span class="val-err">Falta</span>'}</td>
-        <td style="font-family:var(--f-mono);white-space:nowrap">${dtDisplay||'<span class="val-err">Falta</span>'}${dtBadge}</td>
-        <td>${f.cortina||'<span style="color:var(--warn);font-size:10px">pendiente</span>'}</td>
-        <td><button onclick="mesaQuitarFila(${i})" style="background:var(--red);color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer">X</button></td>
-      </tr>`;
+  let html = `<table class="preview"><thead><tr><th>#</th><th>Tipo</th><th>Unidad</th><th>Cliente</th><th>Fecha y Hora UE</th><th>Cortina</th><th></th></tr></thead><tbody>`;
+  mesaFilas.forEach((f,i) => {
+    const rowCls = f._errores.length>0?'row-err':(f._advertencias.length>0?'row-warn':'row-ok');
+    const dtDisplay = f._ue_fecha_display||(f.ue_fecha?f.ue_fecha+(f.ue_hora?' '+f.ue_hora:''):'');
+    const dtBadge = f._dtOk?(f._dtHint?'<br><span class="val-warn">'+f._dtHint+'</span>':''):'<br><span class="val-err">'+(f._dtHint||'Invalida')+'</span>';
+    html += `<tr class="${rowCls}"><td><span style="font-family:var(--f-mono);color:var(--gray-500)">${f._idx}</span></td><td>${f.tipo_embarque||'<span class="val-err">Falta</span>'}</td><td><strong>${f.unidad||'<span class="val-err">Falta</span>'}</strong></td><td>${f.cliente||'<span class="val-err">Falta</span>'}</td><td style="font-family:var(--f-mono);white-space:nowrap">${dtDisplay||'<span class="val-err">Falta</span>'}${dtBadge}</td><td>${f.cortina||'<span style="color:var(--warn);font-size:10px">pendiente</span>'}</td><td><button onclick="mesaQuitarFila(${i})" style="background:var(--red);color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer">X</button></td></tr>`;
   });
-
   html += '</tbody></table>';
   wrap.innerHTML = html;
 }
@@ -1421,59 +1466,34 @@ function mesaRenderPreview() {
 function mesaQuitarFila(idx) { mesaFilas.splice(idx,1); mesaFilas.forEach((f,i)=>f._idx=i+1); mesaRenderPreview(); }
 
 function mesaAddManual() {
-  const tipo     = document.getElementById('mm-tipo').value.trim();
-  const unidad   = document.getElementById('mm-unidad').value.trim().toUpperCase();
-  const cliente  = document.getElementById('mm-cliente').value.trim().toUpperCase();
+  const tipo = document.getElementById('mm-tipo').value.trim();
+  const unidad = document.getElementById('mm-unidad').value.trim().toUpperCase();
+  const cliente = document.getElementById('mm-cliente').value.trim().toUpperCase();
   const datetime = document.getElementById('mm-ue-datetime').value.trim();
-  const cortNum  = document.getElementById('mm-cortina').value.trim();
-
-  if (!unidad)   return toast('Unidad de envio obligatoria','error');
-  if (!tipo)     return toast('Tipo de embarque obligatorio','error');
-  if (!cliente)  return toast('Cliente obligatorio','error');
+  const cortNum = document.getElementById('mm-cortina').value.trim();
+  if (!unidad) return toast('Unidad de envio obligatoria','error');
+  if (!tipo) return toast('Tipo de embarque obligatorio','error');
+  if (!cliente) return toast('Cliente obligatorio','error');
   if (!datetime) return toast('Fecha y Hora UE obligatorias (DD/MM/YYYY HH:MM)','error');
-
   const dtV = parseUEDatetime(datetime);
   if (!dtV.valid) return toast('Formato incorrecto: ' + dtV.hint,'error');
-
   const idx = mesaFilas.length + 1;
-  mesaFilas.push({
-    _idx: idx,
-    _errores: [],
-    _advertencias: dtV.hint ? [dtV.hint] : [],
-    tipo_embarque: tipo.toUpperCase(),
-    unidad,
-    cliente,
-    ue_fecha:          dtV.normalized_fecha,
-    ue_hora:           dtV.normalized_hora,
-    _ue_fecha_display: dtV.display,
-    cortina:  cortNum ? 'DOOR'+cortNum : '',
-    _dtOk: true, _dtHint: dtV.hint||''
-  });
-
+  mesaFilas.push({ _idx:idx, _errores:[], _advertencias:dtV.hint?[dtV.hint]:[], tipo_embarque:tipo.toUpperCase(), unidad, cliente, ue_fecha:dtV.normalized_fecha, ue_hora:dtV.normalized_hora, _ue_fecha_display:dtV.display, cortina:cortNum?'DOOR'+cortNum:'', _dtOk:true, _dtHint:dtV.hint||'' });
   mesaRenderPreview();
-  ['mm-tipo','mm-unidad','mm-cliente','mm-ue-datetime','mm-cortina'].forEach(id => {
-    const e = document.getElementById(id);
-    if (e) e.value = '';
-  });
+  ['mm-tipo','mm-unidad','mm-cliente','mm-ue-datetime','mm-cortina'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
   toast('Fila agregada','success');
 }
 
 async function mesaEnviar() {
   const filasValidas = mesaFilas.filter(f => f._errores.length === 0);
   if (!filasValidas.length) return toast('Sin filas validas para enviar','error');
-
   const nota = document.getElementById('mesa-nota').value.trim();
   toast('Enviando a la nube...');
-
-  const res = await apiPost('mesa_create_pendientes', {
-    filas: filasValidas,
-    nota, usuario: session.name, turno: session.shift, cuadrilla: session.squad
-  });
+  const res = await apiPost('mesa_create_pendientes', { filas:filasValidas, nota, usuario:session.name, turno:session.shift, cuadrilla:session.squad });
   if (!res||!res.ok) return toast('Error al enviar','error');
   const { creados=[], omitidos=[] } = res.data;
   toast(''+creados.length+' asignaciones creadas'+(omitidos.length?' · '+omitidos.length+' duplicadas omitidas':''),'success');
-  mesaLimpiar();
-  syncPendientes();
+  mesaLimpiar(); syncPendientes();
   const bandeja = document.getElementById('mesa-asignaciones-container');
   if (bandeja) bandeja.scrollIntoView({ behavior:'smooth', block:'start' });
 }
@@ -1486,14 +1506,15 @@ function mesaLimpiar() {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  MESA — BANDEJA DE ASIGNACIONES
+//  MESA — BANDEJA (sin MESA_OK — movido a Despacho)
 // ════════════════════════════════════════════════════════════════
 function renderMesaAsignaciones() {
   const container = document.getElementById('mesa-asignaciones-container');
   if (!container) return;
+  // MESA ya no muestra MESA_OK; ese estado migró al perfil Despacho
   const activos = (pendientes||[]).filter(p => {
     const s = p._estado||p.estado;
-    return s==='NUEVO'||s==='HERENCIA'||s==='AUDITADO'||s==='MESA_OK';
+    return s==='NUEVO'||s==='HERENCIA'||s==='AUDITADO';
   });
   if (!activos.length) {
     container.innerHTML = '<div class="empty"><div class="em-icon">📭</div><div class="em-title">Sin asignaciones activas</div><div class="em-sub">Carga embarques desde Excel o manualmente para iniciar</div></div>';
@@ -1501,9 +1522,8 @@ function renderMesaAsignaciones() {
   }
   const grupos = {
     NUEVO:    { items:[], label:'Nuevas asignaciones', cls:'brand', icon:'🆕' },
-    HERENCIA: { items:[], label:'Herencias activas',   cls:'yellow', icon:'⟲' },
-    AUDITADO: { items:[], label:'Auditadas (esperan enriquecimiento)', cls:'dark', icon:'✓' },
-    MESA_OK:  { items:[], label:'Enriquecidas (esperan despacho)', cls:'dark', icon:'📊' }
+    HERENCIA: { items:[], label:'Herencias activas', cls:'yellow', icon:'⟲' },
+    AUDITADO: { items:[], label:'Auditadas (esperan enriquecimiento)', cls:'dark', icon:'✓' }
   };
   activos.forEach(p => { const s=p._estado||p.estado; if (grupos[s]) grupos[s].items.push(p); });
   let html = '';
@@ -1527,7 +1547,7 @@ function mesaAsignacionItemHTML(p, estado) {
   const ultimoAud = p.ultimo_auditor?'Auditor: '+p.ultimo_auditor+' · '+(p.ultimo_turno||''):'';
   return `
     <div class="pp-item">
-      <div class="pp-icon">${estado==='NUEVO'?'🆕':estado==='HERENCIA'?'⟲':estado==='AUDITADO'?'✓':'📊'}</div>
+      <div class="pp-icon">${estado==='NUEVO'?'🆕':estado==='HERENCIA'?'⟲':'✓'}</div>
       <div class="pp-body">
         <div class="pp-title">${unidad} · ${cliente}<span class="status ${estado.toLowerCase()}" style="margin-left:6px">${estado}</span></div>
         <div class="pp-meta">
@@ -1585,23 +1605,15 @@ function abrirEditarAsig(id) {
 }
 
 async function guardarEditarAsig(id) {
-  const datetimeRawEdit = (document.getElementById('ea-ue-datetime')?.value || '').trim();
-  const dtEditV = datetimeRawEdit ? parseUEDatetime(datetimeRawEdit) : { valid: true, normalized_fecha: '', normalized_hora: '' };
+  const datetimeRawEdit = (document.getElementById('ea-ue-datetime')?.value||'').trim();
+  const dtEditV = datetimeRawEdit ? parseUEDatetime(datetimeRawEdit) : { valid:true, normalized_fecha:'', normalized_hora:'' };
   if (datetimeRawEdit && !dtEditV.valid) return toast('Fecha/Hora invalida: ' + dtEditV.hint, 'error');
-  const cambios = {
-    tipo_embarque: document.getElementById('ea-tipo').value.trim(),
-    unidad_envio:  document.getElementById('ea-unidad').value.trim(),
-    cliente:       document.getElementById('ea-cliente').value.trim(),
-    cortina:       document.getElementById('ea-cortina').value.trim(),
-    ue_fecha:      dtEditV.normalized_fecha,
-    ue_hora:       dtEditV.normalized_hora
-  };
+  const cambios = { tipo_embarque:document.getElementById('ea-tipo').value.trim(), unidad_envio:document.getElementById('ea-unidad').value.trim(), cliente:document.getElementById('ea-cliente').value.trim(), cortina:document.getElementById('ea-cortina').value.trim(), ue_fecha:dtEditV.normalized_fecha, ue_hora:dtEditV.normalized_hora };
   toast('Guardando...');
-  const res = await apiPost('mesa_edit_asignacion', { id, cambios, usuario: session.name });
+  const res = await apiPost('mesa_edit_asignacion', { id, cambios, usuario:session.name });
   if (!res||!res.ok) return toast('Error: '+(res?.error||''),'error');
   toast('Cambios guardados','success');
-  closeModal('modal-edit-asig');
-  syncPendientes();
+  closeModal('modal-edit-asig'); syncPendientes();
 }
 
 function abrirCancelar(id) {
@@ -1627,14 +1639,13 @@ function abrirCancelar(id) {
 
 async function confirmCancelacion(id) {
   const razon = document.getElementById('cancel-razon').value;
-  const obs   = document.getElementById('cancel-obs').value.trim();
+  const obs = document.getElementById('cancel-obs').value.trim();
   if (!razon) return toast('Selecciona una razon','error');
   toast('Cancelando...');
-  const res = await apiPost('mesa_cancel_embarque', { id, razon, obs, usuario: session.name });
+  const res = await apiPost('mesa_cancel_embarque', { id, razon, obs, usuario:session.name });
   if (!res||!res.ok) return toast('Error: '+(res?.error||''),'error');
   toast('Embarque cancelado','success');
-  closeModal('modal-cancel');
-  syncPendientes();
+  closeModal('modal-cancel'); syncPendientes();
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1723,9 +1734,9 @@ function updateDifPreview() {
   const el = document.getElementById('me-dif-preview');
   if (!el) return;
   if (!t1&&!t2&&!mc) { el.style.display='none'; return; }
-  el.style.display = 'block';
-  el.className = 'note '+(dif===0?'ok':'warn');
-  el.innerHTML = 'Total Prime <strong>'+(t1+t2)+'</strong> vs MC <strong>'+mc+'</strong> = Dif. <strong>'+dif+'</strong> '+(dif===0?'OK':'Hay diferencia');
+  el.style.display='block';
+  el.className='note '+(dif===0?'ok':'warn');
+  el.innerHTML='Total Prime <strong>'+(t1+t2)+'</strong> vs MC <strong>'+mc+'</strong> = Dif. <strong>'+dif+'</strong> '+(dif===0?'OK':'Hay diferencia');
 }
 
 function onAssetChange() {
@@ -1763,21 +1774,18 @@ async function mesaBuscarEmbarque() {
 
 async function submitMesaEnriquece() {
   if (!mesaEmbarqueActual) return toast('Busca un embarque','error');
-  const t1  = Number(document.getElementById('me-prime-t1').value||0);
+  const t1 = Number(document.getElementById('me-prime-t1').value||0);
   const tt1 = document.getElementById('me-tipo-t1').value;
-  const t2  = Number(document.getElementById('me-prime-t2').value||0);
+  const t2 = Number(document.getElementById('me-prime-t2').value||0);
   const tt2 = document.getElementById('me-tipo-t2').value;
-  const mc  = Number(document.getElementById('me-cant-mc').value||0);
+  const mc = Number(document.getElementById('me-cant-mc').value||0);
   const asset = getToggleValue('me-asset');
   if (!tt1) return toast('Tipo Tarima T1 obligatorio','error');
   if (!asset) return toast('Indica si hubo ajuste de Asset Type','error');
   const ajusteSi = asset.toUpperCase().includes('SI');
   if (ajusteSi&&!assetCapture) return toast('Evidencia de Asset Type obligatoria','error');
   toast('Guardando...');
-  const res = await apiPost('mesa_enrich_embarque', {
-    id: mesaEmbarqueActual.id,
-    data: { cant_prime_t1:t1, tipo_tarima_t1:tt1, cant_prime_t2:t2, tipo_tarima_t2:tt2, cantidad_mc:mc, ajuste_asset_type:ajusteSi?'SI':'NO', usuario:session.name }
-  });
+  const res = await apiPost('mesa_enrich_embarque', { id:mesaEmbarqueActual.id, data:{ cant_prime_t1:t1, tipo_tarima_t1:tt1, cant_prime_t2:t2, tipo_tarima_t2:tt2, cantidad_mc:mc, ajuste_asset_type:ajusteSi?'SI':'NO', usuario:session.name } });
   if (!res||!res.ok) return toast('Error: '+(res?.error||''),'error');
   if (ajusteSi&&assetCapture) uploadEvidence(mesaEmbarqueActual.id,'embarque','asset_type','asset_type',assetCapture).catch(()=>{});
   toast('Enriquecido · Dif. Prime/MC: '+res.data.dif_prime_mc,'success');
@@ -1804,16 +1812,11 @@ async function handleAssetCapture(event) {
 
 async function ingestAssetFile(file) {
   if (!file) return;
-  const comp = file.type.startsWith('image/')
-    ? await compressImage(file,1200,1200,0.72)
-    : await fileToBase64(file);
+  const comp = file.type.startsWith('image/') ? await compressImage(file,1200,1200,0.72) : await fileToBase64(file);
   assetCapture = { name:file.name||('asset_'+Date.now()+'.png'), data:comp.data, type:file.type };
   const prev = document.getElementById('me-asset-preview');
-  if (file.type.startsWith('image/')) {
-    prev.innerHTML = '<img src="'+comp.data+'" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--gray-200)">';
-  } else {
-    prev.innerHTML = '<div class="note info">'+file.name+'</div>';
-  }
+  if (file.type.startsWith('image/')) { prev.innerHTML='<img src="'+comp.data+'" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--gray-200)">'; }
+  else { prev.innerHTML='<div class="note info">'+file.name+'</div>'; }
   toast('Evidencia lista','success');
 }
 
@@ -1833,19 +1836,14 @@ function setupAssetPasteListener() {
     for (const it of items) {
       if (it.type&&it.type.startsWith('image/')) {
         const blob = it.getAsFile();
-        if (blob) {
-          const file = new File([blob],'pegado_'+Date.now()+'.png',{type:blob.type});
-          await ingestAssetFile(file);
-          e.preventDefault();
-          break;
-        }
+        if (blob) { const file = new File([blob],'pegado_'+Date.now()+'.png',{type:blob.type}); await ingestAssetFile(file); e.preventDefault(); break; }
       }
     }
   });
 }
 
 // ════════════════════════════════════════════════════════════════
-//  DESPACHO — CIERRE
+//  DESPACHO — CIERRE  (v2: sección Enriquecidas + sin tabla)
 // ════════════════════════════════════════════════════════════════
 function renderDespachoCierre() {
   const tab = document.getElementById('tab-despacho-cierre');
@@ -1853,37 +1851,32 @@ function renderDespachoCierre() {
   tab.innerHTML = `
     <div class="section-head">
       <div class="section-icon">✅</div>
-      <div><div class="section-title">Validacion y Cierre</div><div class="section-desc">Listado disponible · Busqueda individual · Calculo automatico</div></div>
+      <div><div class="section-title">Validacion y Cierre</div><div class="section-desc">Enriquecidas listas para despacho · Validacion MC vs Factura</div></div>
     </div>
-    <div class="card">
-      <div class="card-title ct-despacho"><span class="ct-dot"></span>Embarques disponibles para cierre</div>
-      <div class="form-row-2">
-        <div>
-          <label>Filtro de Estado</label>
-          <select id="dp-list-filter" onchange="renderDespachoList()">
-            <option value="todos">Todos los pendientes</option>
-            <option value="MESA_OK" selected>Mesa OK (listos para cerrar)</option>
-            <option value="AUDITADO">Auditados (esperan mesa)</option>
-            <option value="NUEVO">Nuevos</option>
-            <option value="HERENCIA">Herencias</option>
-          </select>
-        </div>
-        <div style="display:flex;align-items:flex-end;gap:8px">
-          <button class="btn btn-dark btn-sm" onclick="loadDespachoList()">Actualizar lista</button>
-        </div>
+
+    <!-- SECCION ENRIQUECIDAS (antes solo en Mesa) -->
+    <div class="desp-enriquecidas">
+      <div class="de-head">
+        Enriquecidas — Esperan Despacho
+        <span class="de-count" id="desp-enr-count">0</span>
       </div>
-      <div id="dp-list-container" style="margin-top:10px">
-        <div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando...</div></div>
+      <div class="de-body" id="desp-enr-lista">
+        <div class="empty" style="padding:20px"><div class="em-title" style="font-size:13px">Cargando...</div></div>
       </div>
     </div>
+
     <div class="card">
       <div class="card-title ct-despacho"><span class="ct-dot"></span>Busqueda individual</div>
       <div class="form-row">
         <label>Unidad de Envio</label>
         <input type="text" id="dp-buscar" placeholder="UE-00000" onkeydown="if(event.key==='Enter')despachoBuscar()">
       </div>
-      <button class="btn btn-dark" onclick="despachoBuscar()">Buscar</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-dark" onclick="despachoBuscar()">Buscar</button>
+        <button class="btn btn-ghost btn-sm" style="width:auto" onclick="loadDespachoEnriquecidas()">Actualizar lista</button>
+      </div>
     </div>
+
     <div id="dp-resultado" style="display:none">
       <div class="card">
         <div class="card-title ct-despacho"><span class="ct-dot"></span>Embarque</div>
@@ -1899,6 +1892,7 @@ function renderDespachoCierre() {
       </div>
       <div class="card">
         <div class="card-title ct-despacho"><span class="ct-dot"></span>Evidencia Obligatoria <span style="color:var(--red);font-size:11px;margin-left:6px">*</span></div>
+        <div class="note info" id="dp-ev-existente" style="display:none"></div>
         <div class="photo-zone" id="pz-despacho">
           <div class="pz-icon">📄</div><p>Subir documento</p><span>PDF, imagen o Word</span>
           <input type="file" accept=".pdf,.doc,.docx,image/*" onchange="handleDespachoDoc(event)">
@@ -1924,8 +1918,61 @@ function renderDespachoCierre() {
       const e = document.getElementById(id);
       if (e) e.addEventListener('input', updateDespachoDifPreview);
     });
-    loadDespachoList();
+    loadDespachoEnriquecidas();
   }, 100);
+}
+
+// NUEVO: carga la sección de Enriquecidas desde pendientes
+async function loadDespachoEnriquecidas() {
+  await syncPendientes();
+  renderDespEnriquecidas();
+}
+
+function renderDespEnriquecidas() {
+  const lista = document.getElementById('desp-enr-lista');
+  const countEl = document.getElementById('desp-enr-count');
+  if (!lista) return;
+  const items = (pendientes||[]).filter(p => {
+    const s = p._estado||p.estado;
+    return s==='MESA_OK';
+  });
+  if (countEl) countEl.textContent = items.length;
+  if (!items.length) {
+    lista.innerHTML = '<div class="empty" style="padding:24px"><div class="em-icon" style="font-size:32px">📭</div><div class="em-title" style="font-size:14px">Sin embarques enriquecidos pendientes</div><div class="em-sub">Cuando Mesa complete el enriquecimiento apareceran aqui</div></div>';
+    return;
+  }
+  lista.innerHTML = items.map(p => {
+    const unidad = p.unidad_envio||p.datos?.unidad_envio||'—';
+    const cliente = p.cliente||p.datos?.cliente||'—';
+    const cortina = p.cortina||p.datos?.cortina||'';
+    const tipoEmb = p.tipo_embarque||p.datos?.tipo_embarque||'—';
+    const totalPrime = p.total_prime||p.datos?.total_prime||'—';
+    const mesaOrigen = p.mesa_origen||p.datos?.mesa_origen||'—';
+    return `
+      <div class="de-item">
+        <div class="de-icon">MC</div>
+        <div class="pp-body">
+          <div class="pp-title">${unidad} · ${cliente}</div>
+          <div class="pp-meta" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px">
+            <span style="font-size:11px;color:var(--gray-500)">${tipoEmb}</span>
+            ${cortina?`<span style="background:var(--ink);color:var(--yellow);padding:2px 8px;border-radius:4px;font-family:var(--f-mono);font-weight:800;font-size:11px">${cortina}</span>`:''}
+            <span class="de-prime-chip">Prime: ${totalPrime}</span>
+            <span style="font-size:10px;color:var(--gray-500)">Mesa: ${mesaOrigen}</span>
+          </div>
+          <div class="pp-actions">
+            <button class="pp-btn primary" onclick="seleccionarParaCierre('${unidad}')">Seleccionar para cierre</button>
+            <button class="pp-btn ghost" onclick="verReporteUnidad('${unidad}')">Ver detalle</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function seleccionarParaCierre(unidad) {
+  const inp = document.getElementById('dp-buscar');
+  if (inp) inp.value = unidad;
+  despachoBuscar();
+  setTimeout(() => { const r = document.getElementById('dp-resultado'); if (r) r.scrollIntoView({ behavior:'smooth', block:'start' }); }, 350);
 }
 
 async function enviarSeguimientoDespacho() {
@@ -1952,44 +1999,9 @@ function updateDespachoDifPreview() {
 }
 
 let despachoEmbActual = null;
-let despachoListCache  = [];
-
-async function loadDespachoList() {
-  const cont = document.getElementById('dp-list-container');
-  if (!cont) return;
-  cont.innerHTML='<div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando...</div></div>';
-  const res = await apiGet('get_embarques', {});
-  if (!res||!res.ok) { cont.innerHTML='<div class="empty"><div class="em-icon">⚠</div><div class="em-title">Error de conexion</div></div>'; return; }
-  const today = new Date().toISOString().slice(0,10);
-  despachoListCache = (res.data||[]).filter(e => e.fecha===today&&e.estado_global!=='CERRADO'&&e.estado_global!=='CERRADO_CON_INCIDENCIAS'&&e.estado_global!=='CANCELADO');
-  renderDespachoList();
-}
-
-function renderDespachoList() {
-  const cont = document.getElementById('dp-list-container');
-  if (!cont) return;
-  const filtro = document.getElementById('dp-list-filter')?.value||'todos';
-  const rows = filtro==='todos' ? despachoListCache : despachoListCache.filter(e=>e.estado_global===filtro);
-  if (!rows.length) { cont.innerHTML='<div class="empty"><div class="em-icon">📭</div><div class="em-title">Sin embarques para este filtro</div></div>'; return; }
-  let html = '<div class="bandeja"><div class="bandeja-head"><h3>'+rows.length+' embarques disponibles</h3></div><div class="bandeja-table-wrap"><table class="bandeja-table"><thead><tr><th>Unidad</th><th>Cliente</th><th>Cortina</th><th>Tipo</th><th>Estado</th><th>Auditor</th><th>Total Prime</th><th>Dif. P/MC</th><th></th></tr></thead><tbody>';
-  rows.forEach(e => {
-    const seg=(e.seguimiento_despacho||'').toString().trim();
-    const estCls=(e.estado_global||'').toLowerCase();
-    html+='<tr><td><strong>'+(e.unidad_envio||'—')+'</strong>'+(seg?'<span title="'+seg.replace(/"/g,'&quot;')+'" style="color:var(--warn);cursor:help">&#9679;</span>':'')+'</td><td>'+(e.cliente||'—')+'</td><td>'+(e.cortina||'<span style="color:var(--warn);font-size:10px">sin</span>')+'</td><td>'+(e.tipo_embarque||'—')+'</td><td><span class="status '+estCls+'">'+(e.estado_global||'—')+'</span></td><td>'+(e.auditor_nombre||'—')+'</td><td>'+(e.total_prime||0)+'</td><td>'+(e.dif_prime_mc!=null&&e.dif_prime_mc!==''?e.dif_prime_mc:'—')+'</td><td><button class="pp-btn" style="background:var(--red);color:#fff" onclick="seleccionarEmbarqueDespacho(\''+(e.unidad_envio||'').replace(/'/g,"\\'")+'\')"  >Seleccionar</button></td></tr>';
-  });
-  html+='</tbody></table></div></div>';
-  cont.innerHTML=html;
-}
-
-function seleccionarEmbarqueDespacho(unidad) {
-  const inp = document.getElementById('dp-buscar');
-  if (inp) inp.value=unidad;
-  despachoBuscar();
-  setTimeout(()=>{ const r=document.getElementById('dp-resultado'); if(r) r.scrollIntoView({behavior:'smooth',block:'start'}); },300);
-}
 
 async function despachoBuscar() {
-  const u=(document.getElementById('dp-buscar').value||'').trim().toUpperCase();
+  const u = (document.getElementById('dp-buscar').value||'').trim().toUpperCase();
   if (!u) return toast('Ingresa la unidad','error');
   toast('Buscando...');
   const res = await apiGet('get_embarque_byunit',{unidad:u});
@@ -2011,6 +2023,27 @@ async function despachoBuscar() {
     ${res.data.ue_fecha?'<div class="dt-item"><span class="dt-label">UE Fecha/Hora</span><span class="dt-value">'+formatISOtoDisplay_(res.data.ue_fecha)+' '+(res.data.ue_hora||'')+'</span></div>':''}
     ${res.data.seguimiento_despacho?'<div class="dt-item dt-yellow" style="grid-column:1/-1"><span class="dt-label">Seguimiento previo</span><span class="dt-value">'+res.data.seguimiento_despacho+'</span></div>':''}
   `;
+
+  // Mostrar evidencias existentes del embarque si existen (PDFs y fotos)
+  const evUrls = (res.data.evidencias_urls||'').toString().trim();
+  const evEl = document.getElementById('dp-ev-existente');
+  if (evUrls && evEl) {
+    const urlList = evUrls.split('\n').filter(u => u.trim());
+    if (urlList.length) {
+      const isPdf = u => /\.pdf(\?|$)/i.test(u) || u.includes('application/pdf');
+      const linksHtml = urlList.map(u => {
+        const label = u.replace(/.*\[([^\]]+)\].*/,'$1') || 'Archivo';
+        const rawUrl = u.replace(/^\[[^\]]+\]\s*/,'').trim();
+        if (isPdf(rawUrl)) {
+          return `<div class="pdf-viewer-wrap"><div class="pdf-viewer-toolbar"><span>${label}</span><a href="${rawUrl}" target="_blank" class="btn-open">Abrir</a><a href="${rawUrl}" download class="btn-dl">Descargar</a></div><iframe class="pdf-viewer-iframe" src="${rawUrl}" loading="lazy"></iframe></div>`;
+        }
+        return `<a href="${rawUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r-xs);background:var(--gray-100);font-size:11px;font-weight:600;color:var(--ink);text-decoration:none;margin:3px">${label}</a>`;
+      }).join('');
+      evEl.style.display='block';
+      evEl.innerHTML = '<strong>Evidencias registradas:</strong><div style="margin-top:8px">'+linksHtml+'</div>';
+    } else { evEl.style.display='none'; }
+  } else if (evEl) { evEl.style.display='none'; }
+
   const segEl=document.getElementById('dp-seguimiento');
   if (segEl) segEl.value=res.data.seguimiento_despacho||'';
   toast('Encontrado','success');
@@ -2030,7 +2063,7 @@ async function submitDespacho() {
   const r=res.data;
   toast(r.resultado+' · Dif. MC/Factura: '+r.dif_mc_factura, r.resultado==='OK'?'success':'warn');
   despachoCancelar();
-  loadDespachoList();
+  loadDespachoEnriquecidas();
 }
 
 function despachoCancelar() {
@@ -2040,6 +2073,8 @@ function despachoCancelar() {
   document.getElementById('dp-no-result').style.display='none';
   ['dp-cant-mc','dp-cant-factura','dp-seguimiento'].forEach(id=>{ const e=document.getElementById(id); if(e)e.value=''; });
   document.getElementById('dp-doc-preview').innerHTML='';
+  const evEl=document.getElementById('dp-ev-existente');
+  if (evEl) evEl.style.display='none';
 }
 
 async function handleDespachoDoc(event) {
@@ -2047,13 +2082,27 @@ async function handleDespachoDoc(event) {
   const compressed=file.type.startsWith('image/')?await compressImage(file,1100,1100,0.70):await fileToBase64(file);
   despachoDoc={name:file.name,data:compressed.data,type:file.type};
   const prev=document.getElementById('dp-doc-preview');
-  if(file.type.startsWith('image/')){prev.innerHTML='<img src="'+compressed.data+'" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--gray-200)">';}
-  else{prev.innerHTML='<div class="note info">'+file.name+'</div>';}
+  if (file.type.startsWith('image/')) {
+    prev.innerHTML='<img src="'+compressed.data+'" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--gray-200)">';
+  } else if (file.type==='application/pdf') {
+    // Visor embebido para PDF recién subido
+    const dataUrl = compressed.data;
+    prev.innerHTML = `
+      <div class="pdf-viewer-wrap">
+        <div class="pdf-viewer-toolbar">
+          <span>${file.name}</span>
+          <a href="${dataUrl}" target="_blank" class="btn-open">Abrir</a>
+        </div>
+        <iframe class="pdf-viewer-iframe" src="${dataUrl}" loading="lazy"></iframe>
+      </div>`;
+  } else {
+    prev.innerHTML='<div class="note info">'+file.name+'</div>';
+  }
   toast('Documento listo','success');
 }
 
 // ════════════════════════════════════════════════════════════════
-//  SUPERVISOR — DASHBOARD
+//  SUPERVISOR — DASHBOARD  (v2: fix de carga y normalización de fechas)
 // ════════════════════════════════════════════════════════════════
 let dashboardTimer=null;
 
@@ -2072,7 +2121,7 @@ function renderSupDashboard() {
           <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">Actualizar</button>
         </div>
       </div>
-      <div style="color:var(--gray-500);font-size:11px;margin-top:6px" id="dash-last-update">Cargando...</div>
+      <div style="color:var(--gray-500);font-size:11px;margin-top:6px;font-family:var(--f-mono)" id="dash-last-update">Cargando...</div>
     </div>
     <div id="dashboard-content"></div>
   `;
@@ -2088,6 +2137,11 @@ function dashSetToday() {
 
 function dashKpiStrip(d,label) {
   d=d||{total:0,nuevos:0,herencias:0,auditados:0,mesa_ok:0,cerrados:0,incidencias:0,cancelados:0,pct_cumplimiento:0,pallets_chep:0,pallets_blancas:0};
+  const total = Number(d.total||0);
+  const cerrados = Number(d.cerrados||0);
+  const pct = total>0 ? Math.round(cerrados/total*100) : (d.pct_cumplimiento||0);
+  // Barra de progreso visual
+  const barColor = pct>=80?'var(--ok)':pct>=50?'var(--yellow)':'var(--red)';
   return `<div class="card" style="padding:14px">
     <div class="card-title"><span class="ct-dot"></span>${label}</div>
     <div class="kpi-strip">
@@ -2096,14 +2150,15 @@ function dashKpiStrip(d,label) {
       <div class="kpi kpi-yellow"><div class="kpi-label">Herencias</div><div class="kpi-value">${d.herencias||0}</div></div>
       <div class="kpi"><div class="kpi-label">Auditados</div><div class="kpi-value">${d.auditados||0}</div></div>
       <div class="kpi"><div class="kpi-label">Mesa OK</div><div class="kpi-value">${d.mesa_ok||0}</div></div>
-      <div class="kpi kpi-ok"><div class="kpi-label">Cerrados</div><div class="kpi-value">${d.cerrados||0}</div><div class="kpi-foot">${d.pct_cumplimiento||0}%</div></div>
+      <div class="kpi kpi-ok"><div class="kpi-label">Cerrados</div><div class="kpi-value">${d.cerrados||0}</div><div class="kpi-foot">${pct}%</div></div>
       <div class="kpi kpi-danger"><div class="kpi-label">Incidencias</div><div class="kpi-value">${d.incidencias||0}</div></div>
       <div class="kpi kpi-danger"><div class="kpi-label">Cancelados</div><div class="kpi-value">${d.cancelados||0}</div></div>
     </div>
+    <div style="height:4px;background:var(--gray-200);border-radius:99px;margin:8px 0;overflow:hidden"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:99px;transition:width .5s"></div></div>
     <div class="detail-grid" style="margin-top:10px">
       <div class="dt-item dt-brand"><span class="dt-label">CHEP</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${d.pallets_chep||0}</span></div>
       <div class="dt-item dt-yellow"><span class="dt-label">Blancas</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${d.pallets_blancas||0}</span></div>
-      <div class="dt-item dt-ok"><span class="dt-label">Total Pallets</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${(d.pallets_chep||0)+(d.pallets_blancas||0)}</span></div>
+      <div class="dt-item dt-ok"><span class="dt-label">Total Pallets</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${(Number(d.pallets_chep||0))+(Number(d.pallets_blancas||0))}</span></div>
     </div>
   </div>`;
 }
@@ -2111,27 +2166,42 @@ function dashKpiStrip(d,label) {
 async function loadDashboard() {
   const c=document.getElementById('dashboard-content'); if(!c)return;
   const fecha=(document.getElementById('dash-fecha')?.value||new Date().toISOString().slice(0,10));
-  if(!c.dataset.loaded){c.innerHTML='<div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando...</div></div>';}
+  if(!c.dataset.loaded){
+    c.innerHTML='<div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando dashboard...</div><div class="em-sub">Consultando datos en tiempo real</div></div>';
+  }
   const res=await apiGet('get_dashboard',{fecha});
-  if(!res||!res.ok){c.innerHTML='<div class="empty"><div class="em-icon">⚠</div><div class="em-title">Error de conexion</div></div>';return;}
-  const d=res.data||{};const g=d.global||d;
-  const t1=(d.turnos&&d.turnos.T1_06_14)||{};
-  const t2=(d.turnos&&d.turnos.T2_14_2130)||{};
-  const t3=(d.turnos&&d.turnos.T3_2130_06)||{};
+  const upd=document.getElementById('dash-last-update');
+  if(!res||!res.ok){
+    c.innerHTML='<div class="empty"><div class="em-icon">⚠</div><div class="em-title">Error de conexion</div><div class="em-sub">Verifica tu conexion e intenta nuevamente</div></div>';
+    if(upd) upd.textContent='Error al cargar — '+new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+    return;
+  }
+  const d=res.data||{};
+  // FIX: normalizar estructura — el backend puede devolver global directo o anidado
+  const g = d.global || {
+    total: Number(d.total||0), nuevos: Number(d.nuevos||0), herencias: Number(d.herencias||0),
+    auditados: Number(d.auditados||0), mesa_ok: Number(d.mesa_ok||0),
+    cerrados: Number(d.cerrados||0), incidencias: Number(d.incidencias||0),
+    cancelados: Number(d.cancelados||0), pct_cumplimiento: Number(d.pct_cumplimiento||0),
+    pallets_chep: Number(d.pallets_chep||0), pallets_blancas: Number(d.pallets_blancas||0)
+  };
+  const turnos = d.turnos || {};
+  const t1 = turnos['T1_06_14'] || {};
+  const t2 = turnos['T2_14_2130'] || {};
+  const t3 = turnos['T3_2130_06'] || {};
   c.dataset.loaded='1';
   c.innerHTML=dashKpiStrip(g,'Resumen Global · '+(d.fecha||fecha))+'<div class="accent-line"></div>'+dashKpiStrip(t1,'Turno 1 · 06:00 - 14:00')+dashKpiStrip(t2,'Turno 2 · 14:00 - 21:30')+dashKpiStrip(t3,'Turno 3 · 21:30 - 06:00');
-  const upd=document.getElementById('dash-last-update');
   if(upd){const now=new Date();upd.textContent='Ultima actualizacion: '+now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
 }
 
 // ════════════════════════════════════════════════════════════════
-//  SUPERVISOR — REPORTE
+//  SUPERVISOR — REPORTE  (v2: visor PDF embebido)
 // ════════════════════════════════════════════════════════════════
 function renderSupReporte() {
   const tab=document.getElementById('tab-sup-reporte');
   if(!tab)return;
   tab.innerHTML=`
-    <div class="section-head"><div class="section-icon">🔍</div><div><div class="section-title">Reporte Historico</div><div class="section-desc">Consulta por Unidad de Envio · Trazabilidad completa</div></div></div>
+    <div class="section-head"><div class="section-icon">🔍</div><div><div class="section-title">Reporte Historico</div><div class="section-desc">Consulta por Unidad de Envio · Trazabilidad completa · Evidencias con visor PDF</div></div></div>
     <div class="card">
       <div class="card-title"><span class="ct-dot"></span>Buscar Unidad de Envio</div>
       <div class="form-row"><label>Unidad de Envio <span class="req">*</span></label><input type="text" id="rep-unidad" placeholder="UE-00000" onkeydown="if(event.key==='Enter')verReporteUnidadDesdeInput()"></div>
@@ -2158,6 +2228,31 @@ async function verReporteUnidad(unidad) {
     return;
   }
   renderReporteUnidad(res.data);
+}
+
+// FIX: renderizado de evidencias con visor PDF embebido
+function buildEvidenciaCard(e) {
+  const isPdf = /\.pdf(\?|$)/i.test(e.filename||'') || (e.url||'').includes('application/pdf');
+  const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(e.filename||'');
+  const ts = (e.timestamp||'').toString().slice(0,10);
+  const usuario = e.usuario||'—';
+  if (isPdf) {
+    return `<div class="ev-card" style="display:block;text-decoration:none">
+      <div class="pdf-viewer-wrap" style="margin:0;border-radius:0">
+        <div class="pdf-viewer-toolbar" style="border-radius:0">
+          <span>${e.filename||'Documento'}</span>
+          <a href="${e.url}" target="_blank" class="btn-open">Abrir</a>
+          <a href="${e.url}" download class="btn-dl">Descargar</a>
+        </div>
+        <iframe class="pdf-viewer-iframe" src="${e.url}" loading="lazy" style="height:320px"></iframe>
+      </div>
+      <div class="ev-info"><div class="ev-name">${e.filename||'PDF'}</div><div class="ev-meta">${ts} · ${usuario}</div></div>
+    </div>`;
+  }
+  if (isImg) {
+    return `<a class="ev-card" href="${e.url}" target="_blank"><img src="${e.url}" alt="${e.filename}" loading="lazy"><div class="ev-info"><div class="ev-name">${e.filename||'Imagen'}</div><div class="ev-meta">${ts} · ${usuario}</div></div></a>`;
+  }
+  return `<a class="ev-card" href="${e.url}" target="_blank"><div class="ev-doc">📄</div><div class="ev-info"><div class="ev-name">${e.filename||'Archivo'}</div><div class="ev-meta">${ts} · ${usuario}</div></div></a>`;
 }
 
 async function exportarReportePDF() {
@@ -2210,12 +2305,18 @@ function renderReporteUnidad(rep) {
   const embarqueArea=`<div class="area-content active" data-area="embarque"><div class="card"><div class="card-title"><span class="ct-dot"></span>Auditor</div><div class="detail-grid"><div class="dt-item"><span class="dt-label">Nombre</span><span class="dt-value">${a.nombre||'—'}</span></div><div class="dt-item"><span class="dt-label">Turno / Cuadrilla</span><span class="dt-value">${a.turno||'—'} / ${a.cuadrilla||'—'}</span></div><div class="dt-item"><span class="dt-label">Tipo Auditoria</span><span class="dt-value">${a.tipo_auditoria||'—'}</span></div><div class="dt-item ${(a.status_mc||'').includes('Incorrecto')?'dt-danger':'dt-ok'}"><span class="dt-label">Status MC</span><span class="dt-value">${a.status_mc||'—'}</span></div>${a.motivo_error?'<div class="dt-item dt-danger"><span class="dt-label">Motivo Error</span><span class="dt-value">'+a.motivo_error+'</span></div>':''}</div></div><div class="card"><div class="card-title ct-mesa"><span class="ct-dot"></span>Mesa de Control</div><div class="detail-grid"><div class="dt-item"><span class="dt-label">Origen</span><span class="dt-value">${m.origen||'—'}</span></div><div class="dt-item"><span class="dt-label">Enriquece por</span><span class="dt-value">${m.enriquece_nombre||'—'}</span></div><div class="dt-item dt-brand"><span class="dt-label">Total Prime</span><span class="dt-value">${m.total_prime||0}</span></div><div class="dt-item dt-brand"><span class="dt-label">Cantidad MC</span><span class="dt-value">${m.cantidad_mc||0}</span></div></div></div><div class="card"><div class="card-title ct-despacho"><span class="ct-dot"></span>Despacho</div><div class="detail-grid"><div class="dt-item"><span class="dt-label">Analista</span><span class="dt-value">${dp.nombre||'—'}</span></div><div class="dt-item ${Number(dp.dif_prime_mc)===0?'dt-ok':'dt-danger'}"><span class="dt-label">Dif. Prime/MC</span><span class="dt-value">${dp.dif_prime_mc!=null?dp.dif_prime_mc:'—'}</span></div><div class="dt-item ${Number(dp.dif_mc_factura)===0?'dt-ok':'dt-danger'}"><span class="dt-label">Dif. MC/Factura</span><span class="dt-value">${dp.dif_mc_factura!=null?dp.dif_mc_factura:'—'}</span></div><div class="dt-item ${dp.resultado==='OK'?'dt-ok':'dt-danger'}"><span class="dt-label">Resultado</span><span class="dt-value">${dp.resultado||'—'}</span></div></div></div></div>`;
   const reciboItems=tabs.recibo.items||[];
   const reciboArea=`<div class="area-content" data-area="recibo">${reciboItems.length?reciboItems.map(r=>'<div class="card"><div class="card-title"><span class="ct-dot"></span>STO '+r.sto+' · Cortina '+r.cortina+'</div><div class="detail-grid"><div class="dt-item"><span class="dt-label">Master Receipt</span><span class="dt-value">'+r.master+'</span></div><div class="dt-item"><span class="dt-label">Auditor</span><span class="dt-value">'+r.auditor+'</span></div><div class="dt-item"><span class="dt-label">CHEP</span><span class="dt-value">'+r.pallets_chep+'</span></div><div class="dt-item"><span class="dt-label">Blancas</span><span class="dt-value">'+r.pallets_blancas+'</span></div></div></div>').join(''):'<div class="empty"><div class="em-icon">📦</div><div class="em-title">Sin registros de recibo asociados</div></div>'}</div>`;
-  const evArea=`<div class="area-content" data-area="evidencias">${Object.keys(evidencias_por_area||{}).length===0?'<div class="empty"><div class="em-icon">📸</div><div class="em-title">Sin evidencias</div></div>':Object.entries(evidencias_por_area).map(([area,items])=>'<div class="card"><div class="card-title"><span class="ct-dot"></span>'+area.toUpperCase()+' ('+items.length+')</div><div class="evidence-grid">'+items.map(e=>{const isImg=(e.filename||'').match(/\.(jpg|jpeg|png|gif|webp)$/i);return '<a class="ev-card" href="'+e.url+'" target="_blank">'+(isImg?'<img src="'+e.url+'" alt="'+e.filename+'" loading="lazy">':'<div class="ev-doc">📄</div>')+'<div class="ev-info"><div class="ev-name">'+e.filename+'</div><div class="ev-meta">'+((e.timestamp||'').slice(0,10))+' · '+(e.usuario||'')+'</div></div></a>';}).join('')+'</div></div>').join('')}</div>`;
-  const histArea=`<div class="area-content" data-area="historial"><div class="card"><div class="card-title"><span class="ct-dot"></span>Trazabilidad</div>${historial.length===0?'<div class="empty"><div class="em-icon">⏱</div><div class="em-title">Sin historial</div></div>':'<div class="timeline">'+historial.map(h=>'<div class="tl-item '+(h.accion==='CANCEL'?'':'')+'"><div class="tl-head">'+h.accion+' · '+h.usuario+'</div><div class="tl-meta">'+((h.timestamp||'').replace('T',' ').slice(0,19))+(h.turno?' · '+h.turno:'')+'</div>'+(h.detalle?'<div class="tl-detail">'+h.detalle+'</div>':'')+'</div>').join('')+'</div>'}</div></div>`;
+
+  // FIX: evidencias con visor PDF embebido
+  const evAreaContent = Object.keys(evidencias_por_area||{}).length===0
+    ? '<div class="empty"><div class="em-icon">📸</div><div class="em-title">Sin evidencias</div></div>'
+    : Object.entries(evidencias_por_area).map(([area,items])=>`<div class="card"><div class="card-title"><span class="ct-dot"></span>${area.toUpperCase()} (${items.length})</div><div class="evidence-grid">${items.map(e=>buildEvidenciaCard(e)).join('')}</div></div>`).join('');
+  const evArea=`<div class="area-content" data-area="evidencias">${evAreaContent}</div>`;
+
+  const histArea=`<div class="area-content" data-area="historial"><div class="card"><div class="card-title"><span class="ct-dot"></span>Trazabilidad</div>${historial.length===0?'<div class="empty"><div class="em-icon">⏱</div><div class="em-title">Sin historial</div></div>':'<div class="timeline">'+historial.map(h=>'<div class="tl-item"><div class="tl-head">'+h.accion+' · '+h.usuario+'</div><div class="tl-meta">'+((h.timestamp||'').replace('T',' ').slice(0,19))+(h.turno?' · '+h.turno:'')+'</div>'+(h.detalle?'<div class="tl-detail">'+h.detalle+'</div>':'')+'</div>').join('')+'</div>'}</div></div>`;
   window.__lastReporte=rep;
   target.innerHTML=`
     <div class="card" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <div style="flex:1;min-width:160px"><div style="font-weight:700;color:var(--ink)">Exportar Reporte</div><div style="color:var(--gray-500);font-size:11px">PDF con encabezado institucional e imagenes</div></div>
+      <div style="flex:1;min-width:160px"><div style="font-weight:700;color:var(--ink)">Exportar Reporte</div><div style="color:var(--gray-500);font-size:11px">PDF con encabezado institucional</div></div>
       <button class="btn btn-primary btn-sm" onclick="exportarReportePDF()">Descargar PDF</button>
     </div>
     ${kpiStrip}${headerInfo}
@@ -2281,6 +2382,8 @@ function showProgress(key,pct){
   bar.classList.toggle('visible',pct<100);
   const inner=bar.querySelector('.inner');if(inner)inner.style.width=pct+'%';
 }
+
+// FIX EVIDENCIAS RECIBO: modulo explícito para que el backend use la columna correcta
 async function uploadEvidence(id,modulo,tipo,area,photo){
   if(!photo||!photo.data)return;
   const base64=photo.data.split(',')[1];
@@ -2289,7 +2392,13 @@ async function uploadEvidence(id,modulo,tipo,area,photo){
 }
 async function uploadEvidencesBatch(id,modulo,area,photoArr){
   if(!photoArr||!photoArr.length)return[];
-  return Promise.all(photoArr.map(ph=>uploadEvidence(id,modulo,area,area,ph)));
+  // Subir de forma secuencial con pequeño delay para evitar rate limit en Apps Script
+  const results = [];
+  for (const ph of photoArr) {
+    results.push(await uploadEvidence(id, modulo, area, area, ph));
+    await new Promise(r => setTimeout(r, 300));
+  }
+  return results;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -2328,6 +2437,7 @@ async function syncBootstrap(){
       pendientes=res.data.pendientes;saveState();
       if(session.role==='auditor')renderPendientesAuditor();
       if(session.role==='mesa')renderMesaAsignaciones();
+      if(session.role==='despacho')renderDespEnriquecidas();
     }
   }
 }
@@ -2337,6 +2447,7 @@ async function syncPendientes(){
     pendientes=res.data;saveState();
     if(session.role==='auditor')renderPendientesAuditor();
     if(session.role==='mesa')renderMesaAsignaciones();
+    if(session.role==='despacho')renderDespEnriquecidas();
   }
 }
 async function syncCatalogo(){
@@ -2363,15 +2474,11 @@ async function getInstitutionalLogo(){
 // ════════════════════════════════════════════════════════════════
 //  UTILS
 // ════════════════════════════════════════════════════════════════
-/**
- * Convierte YYYY-MM-DD almacenado en backend a DD/MM/YYYY para visualización.
- * Si el valor ya está en DD/MM/YYYY o no es reconocible, lo devuelve tal cual.
- */
 function formatISOtoDisplay_(iso) {
   if (!iso) return '';
   const m = String(iso).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) return m[3]+'/'+m[2]+'/'+m[1];
-  return iso; // ya viene en otro formato; devolver sin transformar
+  return iso;
 }
 function toggleSelect(el,groupId,extraClass){
   document.querySelectorAll('#'+groupId+' .toggle-opt').forEach(o=>o.classList.remove('selected','ok','yellow'));
@@ -2401,14 +2508,14 @@ window.onload=()=>{
     const skip=el.type==='date'||el.type==='time'||el.type==='datetime-local'||el.type==='number'||el.type==='email'||el.type==='password';
     if(skip)return;
     if((el.tagName==='INPUT'&&(el.type==='text'||!el.type))||el.tagName==='TEXTAREA'){
-      // No aplicar uppercase al textarea del parser Excel para no alterar valores pegados
       if(el.id==='mesa-paste'||el.id==='mesa-nota'||el.id==='r-notas'||el.id==='dp-seguimiento'||el.id==='cancel-obs')return;
       const s=el.selectionStart,en=el.selectionEnd;
       el.value=el.value.toUpperCase();
       try{el.setSelectionRange(s,en);}catch(_){}
     }
   });
-};
+
+  const hb = document.getElementById('recibo-heritage'); if(hb){hb.classList.add('hidden');hb.innerHTML='';}};
 </script>
 </body>
 </html>

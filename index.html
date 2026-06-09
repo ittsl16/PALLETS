@@ -870,7 +870,8 @@ async function submitRecibo() {
   const newId = res.data.id;
   // FIX: pasar modulo='recibo' explícitamente para que backend escriba en columna correcta
   if (photos.recibo.length) {
-    uploadEvidencesBatch(newId, 'recibo', 'recibo', photos.recibo).catch(()=>{});
+    toast('Subiendo evidencias...');
+    try { await uploadEvidencesBatch(newId, 'recibo', 'recibo', photos.recibo); } catch(e) {}
   }
   toast('Recibo '+(res.data.estado==='HERENCIA'?'guardado como herencia':'finalizado'),'success');
   resetReciboForm();
@@ -1028,7 +1029,10 @@ async function submitEmbarque() {
   toast('Guardando auditoria...');
   const res = await apiPost('auditor_save_embarque', { data });
   if (!res||!res.ok) return toast('Error: '+(res?.error||'desconocido'),'error');
-  if (photos.embarque.length) uploadEvidencesBatch(id,'embarque','embarque',photos.embarque).catch(()=>{});
+  if (photos.embarque.length) {
+    toast('Subiendo evidencias...');
+    try { await uploadEvidencesBatch(id,'embarque','embarque',photos.embarque); } catch(e) {}
+  }
   toast('Auditoria guardada · Auditores: '+res.data.conteo_auditores,'success');
   cancelEmbarqueForm();
   syncPendientes();
@@ -1787,7 +1791,7 @@ async function submitMesaEnriquece() {
   toast('Guardando...');
   const res = await apiPost('mesa_enrich_embarque', { id:mesaEmbarqueActual.id, data:{ cant_prime_t1:t1, tipo_tarima_t1:tt1, cant_prime_t2:t2, tipo_tarima_t2:tt2, cantidad_mc:mc, ajuste_asset_type:ajusteSi?'SI':'NO', usuario:session.name } });
   if (!res||!res.ok) return toast('Error: '+(res?.error||''),'error');
-  if (ajusteSi&&assetCapture) uploadEvidence(mesaEmbarqueActual.id,'embarque','asset_type','asset_type',assetCapture).catch(()=>{});
+  if (ajusteSi&&assetCapture) { try { await uploadEvidence(mesaEmbarqueActual.id,'embarque','asset_type','asset_type',assetCapture); } catch(e) {} }
   toast('Enriquecido · Dif. Prime/MC: '+res.data.dif_prime_mc,'success');
   mesaCancelarBusqueda();
 }
@@ -2030,15 +2034,7 @@ async function despachoBuscar() {
   if (evUrls && evEl) {
     const urlList = evUrls.split('\n').filter(u => u.trim());
     if (urlList.length) {
-      const isPdf = u => /\.pdf(\?|$)/i.test(u) || u.includes('application/pdf');
-      const linksHtml = urlList.map(u => {
-        const label = u.replace(/.*\[([^\]]+)\].*/,'$1') || 'Archivo';
-        const rawUrl = u.replace(/^\[[^\]]+\]\s*/,'').trim();
-        if (isPdf(rawUrl)) {
-          return `<div class="pdf-viewer-wrap"><div class="pdf-viewer-toolbar"><span>${label}</span><a href="${rawUrl}" target="_blank" class="btn-open">Abrir</a><a href="${rawUrl}" download class="btn-dl">Descargar</a></div><iframe class="pdf-viewer-iframe" src="${rawUrl}" loading="lazy"></iframe></div>`;
-        }
-        return `<a href="${rawUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r-xs);background:var(--gray-100);font-size:11px;font-weight:600;color:var(--ink);text-decoration:none;margin:3px">${label}</a>`;
-      }).join('');
+      const linksHtml = urlList.map(u => renderEvidenciaUrl_(u)).join('');
       evEl.style.display='block';
       evEl.innerHTML = '<strong>Evidencias registradas:</strong><div style="margin-top:8px">'+linksHtml+'</div>';
     } else { evEl.style.display='none'; }
@@ -2059,7 +2055,10 @@ async function submitDespacho() {
   const seguimiento=(document.getElementById('dp-seguimiento')?.value||'').trim();
   const res=await apiPost('despacho_validate',{ id:despachoEmbActual.id, data:{ cantidad_mc_despacho:Number(mc), cantidad_factura:Number(fa), seguimiento, usuario:session.name }});
   if (!res||!res.ok) return toast('Error: '+(res?.error||''),'error');
-  if (despachoDoc) uploadEvidence(despachoEmbActual.id,'embarque','despacho','despacho',despachoDoc).catch(()=>{});
+  if (despachoDoc) {
+    toast('Subiendo evidencia...');
+    try { await uploadEvidence(despachoEmbActual.id,'embarque','despacho','despacho',despachoDoc); } catch(e) {}
+  }
   const r=res.data;
   toast(r.resultado+' · Dif. MC/Factura: '+r.dif_mc_factura, r.resultado==='OK'?'success':'warn');
   despachoCancelar();
@@ -2307,9 +2306,11 @@ function renderReporteUnidad(rep) {
   const reciboArea=`<div class="area-content" data-area="recibo">${reciboItems.length?reciboItems.map(r=>'<div class="card"><div class="card-title"><span class="ct-dot"></span>STO '+r.sto+' · Cortina '+r.cortina+'</div><div class="detail-grid"><div class="dt-item"><span class="dt-label">Master Receipt</span><span class="dt-value">'+r.master+'</span></div><div class="dt-item"><span class="dt-label">Auditor</span><span class="dt-value">'+r.auditor+'</span></div><div class="dt-item"><span class="dt-label">CHEP</span><span class="dt-value">'+r.pallets_chep+'</span></div><div class="dt-item"><span class="dt-label">Blancas</span><span class="dt-value">'+r.pallets_blancas+'</span></div></div></div>').join(''):'<div class="empty"><div class="em-icon">📦</div><div class="em-title">Sin registros de recibo asociados</div></div>'}</div>`;
 
   // FIX: evidencias con visor PDF embebido
-  const evAreaContent = Object.keys(evidencias_por_area||{}).length===0
+  const evFromSheet = renderEvidenciasUrlsBlock_((rep.embarque||{}).evidencias_urls||'');
+  evAreaContent = Object.keys(evidencias_por_area||{}).length===0 && !evFromSheet
     ? '<div class="empty"><div class="em-icon">📸</div><div class="em-title">Sin evidencias</div></div>'
-    : Object.entries(evidencias_por_area).map(([area,items])=>`<div class="card"><div class="card-title"><span class="ct-dot"></span>${area.toUpperCase()} (${items.length})</div><div class="evidence-grid">${items.map(e=>buildEvidenciaCard(e)).join('')}</div></div>`).join('');
+    : (Object.entries(evidencias_por_area||{}).map(([area,items])=>`<div class="card"><div class="card-title"><span class="ct-dot"></span>${area.toUpperCase()} (${items.length})</div><div class="evidence-grid">${items.map(e=>buildEvidenciaCard(e)).join('')}</div></div>`).join('')
+      + (evFromSheet && Object.keys(evidencias_por_area||{}).length===0 ? '<div class="card"><div class="card-title"><span class="ct-dot"></span>EVIDENCIAS REGISTRADAS</div><div style="padding:10px">' + evFromSheet + '</div></div>' : ''));
   const evArea=`<div class="area-content" data-area="evidencias">${evAreaContent}</div>`;
 
   const histArea=`<div class="area-content" data-area="historial"><div class="card"><div class="card-title"><span class="ct-dot"></span>Trazabilidad</div>${historial.length===0?'<div class="empty"><div class="em-icon">⏱</div><div class="em-title">Sin historial</div></div>':'<div class="timeline">'+historial.map(h=>'<div class="tl-item"><div class="tl-head">'+h.accion+' · '+h.usuario+'</div><div class="tl-meta">'+((h.timestamp||'').replace('T',' ').slice(0,19))+(h.turno?' · '+h.turno:'')+'</div>'+(h.detalle?'<div class="tl-detail">'+h.detalle+'</div>':'')+'</div>').join('')+'</div>'}</div></div>`;
@@ -2384,11 +2385,62 @@ function showProgress(key,pct){
 }
 
 // FIX EVIDENCIAS RECIBO: modulo explícito para que el backend use la columna correcta
+
+// ── Utilidad: renderizar una línea de evidencias_urls como card ───────────────
+// Formato nuevo:  [area:filename.ext] https://drive.google.com/...
+// Formato legacy: [area] https://drive.google.com/...
+function renderEvidenciaUrl_(line) {
+  const m = line.match(/^\[([^\]]+)\]\s*(.+)$/);
+  if (!m) return '';
+  const tag    = m[1];          // 'despacho:factura.pdf' or 'embarque'
+  const rawUrl = m[2].trim();
+  const parts  = tag.split(':');
+  const area   = parts[0];
+  const fname  = parts.slice(1).join(':') || '';  // filename if encoded
+  const displayName = fname || area;
+
+  // Detect type: from encoded filename, then from raw URL, then from mime hint
+  const isPdf = /\.pdf$/i.test(fname) || /\.pdf(\?|$)/i.test(rawUrl);
+  const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(fname) || /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(rawUrl);
+
+  if (isPdf) {
+    return '<div class="pdf-viewer-wrap" style="margin-bottom:8px">' +
+      '<div class="pdf-viewer-toolbar">' +
+        '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px" title="'+displayName+'">'+displayName+'</span>' +
+        '<a href="'+rawUrl+'" target="_blank" class="btn-open">Abrir</a>' +
+        '<a href="'+rawUrl+'" download class="btn-dl">Descargar</a>' +
+      '</div>' +
+      '<iframe class="pdf-viewer-iframe" src="'+rawUrl+'" loading="lazy"></iframe>' +
+    '</div>';
+  }
+  if (isImg) {
+    return '<a href="'+rawUrl+'" target="_blank" style="display:inline-block;margin:4px">' +
+      '<img src="'+rawUrl+'" alt="'+displayName+'" style="max-width:100%;max-height:120px;border-radius:6px;border:1px solid var(--gray-200)">' +
+    '</a>';
+  }
+  // Generic file link
+  return '<a href="'+rawUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-xs);background:var(--gray-100);font-size:11px;font-weight:600;color:var(--ink);text-decoration:none;margin:3px;border:1px solid var(--gray-200)">' +
+    '<span style="font-size:16px">📄</span>'+displayName+
+  '</a>';
+}
+
+// Renderiza el bloque completo de evidencias_urls (string multilinea) como HTML
+function renderEvidenciasUrlsBlock_(urlsStr) {
+  if (!urlsStr) return '';
+  const lines = urlsStr.toString().trim().split('\n').filter(l => l.trim());
+  if (!lines.length) return '';
+  return lines.map(renderEvidenciaUrl_).join('');
+}
+
 async function uploadEvidence(id,modulo,tipo,area,photo){
   if(!photo||!photo.data)return;
   const base64=photo.data.split(',')[1];
   const mime=photo.data.split(';')[0].split(':')[1]||'image/jpeg';
-  return apiPost('upload_evidence',{id,modulo,tipo,area,base64data:base64,mimeType:mime,filename:photo.name||('ev_'+Date.now()+'.jpg'),usuario:session.name});
+  const fname=photo.name||('ev_'+Date.now()+'.jpg');
+  // Encode filename into area tag so GAS stores '[area:filename.ext] url'
+  // enabling type detection when reading back (Drive URLs have no extension)
+  const areaTag = fname ? area+':'+fname : area;
+  return apiPost('upload_evidence',{id,modulo,tipo,area:areaTag,base64data:base64,mimeType:mime,filename:fname,usuario:session.name});
 }
 async function uploadEvidencesBatch(id,modulo,area,photoArr){
   if(!photoArr||!photoArr.length)return[];

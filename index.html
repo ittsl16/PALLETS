@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#CF002E">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Auditoría de Pallets · Enterprise</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2269,7 +2270,7 @@ function buildEvidenciaCard(e) {
           <a href="${e.url}" target="_blank" class="btn-open">Abrir</a>
           <a href="${e.url}" download class="btn-dl">Descargar</a>
         </div>
-        <iframe class="pdf-viewer-iframe" src="${e.url}" loading="lazy" style="height:320px"></iframe>
+        <iframe class="pdf-viewer-iframe" src="${(e.url||'').replace(/\/view(\\?.*)?$/,'/preview').replace(/\/edit(\\?.*)?$/,'/preview')}" loading="lazy" style="height:320px" allow="autoplay"></iframe>
       </div>
       <div class="ev-info"><div class="ev-name">${e.filename||'PDF'}</div><div class="ev-meta">${ts} · ${usuario}</div></div>
     </div>`;
@@ -2312,9 +2313,169 @@ async function exportarReportePDF() {
   if(a.nombre){y+=8;sectionHeader('Auditor');dataRow('Nombre',a.nombre);dataRow('Turno',a.turno);dataRow('Cuadrilla',a.cuadrilla);dataRow('Tipo Auditoria',a.tipo_auditoria);dataRow('Status MC',a.status_mc,{bgColor:a.status_mc==='Correcto'?RGB.OK:(a.status_mc==='Incorrecto'?RGB.DANGER:null)});if(a.motivo_error)dataRow('Motivo de Error',a.motivo_error);dataRow('Avance',a.avance);}
   if(mm.origen){y+=8;sectionHeader('Mesa de Control');dataRow('Origen',mm.origen);if(mm.enriquece_nombre)dataRow('Enriquecimiento por',mm.enriquece_nombre);if(mm.tipo_tarima_t1)dataRow('Tipo Tarima T1',mm.tipo_tarima_t1);if(mm.cant_prime_t1!=null&&mm.cant_prime_t1!=='')dataRow('Prime T1',mm.cant_prime_t1);dataRow('Total Prime',mm.total_prime||0);dataRow('Cantidad MC',mm.cantidad_mc||0);if(mm.ajuste_asset_type)dataRow('Ajuste Asset Type',mm.ajuste_asset_type,{bgColor:(mm.ajuste_asset_type==='SI'||mm.ajuste_asset_type==='SÍ')?RGB.WARN:null});}
   if(dp.nombre){y+=8;sectionHeader('Despacho');dataRow('Analista',dp.nombre);if(dp.cantidad_mc!=null&&dp.cantidad_mc!=='')dataRow('Cantidad MC',dp.cantidad_mc);if(dp.cantidad_factura!=null&&dp.cantidad_factura!=='')dataRow('Cantidad Factura',dp.cantidad_factura);if(dp.dif_prime_mc!=null&&dp.dif_prime_mc!=='')dataRow('Diferencia Prime/MC',dp.dif_prime_mc,{bgColor:Number(dp.dif_prime_mc)===0?RGB.OK:RGB.DANGER});if(dp.dif_mc_factura!=null&&dp.dif_mc_factura!=='')dataRow('Diferencia MC/Factura',dp.dif_mc_factura,{bgColor:Number(dp.dif_mc_factura)===0?RGB.OK:RGB.DANGER});if(dp.resultado)dataRow('Resultado',dp.resultado,{bgColor:statusBg(dp.resultado)});}
+
+  // ── EVIDENCIAS POR ÁREA ──────────────────────────────────────────────────
+  const evPorArea = rep.evidencias_por_area || {};
+  const evAreas = Object.keys(evPorArea);
+  if (evAreas.length) {
+    newPage();
+    doc.setFont('helvetica','bold'); doc.setFontSize(13);
+    doc.setTextColor(RGB.INK[0],RGB.INK[1],RGB.INK[2]);
+    doc.text('Evidencias', M, y); y+=18;
+
+    for (const area of evAreas) {
+      const items = evPorArea[area] || [];
+      if (!items.length) continue;
+
+      // Section header por área
+      ensureSpace(28);
+      doc.setFillColor(33,37,41);
+      doc.rect(M, y, CONTENT_W, 22, 'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(10);
+      doc.setTextColor(253,208,0);
+      doc.text(area.toUpperCase() + '  (' + items.length + ')', M+10, y+14.5);
+      y += 24;
+
+      const isDespacho = area === 'despacho';
+
+      for (const ev of items) {
+        const fname = ev.filename || ev.file_id || 'archivo';
+        const isPdf = /\.pdf$/i.test(fname);
+        const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(fname);
+        const tsLabel = (ev.timestamp||'').toString().slice(0,16).replace('T',' ');
+
+        if (isDespacho || isPdf) {
+          // ── DESPACHO o PDF: solo link ──────────────────────────────────────
+          ensureSpace(36);
+          doc.setFillColor(RGB.LABEL_BG[0],RGB.LABEL_BG[1],RGB.LABEL_BG[2]);
+          doc.rect(M, y, CONTENT_W, 28, 'F');
+          doc.setDrawColor(RGB.GRID[0],RGB.GRID[1],RGB.GRID[2]);
+          doc.setLineWidth(0.5); doc.rect(M, y, CONTENT_W, 28);
+
+          doc.setFont('helvetica','bold'); doc.setFontSize(9);
+          doc.setTextColor(RGB.INK[0],RGB.INK[1],RGB.INK[2]);
+          doc.text(fname.slice(0,60), M+10, y+11);
+
+          doc.setFont('helvetica','normal'); doc.setFontSize(8);
+          doc.setTextColor(RGB.INK_SOFT[0],RGB.INK_SOFT[1],RGB.INK_SOFT[2]);
+          doc.text(tsLabel + '  ·  ' + (ev.usuario||''), M+10, y+22);
+
+          // Link clickable
+          if (ev.url) {
+            doc.setFont('helvetica','italic'); doc.setFontSize(7.5);
+            doc.setTextColor(0,102,204);
+            const linkText = ev.url.slice(0,80);
+            doc.textWithLink(linkText, PW-M-10, y+11, {url: ev.url, align:'right'});
+          }
+          y += 32;
+
+        } else if (isImg) {
+          // ── EMBARQUE / IMAGEN: fetch base64 y embeber ─────────────────────
+          ensureSpace(44);
+          doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+          doc.setTextColor(RGB.INK_SOFT[0],RGB.INK_SOFT[1],RGB.INK_SOFT[2]);
+          doc.text(fname.slice(0,60) + '  ·  ' + tsLabel + '  ·  ' + (ev.usuario||''), M, y+12);
+          y += 16;
+
+          if (ev.file_id) {
+            try {
+              toast('Cargando imagen: '+fname.slice(0,20)+'...');
+              const imgRes = await apiGet('get_image_proxy', {file_id: ev.file_id});
+              // apiGet wraps response: {ok, data: {data:b64, mime, name}}
+              const imgPayload = (imgRes && imgRes.ok && imgRes.data) ? imgRes.data : null;
+              if (imgPayload && imgPayload.data) {
+                const b64  = imgPayload.data;
+                const mime = imgPayload.mime || 'image/jpeg';
+                const fmt  = mime.includes('png') ? 'PNG' : (mime.includes('gif') ? 'GIF' : 'JPEG');
+                const dataUrl = 'data:' + mime + ';base64,' + b64;
+
+                // Measure natural dimensions via temporary Image element
+                const MAX_W = CONTENT_W, MAX_H = 220;
+                let iw = MAX_W, ih = MAX_H;
+                try {
+                  await new Promise(resolve => {
+                    const tmpImg = new Image();
+                    tmpImg.onload = () => {
+                      if (tmpImg.naturalWidth > 0 && tmpImg.naturalHeight > 0) {
+                        const ratio = tmpImg.naturalHeight / tmpImg.naturalWidth;
+                        iw = MAX_W;
+                        ih = Math.min(MAX_H, Math.round(iw * ratio));
+                      }
+                      resolve();
+                    };
+                    tmpImg.onerror = resolve;
+                    tmpImg.src = dataUrl;
+                  });
+                } catch(_) {}
+
+                ensureSpace(ih + 14);
+                doc.addImage(dataUrl, fmt, M, y, iw, ih);
+                doc.setDrawColor(RGB.GRID[0], RGB.GRID[1], RGB.GRID[2]);
+                doc.setLineWidth(0.5);
+                doc.rect(M, y, iw, ih);
+                y += ih + 10;
+              } else {
+                // Proxy failed — print link instead
+                doc.setFont('helvetica','italic'); doc.setFontSize(8);
+                doc.setTextColor(150,0,0);
+                doc.text('Imagen no disponible para exportar', M, y+10);
+                if (ev.url) { doc.setTextColor(0,102,204); doc.textWithLink(ev.url.slice(0,80), M, y+20, {url:ev.url}); }
+                y += 28;
+              }
+            } catch(imgErr) {
+              doc.setFont('helvetica','italic'); doc.setFontSize(8);
+              doc.setTextColor(150,0,0);
+              doc.text('Error al cargar imagen: '+fname.slice(0,40), M, y+10);
+              if (ev.url) { doc.setTextColor(0,102,204); doc.textWithLink(ev.url.slice(0,80), M, y+20, {url:ev.url}); }
+              y += 28;
+            }
+          } else {
+            // No file_id — print link
+            doc.setFont('helvetica','italic'); doc.setFontSize(8);
+            doc.setTextColor(0,102,204);
+            if (ev.url) doc.textWithLink(ev.url.slice(0,80), M, y+10, {url:ev.url});
+            y += 20;
+          }
+        } else {
+          // Archivo genérico — link
+          ensureSpace(24);
+          doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+          doc.setTextColor(RGB.INK[0],RGB.INK[1],RGB.INK[2]);
+          doc.text(fname.slice(0,60) + '  ·  ' + tsLabel, M, y+12);
+          if (ev.url) { doc.setFont('helvetica','italic'); doc.setFontSize(7.5); doc.setTextColor(0,102,204); doc.textWithLink(ev.url.slice(0,80), M, y+22, {url:ev.url}); }
+          y += 30;
+        }
+      } // end items loop
+      y += 8;
+    } // end area loop
+  } // end if evAreas.length
+
+  // ── Also show evidencias from evidencias_urls column (fallback) ──────────
+  const evUrlStr = (rep.embarque&&rep.embarque.evidencias_urls) ? rep.embarque.evidencias_urls.toString().trim() : '';
+  if (evUrlStr && !evAreas.length) {
+    newPage();
+    doc.setFont('helvetica','bold'); doc.setFontSize(13);
+    doc.setTextColor(RGB.INK[0],RGB.INK[1],RGB.INK[2]);
+    doc.text('Evidencias (registradas en hoja)', M, y); y+=18;
+    const urlLines = evUrlStr.split('\n').filter(l=>l.trim());
+    for (const line of urlLines) {
+      const lm = line.match(/^\[([^\]]+)\]\s*(.+)$/);
+      if (!lm) continue;
+      const tag=lm[1], rawUrl=lm[2].trim();
+      const parts=tag.split(':'); const areaLabel=parts[0]; const fname=parts.slice(1).join(':')||'';
+      const isDesp = areaLabel==='despacho';
+      ensureSpace(32);
+      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(RGB.INK[0],RGB.INK[1],RGB.INK[2]);
+      doc.text((fname||areaLabel).slice(0,60), M, y+12);
+      doc.setFont('helvetica','italic'); doc.setFontSize(7.5); doc.setTextColor(0,102,204);
+      doc.textWithLink(rawUrl.slice(0,80), M, y+22, {url:rawUrl});
+      y += 30;
+    }
+  }
+
   const totalPages=doc.internal.getNumberOfPages();
   for(let i=1;i<=totalPages;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(150,150,150);doc.text('Sistema de Auditoria de Pallets · '+(r.unidad||''),M,PH-18);doc.text(i+' / '+totalPages,PW-M,PH-18,{align:'right'});}
-  const safeUnidad=(r.unidad||'reporte').replace(/[^A-Za-z0-9_-]/g,'_');
+  const safeUnidad=String(r.unidad||r.resumen?.unidad||'reporte').replace(/[^A-Za-z0-9_-]/g,'_');
   doc.save('reporte_'+safeUnidad+'_'+new Date().toISOString().slice(0,10)+'.pdf');
   toast('PDF generado','success');
 }
@@ -2430,13 +2591,15 @@ function renderEvidenciaUrl_(line) {
   const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(fname) || /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(rawUrl);
 
   if (isPdf) {
+    // Drive /view URLs return 403 in iframes; must use /preview
+    const previewUrl = rawUrl.replace(/\/view(\?.*)?$/,'/preview').replace(/\/edit(\?.*)?$/,'/preview');
     return '<div class="pdf-viewer-wrap" style="margin-bottom:8px">' +
       '<div class="pdf-viewer-toolbar">' +
         '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px" title="'+displayName+'">'+displayName+'</span>' +
         '<a href="'+rawUrl+'" target="_blank" class="btn-open">Abrir</a>' +
         '<a href="'+rawUrl+'" download class="btn-dl">Descargar</a>' +
       '</div>' +
-      '<iframe class="pdf-viewer-iframe" src="'+rawUrl+'" loading="lazy"></iframe>' +
+      '<iframe class="pdf-viewer-iframe" src="'+previewUrl+'" loading="lazy" allow="autoplay"></iframe>' +
     '</div>';
   }
   if (isImg) {

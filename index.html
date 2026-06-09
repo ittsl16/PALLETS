@@ -869,9 +869,10 @@ async function submitRecibo() {
   if (!res||!res.ok) return toast('Error al guardar','error');
   const newId = res.data.id;
   // FIX: pasar modulo='recibo' explícitamente para que backend escriba en columna correcta
+  const reciboId = (res.data&&res.data.id) ? res.data.id : newId;
   if (photos.recibo.length) {
-    toast('Subiendo evidencias...');
-    try { await uploadEvidencesBatch(newId, 'recibo', 'recibo', photos.recibo); } catch(e) {}
+    toast('Subiendo evidencias ('+photos.recibo.length+')...');
+    try { await uploadEvidencesBatch(reciboId,'recibo','recibo',photos.recibo); } catch(e) { toast('Error al subir evidencias','warn'); }
   }
   toast('Recibo '+(res.data.estado==='HERENCIA'?'guardado como herencia':'finalizado'),'success');
   resetReciboForm();
@@ -1029,9 +1030,10 @@ async function submitEmbarque() {
   toast('Guardando auditoria...');
   const res = await apiPost('auditor_save_embarque', { data });
   if (!res||!res.ok) return toast('Error: '+(res?.error||'desconocido'),'error');
+  const canonId = (res.data&&res.data.id) ? res.data.id : id;
   if (photos.embarque.length) {
-    toast('Subiendo evidencias...');
-    try { await uploadEvidencesBatch(id,'embarque','embarque',photos.embarque); } catch(e) {}
+    toast('Subiendo evidencias ('+photos.embarque.length+')...');
+    try { await uploadEvidencesBatch(canonId,'embarque','embarque',photos.embarque); } catch(e) { toast('Error al subir evidencias','warn'); }
   }
   toast('Auditoria guardada · Auditores: '+res.data.conteo_auditores,'success');
   cancelEmbarqueForm();
@@ -1791,7 +1793,20 @@ async function submitMesaEnriquece() {
   toast('Guardando...');
   const res = await apiPost('mesa_enrich_embarque', { id:mesaEmbarqueActual.id, data:{ cant_prime_t1:t1, tipo_tarima_t1:tt1, cant_prime_t2:t2, tipo_tarima_t2:tt2, cantidad_mc:mc, ajuste_asset_type:ajusteSi?'SI':'NO', usuario:session.name } });
   if (!res||!res.ok) return toast('Error: '+(res?.error||''),'error');
-  if (ajusteSi&&assetCapture) { try { await uploadEvidence(mesaEmbarqueActual.id,'embarque','asset_type','asset_type',assetCapture); } catch(e) {} }
+  if (ajusteSi&&assetCapture) {
+    const assetId = (res.data&&res.data.id) ? res.data.id : mesaEmbarqueActual.id;
+    let assetOk = false;
+    for (let attempt=0; attempt<3 && !assetOk; attempt++) {
+      try {
+        const ur = await uploadEvidence(assetId,'embarque','asset_type','asset_type',assetCapture);
+        if (ur && ur.ok !== false) assetOk = true;
+        else if (attempt<2) await new Promise(r=>setTimeout(r,800*(attempt+1)));
+      } catch(e) {
+        if (attempt<2) await new Promise(r=>setTimeout(r,800*(attempt+1)));
+      }
+    }
+    if (!assetOk) toast('Evidencia asset_type no pudo subirse. El enriquecimiento fue guardado.','warn');
+  }
   toast('Enriquecido · Dif. Prime/MC: '+res.data.dif_prime_mc,'success');
   mesaCancelarBusqueda();
 }
@@ -2056,8 +2071,19 @@ async function submitDespacho() {
   const res=await apiPost('despacho_validate',{ id:despachoEmbActual.id, data:{ cantidad_mc_despacho:Number(mc), cantidad_factura:Number(fa), seguimiento, usuario:session.name }});
   if (!res||!res.ok) return toast('Error: '+(res?.error||''),'error');
   if (despachoDoc) {
-    toast('Subiendo evidencia...');
-    try { await uploadEvidence(despachoEmbActual.id,'embarque','despacho','despacho',despachoDoc); } catch(e) {}
+    const dspId = (res.data&&res.data.id) ? res.data.id : despachoEmbActual.id;
+    toast('Subiendo evidencia de cierre...');
+    let uploadOk = false;
+    for (let attempt=0; attempt<3 && !uploadOk; attempt++) {
+      try {
+        const ur = await uploadEvidence(dspId,'embarque','despacho','despacho',despachoDoc);
+        if (ur && ur.ok !== false) uploadOk = true;
+        else if (attempt<2) await new Promise(r=>setTimeout(r,800*(attempt+1)));
+      } catch(e) {
+        if (attempt<2) await new Promise(r=>setTimeout(r,800*(attempt+1)));
+      }
+    }
+    if (!uploadOk) toast('Evidencia de despacho no pudo subirse. El cierre fue guardado.','warn');
   }
   const r=res.data;
   toast(r.resultado+' · Dif. MC/Factura: '+r.dif_mc_factura, r.resultado==='OK'?'success':'warn');
@@ -2437,19 +2463,40 @@ async function uploadEvidence(id,modulo,tipo,area,photo){
   const base64=photo.data.split(',')[1];
   const mime=photo.data.split(';')[0].split(':')[1]||'image/jpeg';
   const fname=photo.name||('ev_'+Date.now()+'.jpg');
-  // Encode filename into area tag so GAS stores '[area:filename.ext] url'
-  // enabling type detection when reading back (Drive URLs have no extension)
-  const areaTag = fname ? area+':'+fname : area;
-  return apiPost('upload_evidence',{id,modulo,tipo,area:areaTag,base64data:base64,mimeType:mime,filename:fname,usuario:session.name});
+  // area stays CLEAN (e.g. 'embarque', 'despacho', 'asset_type') — used by GAS for Drive folder
+  // filename is a separate field — GAS encodes it into the sheet tag as '[area:fname] url'
+  const res = await apiPost('upload_evidence',{id,modulo,tipo,area,base64data:base64,mimeType:mime,filename:fname,usuario:session.name});
+  // Surface GAS warning if row was not found in sheet (evidence saved to Drive but not linked)
+  if (res&&res.ok&&res.data&&res.data.sheet_updated===false) {
+    console.warn('uploadEvidence sheet_updated=false:', res.data.warning);
+    toast('⚠ Evidencia subida a Drive pero no vinculada al registro. ID: '+id.slice(-8),'warn');
+  }
+  return res;
 }
 async function uploadEvidencesBatch(id,modulo,area,photoArr){
   if(!photoArr||!photoArr.length)return[];
-  // Subir de forma secuencial con pequeño delay para evitar rate limit en Apps Script
   const results = [];
-  for (const ph of photoArr) {
-    results.push(await uploadEvidence(id, modulo, area, area, ph));
-    await new Promise(r => setTimeout(r, 300));
+  let failed = 0;
+  for (let i=0; i<photoArr.length; i++) {
+    const ph = photoArr[i];
+    const fname = ph.name||('archivo_'+(i+1));
+    toast('Subiendo '+(i+1)+'/'+photoArr.length+': '+fname.slice(0,20)+'...');
+    let ok = false;
+    for (let attempt=0; attempt<3 && !ok; attempt++) {
+      try {
+        const r = await uploadEvidence(id, modulo, area, area, ph);
+        if (r && r.ok !== false) { results.push({...r, fname}); ok=true; }
+        else if (attempt<2) await new Promise(w=>setTimeout(w,800*(attempt+1)));
+      } catch(e) {
+        if (attempt<2) await new Promise(w=>setTimeout(w,800*(attempt+1)));
+      }
+    }
+    if (!ok) { failed++; console.warn('Upload failed for',fname,'on ID',id); }
+    if (i < photoArr.length-1) await new Promise(w => setTimeout(w, 400));
   }
+  const ok_count = photoArr.length - failed;
+  if (failed>0) toast(ok_count+' subidas · '+failed+' fallaron (ID:'+id.slice(-6)+')','warn');
+  else toast(ok_count+' evidencia(s) subidas correctamente','ok');
   return results;
 }
 

@@ -980,6 +980,7 @@ function renderAuditorEmbarque() {
           <div class="pz-icon">📷</div><p>Tomar foto del embarque</p><span>Foto general del embarque</span>
           <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhotos(event,'embarque')">
         </div>
+        <div id="embarque-photo-hint" style="font-size:11px;color:var(--ink-soft);margin-top:4px;padding:0 4px"></div>
         <div class="progress-bar" id="pg-embarque"><div class="inner"></div></div>
         <div class="photo-previews" id="ph-embarque"></div>
       </div>
@@ -1015,7 +1016,8 @@ async function submitEmbarque() {
   if (!avance)   return toast('Selecciona avance','error');
   if (!estado)   return toast('Selecciona estado','error');
   const esHerencia = estado.includes('Herencia');
-  if (!esHerencia&&!photos.embarque.length) return toast('Evidencia obligatoria','error');
+  if (esHerencia && photos.embarque.length < 2) return toast('Herencia requiere mínimo 2 fotos de evidencia','error');
+  if (!esHerencia && !photos.embarque.length) return toast('Evidencia obligatoria','error');
   const data = {
     id,
     tipo_auditoria: tipoAud.includes('Completa')?'Completa':'Parcial',
@@ -1032,9 +1034,24 @@ async function submitEmbarque() {
   const res = await apiPost('auditor_save_embarque', { data });
   if (!res||!res.ok) return toast('Error: '+(res?.error||'desconocido'),'error');
   const canonId = (res.data&&res.data.id) ? res.data.id : id;
-  if (photos.embarque.length) {
-    toast('Subiendo evidencias ('+photos.embarque.length+')...');
-    try { await uploadEvidencesBatch(canonId,'embarque','embarque',photos.embarque); } catch(e) { toast('Error al subir evidencias','warn'); }
+  // Snapshot photos before any UI reset
+  const photosToUpload = (photos.embarque||[]).slice();
+  if (photosToUpload.length) {
+    // Disable submit button to prevent double-submit during upload
+    const btn = document.querySelector('#tab-auditor-embarque .btn-primary');
+    if (btn) { btn.disabled = true; btn.textContent = 'Subiendo evidencias...'; }
+    let uploadFailed = false;
+    try {
+      await uploadEvidencesBatch(canonId, 'embarque', 'embarque', photosToUpload);
+    } catch(e) {
+      uploadFailed = true;
+      toast('Error al subir evidencias — registro guardado, reintenta la foto', 'warn');
+    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Guardar Auditoria →'; }
+    if (uploadFailed && esHerencia) {
+      // For herencia, evidence is critical — do not proceed silently
+      return toast('No se pudo subir evidencia requerida para herencia. Verifica conexión.', 'error');
+    }
   }
   toast('Auditoria guardada · Auditores: '+res.data.conteo_auditores,'success');
   cancelEmbarqueForm();
@@ -2550,13 +2567,38 @@ function compressImage(file,maxW,maxH,quality) {
 function fileToBase64(file){
   return new Promise((res)=>{const r=new FileReader();r.onload=e=>res({name:file.name,data:e.target.result,type:file.type});r.readAsDataURL(file);});
 }
+
+function updateEmbarquePhotoHint() {
+  const hint = document.getElementById('embarque-photo-hint');
+  if (!hint) return;
+  const estado = getToggleValue('e-estado');
+  const esHerencia = estado && estado.includes('Herencia');
+  const count = (photos.embarque||[]).length;
+  if (esHerencia) {
+    const ok = count >= 2;
+    hint.style.color = ok ? 'var(--ok)' : 'var(--danger)';
+    hint.textContent = ok
+      ? '✓ ' + count + ' foto(s) — requerimiento de herencia cumplido'
+      : '⚠ Herencia requiere mínimo 2 fotos (' + count + '/2 capturadas)';
+  } else {
+    hint.style.color = count > 0 ? 'var(--ok)' : 'var(--ink-soft)';
+    hint.textContent = count > 0 ? '✓ ' + count + ' foto(s) lista(s)' : '';
+  }
+}
+
 async function handlePhotos(event,key){
   const files=Array.from(event.target.files);
   if(!photos[key])photos[key]=[];
   showProgress(key,0);
-  const compressed=await Promise.all(files.map(f=>compressImage(f,960,960,0.68)));
+  // Embarque/asset_type: compress harder to reduce upload time (800px, 0.52 quality)
+  // Recibo: slightly larger for legibility
+  const isAudit = (key==='embarque'||key==='asset');
+  const maxDim = isAudit ? 800 : 900;
+  const qual   = isAudit ? 0.52 : 0.62;
+  const compressed=await Promise.all(files.map(f=>compressImage(f,maxDim,maxDim,qual)));
   compressed.forEach(c=>photos[key].push(c));
   showProgress(key,90);renderPhotos(key);showProgress(key,100);
+  if(key==='embarque') updateEmbarquePhotoHint();
   setTimeout(()=>showProgress(key,101),400);
 }
 function renderPhotos(key){
@@ -2629,7 +2671,9 @@ async function uploadEvidence(id,modulo,tipo,area,photo){
   // area stays CLEAN (e.g. 'embarque', 'despacho', 'asset_type') — used by GAS for Drive folder
   // filename is a separate field — GAS encodes it into the sheet tag as '[area:fname] url'
   const res = await apiPost('upload_evidence',{id,modulo,tipo,area,base64data:base64,mimeType:mime,filename:fname,usuario:session.name});
-  // Surface GAS warning if row was not found in sheet (evidence saved to Drive but not linked)
+  // _opaque = no-cors fallback fired = upload did NOT complete
+  if (res&&res._opaque) return {ok:false, error:'timeout_opaque'};
+  // Surface GAS warning if row was not found in sheet
   if (res&&res.ok&&res.data&&res.data.sheet_updated===false) {
     console.warn('uploadEvidence sheet_updated=false:', res.data.warning);
     toast('⚠ Evidencia subida a Drive pero no vinculada al registro. ID: '+id.slice(-8),'warn');
@@ -2643,23 +2687,29 @@ async function uploadEvidencesBatch(id,modulo,area,photoArr){
   for (let i=0; i<photoArr.length; i++) {
     const ph = photoArr[i];
     const fname = ph.name||('archivo_'+(i+1));
-    toast('Subiendo '+(i+1)+'/'+photoArr.length+': '+fname.slice(0,20)+'...');
+    toast('Evidencia '+(i+1)+'/'+photoArr.length+' — '+fname.slice(0,22)+'...');
     let ok = false;
     for (let attempt=0; attempt<3 && !ok; attempt++) {
+      if (attempt>0) {
+        const wait = attempt===1 ? 2000 : 4000;
+        toast('Reintentando ('+(attempt+1)+'/3)...');
+        await new Promise(w=>setTimeout(w,wait));
+      }
       try {
         const r = await uploadEvidence(id, modulo, area, area, ph);
-        if (r && r.ok !== false) { results.push({...r, fname}); ok=true; }
-        else if (attempt<2) await new Promise(w=>setTimeout(w,800*(attempt+1)));
-      } catch(e) {
-        if (attempt<2) await new Promise(w=>setTimeout(w,800*(attempt+1)));
-      }
+        if (r && r.ok !== false && !r._opaque) { results.push({...r, fname}); ok=true; }
+      } catch(e) { /* retry */ }
     }
-    if (!ok) { failed++; console.warn('Upload failed for',fname,'on ID',id); }
-    if (i < photoArr.length-1) await new Promise(w => setTimeout(w, 400));
+    if (!ok) {
+      failed++;
+      console.warn('[upload] FAILED:', fname, 'id:', id, 'area:', area);
+    }
+    // Brief pause between files to avoid GAS rate limiting
+    if (i < photoArr.length-1) await new Promise(w => setTimeout(w, 600));
   }
   const ok_count = photoArr.length - failed;
-  if (failed>0) toast(ok_count+' subidas · '+failed+' fallaron (ID:'+id.slice(-6)+')','warn');
-  else toast(ok_count+' evidencia(s) subidas correctamente','ok');
+  if (failed>0) toast(ok_count+' subida(s) · '+failed+' fallaron — ID:'+id.slice(-8),'warn');
+  else if (ok_count>0) toast(ok_count+' evidencia(s) guardadas en hoja','ok');
   return results;
 }
 
@@ -2668,8 +2718,18 @@ async function uploadEvidencesBatch(id,modulo,area,photoArr){
 // ════════════════════════════════════════════════════════════════
 async function apiPost(action,payload){
   const body=JSON.stringify({action,...payload});
+  // 40s timeout — GAS uploads can take 15-30s on mobile
+  const fetchWithTimeout = async (url, opts, ms) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), ms);
+    try {
+      const r = await fetch(url, {...opts, signal: ctrl.signal});
+      clearTimeout(timer);
+      return r;
+    } catch(e) { clearTimeout(timer); throw e; }
+  };
   try{
-    const r=await fetch(API_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true});
+    const r=await fetchWithTimeout(API_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true},40000);
     if(r.ok)return await r.json();
     return{ok:false,error:'http_'+r.status};
   }catch(e){

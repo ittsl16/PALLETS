@@ -2080,30 +2080,23 @@ async function despachoBuscar() {
 
 async function submitDespacho() {
   if (!despachoEmbActual) return toast('Busca un embarque','error');
-  const mc=document.getElementById('dp-cant-mc').value;
-  const fa=document.getElementById('dp-cant-factura').value;
+  const mc = document.getElementById('dp-cant-mc').value;
+  const fa = document.getElementById('dp-cant-factura').value;
   if (mc===''||fa==='') return toast('Captura ambas cantidades','error');
   if (!despachoDoc) return toast('Evidencia obligatoria','error');
   toast('Validando...');
-  const seguimiento=(document.getElementById('dp-seguimiento')?.value||'').trim();
-  const res=await apiPost('despacho_validate',{ id:despachoEmbActual.id, data:{ cantidad_mc_despacho:Number(mc), cantidad_factura:Number(fa), seguimiento, usuario:session.name }});
+  const seguimiento = (document.getElementById('dp-seguimiento')?.value||'').trim();
+  const res = await apiPost('despacho_validate', {
+    id: despachoEmbActual.id,
+    data: { cantidad_mc_despacho: Number(mc), cantidad_factura: Number(fa), seguimiento, usuario: session.name }
+  });
   if (!res||!res.ok) return toast('Error: '+(res?.error||''),'error');
-  if (despachoDoc) {
-    const dspId = (res.data&&res.data.id) ? res.data.id : despachoEmbActual.id;
-    toast('Subiendo evidencia de cierre...');
-    let uploadOk = false;
-    for (let attempt=0; attempt<3 && !uploadOk; attempt++) {
-      try {
-        const ur = await uploadEvidence(dspId,'embarque','despacho','despacho',despachoDoc);
-        if (ur && ur.ok !== false) uploadOk = true;
-        else if (attempt<2) await new Promise(r=>setTimeout(r,800*(attempt+1)));
-      } catch(e) {
-        if (attempt<2) await new Promise(r=>setTimeout(r,800*(attempt+1)));
-      }
-    }
-    if (!uploadOk) toast('Evidencia de despacho no pudo subirse. El cierre fue guardado.','warn');
-  }
-  const r=res.data;
+  // Subir evidencia con chunking automático para PDFs grandes
+  const dspId = (res.data&&res.data.id) ? res.data.id : despachoEmbActual.id;
+  toast('Subiendo evidencia de cierre...');
+  const uploadOk = await uploadEvidenceDespacho_(dspId, despachoDoc);
+  if (!uploadOk) toast('Evidencia no pudo subirse. El cierre fue guardado.','warn');
+  const r = res.data;
   toast(r.resultado+' · Dif. MC/Factura: '+r.dif_mc_factura, r.resultado==='OK'?'success':'warn');
   despachoCancelar();
   loadDespachoEnriquecidas();
@@ -2121,27 +2114,27 @@ function despachoCancelar() {
 }
 
 async function handleDespachoDoc(event) {
-  const file=event.target.files[0]; if(!file)return;
-  const compressed=file.type.startsWith('image/')?await compressImage(file,1100,1100,0.70):await fileToBase64(file);
-  despachoDoc={name:file.name,data:compressed.data,type:file.type};
-  const prev=document.getElementById('dp-doc-preview');
+  const file = event.target.files[0]; if (!file) return;
+  // Imágenes: comprimir. PDFs y otros: base64 directo, sin modificar el contenido.
+  const processed = file.type.startsWith('image/')
+    ? await compressImage(file, 1100, 1100, 0.70)
+    : await fileToBase64(file);
+  despachoDoc = { name: file.name, data: processed.data, type: file.type, originalSize: file.size };
+  const prev = document.getElementById('dp-doc-preview');
+  const kb = Math.round(file.size / 1024);
   if (file.type.startsWith('image/')) {
-    prev.innerHTML='<img src="'+compressed.data+'" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--gray-200)">';
-  } else if (file.type==='application/pdf') {
-    // Visor embebido para PDF recién subido
-    const dataUrl = compressed.data;
-    prev.innerHTML = `
-      <div class="pdf-viewer-wrap">
-        <div class="pdf-viewer-toolbar">
-          <span>${file.name}</span>
-          <a href="${dataUrl}" target="_blank" class="btn-open">Abrir</a>
-        </div>
-        <iframe class="pdf-viewer-iframe" src="${dataUrl}" loading="lazy"></iframe>
-      </div>`;
+    prev.innerHTML = '<img src="' + processed.data + '" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid var(--gray-200)">'
+      + '<div style="font-size:11px;color:var(--gray-500);margin-top:4px">' + file.name + ' · ' + kb + ' KB</div>';
+  } else if (file.type === 'application/pdf') {
+    prev.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--gray-100);border-radius:var(--r-sm);border:1px solid var(--gray-200)">'
+      + '<span style="font-size:22px">&#128196;</span>'
+      + '<div style="min-width:0"><div style="font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + file.name + '</div>'
+      + '<div style="font-size:11px;color:var(--gray-500);margin-top:2px">' + kb + ' KB — listo para subir</div>'
+      + '</div></div>';
   } else {
-    prev.innerHTML='<div class="note info">'+file.name+'</div>';
+    prev.innerHTML = '<div class="note info">' + file.name + ' · ' + kb + ' KB</div>';
   }
-  toast('Documento listo','success');
+  toast('Documento listo — ' + kb + ' KB', 'success');
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -2663,17 +2656,114 @@ function renderEvidenciasUrlsBlock_(urlsStr) {
   return lines.map(renderEvidenciaUrl_).join('');
 }
 
+// ── Límites de transporte GAS ─────────────────────────────────────────────
+// POST body: máx ~256 KB. Base64 de un PDF de 240 KB = ~332 KB → supera el límite.
+// Solución: partir el base64 en chunks de 90 KB de chars.
+// GAS acumula los chunks en CacheService (máx 100 KB/valor) y ensambla en el último.
+//
+// Umbral de corte: si el base64 supera 180 KB de chars → chunked.
+// Con chunks de 90 KB: PDF de 332 KB → 4 partes, cada POST ~91 KB → bien bajo 256 KB.
+const _CHUNK_CHARS   = 90 * 1024;   // chars base64 por chunk  (90 KB)
+const _DIRECT_LIMIT  = 180 * 1024;  // umbral: base64.length > esto → chunked
+
+// ── Wrapper específico para despacho: elige ruta directa o chunked ─────────
+// Devuelve true si la evidencia quedó registrada en el sheet, false si falló.
+async function uploadEvidenceDespacho_(id, doc) {
+  if (!doc || !doc.data) return false;
+  const base64 = doc.data.split(',')[1];
+  if (!base64) return false;
+  const mime  = doc.data.split(';')[0].split(':')[1] || 'application/pdf';
+  const fname = doc.name || ('despacho_' + Date.now() + '.pdf');
+  const b64len = base64.length;
+  const kb     = Math.round(b64len / 1024);
+
+  if (b64len <= _DIRECT_LIMIT) {
+    // ── Ruta directa (base64 < 180 KB de chars) ─────────────────────────
+    for (let attempt = 0; attempt < 4; attempt++) {
+      if (attempt > 0) {
+        toast('Reintentando evidencia (' + attempt + '/3)...');
+        await new Promise(r => setTimeout(r, 2000 * attempt));
+      }
+      try {
+        const res = await apiPost('upload_evidence', {
+          id, modulo: 'embarque', tipo: 'despacho', area: 'despacho',
+          base64data: base64, mimeType: mime, filename: fname, usuario: session.name
+        });
+        if (res && !res._opaque && res.ok !== false) {
+          if (res.data && res.data.sheet_updated === false) {
+            console.warn('uploadEvidenceDespacho_ sheet_updated=false:', res.data.warning);
+            toast('Evidencia en Drive pero no vinculada al registro. ID: ' + id.slice(-8), 'warn');
+          }
+          return true;
+        }
+      } catch(e) { /* reintento */ }
+    }
+    console.error('[despacho directo] 4 intentos fallidos. id:', id, 'fname:', fname);
+    return false;
+  }
+
+  // ── Ruta chunked (base64 >= 180 KB de chars) ────────────────────────────
+  // CacheService en GAS acepta hasta 100 KB por valor → chunks de 90 KB caben con margen.
+  const totalChunks = Math.ceil(b64len / _CHUNK_CHARS);
+  const uploadId    = 'dsp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  toast('PDF ' + kb + ' KB — enviando en ' + totalChunks + ' parte(s)...');
+  console.log('[despacho chunked] id:', id, 'b64:', b64len, 'chunks:', totalChunks, 'upload_id:', uploadId);
+
+  for (let i = 0; i < totalChunks; i++) {
+    const chunk  = base64.slice(i * _CHUNK_CHARS, (i + 1) * _CHUNK_CHARS);
+    const isLast = (i === totalChunks - 1);
+    toast('Parte ' + (i + 1) + ' / ' + totalChunks + '...');
+    let chunkOk = false;
+    console.log('[despacho chunk', i, '] size:', chunk.length, 'chars —', Math.round(chunk.length/1024), 'KB');
+    for (let attempt = 0; attempt < 4 && !chunkOk; attempt++) {
+      if (attempt > 0) await new Promise(r => setTimeout(r, 2000 * attempt));
+      try {
+        const res = await apiPost('upload_evidence_chunk', {
+          upload_id: uploadId,
+          chunk_index: i,
+          total_chunks: totalChunks,
+          is_last: isLast,
+          id, modulo: 'embarque', tipo: 'despacho', area: 'despacho',
+          base64data: chunk,
+          mimeType: mime,
+          filename: fname,
+          usuario: session.name
+        });
+        if (res && !res._opaque && res.ok !== false) {
+          chunkOk = true;
+          if (isLast) {
+            if (res.data && res.data.sheet_updated === false) {
+              console.warn('uploadEvidenceDespacho_ último chunk sheet_updated=false');
+              toast('Evidencia en Drive pero no vinculada al registro. ID: ' + id.slice(-8), 'warn');
+            } else if (res.data && res.data.url) {
+              console.log('[despacho chunked] OK — url:', res.data.url);
+            }
+          }
+        } else {
+          console.warn('[despacho chunk', i, '] attempt', attempt,
+            'falló — ok:', res && res.ok, 'opaque:', res && res._opaque,
+            'error:', res && res.error, 'full:', JSON.stringify(res));
+        }
+      } catch(e) {
+        console.warn('[despacho chunk', i, '] attempt', attempt, 'excepción:', e && e.message, e);
+      }
+    }
+    if (!chunkOk) {
+      console.error('[despacho chunk] FAILED definitivo en chunk', i, '— upload_id:', uploadId);
+      return false;
+    }
+    if (!isLast) await new Promise(r => setTimeout(r, 500));
+  }
+  return true;
+}
+
 async function uploadEvidence(id,modulo,tipo,area,photo){
   if(!photo||!photo.data)return;
   const base64=photo.data.split(',')[1];
   const mime=photo.data.split(';')[0].split(':')[1]||'image/jpeg';
   const fname=photo.name||('ev_'+Date.now()+'.jpg');
-  // area stays CLEAN (e.g. 'embarque', 'despacho', 'asset_type') — used by GAS for Drive folder
-  // filename is a separate field — GAS encodes it into the sheet tag as '[area:fname] url'
   const res = await apiPost('upload_evidence',{id,modulo,tipo,area,base64data:base64,mimeType:mime,filename:fname,usuario:session.name});
-  // _opaque = no-cors fallback fired = upload did NOT complete
   if (res&&res._opaque) return {ok:false, error:'timeout_opaque'};
-  // Surface GAS warning if row was not found in sheet
   if (res&&res.ok&&res.data&&res.data.sheet_updated===false) {
     console.warn('uploadEvidence sheet_updated=false:', res.data.warning);
     toast('⚠ Evidencia subida a Drive pero no vinculada al registro. ID: '+id.slice(-8),'warn');
@@ -2704,7 +2794,6 @@ async function uploadEvidencesBatch(id,modulo,area,photoArr){
       failed++;
       console.warn('[upload] FAILED:', fname, 'id:', id, 'area:', area);
     }
-    // Brief pause between files to avoid GAS rate limiting
     if (i < photoArr.length-1) await new Promise(w => setTimeout(w, 600));
   }
   const ok_count = photoArr.length - failed;
@@ -2718,7 +2807,7 @@ async function uploadEvidencesBatch(id,modulo,area,photoArr){
 // ════════════════════════════════════════════════════════════════
 async function apiPost(action,payload){
   const body=JSON.stringify({action,...payload});
-  // 40s timeout — GAS uploads can take 15-30s on mobile
+  // 90s timeout — chunks + GAS Drive writes pueden tomar 40-60s en móvil
   const fetchWithTimeout = async (url, opts, ms) => {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), ms);
@@ -2729,7 +2818,7 @@ async function apiPost(action,payload){
     } catch(e) { clearTimeout(timer); throw e; }
   };
   try{
-    const r=await fetchWithTimeout(API_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true},40000);
+    const r=await fetchWithTimeout(API_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true},90000);
     if(r.ok)return await r.json();
     return{ok:false,error:'http_'+r.status};
   }catch(e){

@@ -2807,6 +2807,10 @@ async function uploadEvidencesBatch(id,modulo,area,photoArr){
 // ════════════════════════════════════════════════════════════════
 async function apiPost(action,payload){
   const body=JSON.stringify({action,...payload});
+  // keepalive:true tiene límite de 64 KB en el navegador.
+  // Para chunks de evidencia (>64 KB) se debe omitir keepalive.
+  const bodyBytes = new TextEncoder().encode(body).length;
+  const useKeepalive = bodyBytes < 60000;
   // 90s timeout — chunks + GAS Drive writes pueden tomar 40-60s en móvil
   const fetchWithTimeout = async (url, opts, ms) => {
     const ctrl = new AbortController();
@@ -2818,11 +2822,16 @@ async function apiPost(action,payload){
     } catch(e) { clearTimeout(timer); throw e; }
   };
   try{
-    const r=await fetchWithTimeout(API_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true},90000);
+    const r=await fetchWithTimeout(API_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:useKeepalive},90000);
     if(r.ok)return await r.json();
     return{ok:false,error:'http_'+r.status};
   }catch(e){
-    try{await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true});return{ok:true,data:{},_opaque:true};}catch(e2){return{ok:false,error:'sin_conexion'};}
+    // fallback no-cors solo para payloads pequeños (keepalive ya descartado para grandes)
+    if(useKeepalive){
+      try{await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:false});return{ok:true,data:{},_opaque:true};}catch(e2){}
+    }
+    console.error('[apiPost] '+action+' falló — bytes:'+bodyBytes+' error:'+e.message);
+    return{ok:false,error:'sin_conexion'};
   }
 }
 function apiGet(action,params){

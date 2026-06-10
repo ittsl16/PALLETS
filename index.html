@@ -2807,11 +2807,27 @@ async function uploadEvidencesBatch(id,modulo,area,photoArr){
 // ════════════════════════════════════════════════════════════════
 async function apiPost(action,payload){
   const body=JSON.stringify({action,...payload});
-  // keepalive:true tiene límite de 64 KB en el navegador.
-  // Para chunks de evidencia (>64 KB) se debe omitir keepalive.
   const bodyBytes = new TextEncoder().encode(body).length;
+  // keepalive:true tiene límite de 64 KB — omitir para chunks grandes
   const useKeepalive = bodyBytes < 60000;
-  // 90s timeout — chunks + GAS Drive writes pueden tomar 40-60s en móvil
+  // Para payloads grandes (chunks) usar fetch plano sin AbortController:
+  // AbortController + señal puede interactuar con Edge/Chrome Tracking Prevention
+  // y cancelar peticiones legítimas. El timeout lo manejamos con Promise.race.
+  if (!useKeepalive) {
+    // Ruta directa para chunks — sin keepalive, sin AbortController
+    try {
+      const r = await Promise.race([
+        fetch(API_URL, {method:'POST', mode:'cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body}),
+        new Promise((_,rej) => setTimeout(() => rej(new Error('timeout_manual')), 90000))
+      ]);
+      if (r.ok) return await r.json();
+      return {ok:false, error:'http_'+r.status};
+    } catch(e) {
+      console.error('[apiPost chunk] '+action+' — bytes:'+bodyBytes+' error:'+e.name+':'+e.message);
+      return {ok:false, error:'sin_conexion_chunk'};
+    }
+  }
+  // Ruta normal para peticiones pequeñas — con keepalive y AbortController
   const fetchWithTimeout = async (url, opts, ms) => {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), ms);
@@ -2822,16 +2838,11 @@ async function apiPost(action,payload){
     } catch(e) { clearTimeout(timer); throw e; }
   };
   try{
-    const r=await fetchWithTimeout(API_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:useKeepalive},90000);
+    const r=await fetchWithTimeout(API_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true},90000);
     if(r.ok)return await r.json();
     return{ok:false,error:'http_'+r.status};
   }catch(e){
-    // fallback no-cors solo para payloads pequeños (keepalive ya descartado para grandes)
-    if(useKeepalive){
-      try{await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:false});return{ok:true,data:{},_opaque:true};}catch(e2){}
-    }
-    console.error('[apiPost] '+action+' falló — bytes:'+bodyBytes+' error:'+e.message);
-    return{ok:false,error:'sin_conexion'};
+    try{await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true});return{ok:true,data:{},_opaque:true};}catch(e2){return{ok:false,error:'sin_conexion'};}
   }
 }
 function apiGet(action,params){

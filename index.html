@@ -194,7 +194,7 @@ input:disabled, select:disabled { opacity: .55; cursor: not-allowed; background:
 .status.auditado { background: var(--gray-100); color: var(--ink); }
 .status.mesa_ok { background: var(--red-tint); color: var(--red); }
 .status.cerrado { background: var(--ok-tint); color: var(--ok); }
-.status.cerrado_con_incidencias { background: rgba(207,0,46,.10); color: var(--red); }
+.status.cerrado_d { background: rgba(207,0,46,.10); color: var(--red); }
 .status.cancelado { background: rgba(192,57,43,.12); color: #C0392B; }
 .bandeja { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-xs); margin-bottom: 12px; }
 .bandeja-head { padding: 12px 16px; background: var(--ink); color: var(--white); display: flex; align-items: center; gap: 10px; }
@@ -579,7 +579,7 @@ let despachoDoc = null;
 function loadState() {
   try {
     const s = localStorage.getItem('apv34_session');
-    const p = localStorage.getItem('apv34_pendientes');
+    const p = localStorage.getItem('apv34_pendientes'); 
     if (s) session = JSON.parse(s);
     if (p) pendientes = JSON.parse(p);
   } catch(e) {}
@@ -601,7 +601,7 @@ function comboFilter(inputId, listId, rol) {
   const q = (input.value || '').toLowerCase().trim();
   const opts = (catalogo[rol] || []);
   const matches = opts.filter(n => n.toLowerCase().includes(q));
-  if (!matches.length && !q) {
+  if (!matches.length && !q) { 
     list.innerHTML = '<div class="combo-empty">Sin nombres en catalogo</div>';
   } else if (!matches.length) {
     list.innerHTML = '<div class="combo-empty">Escribir libremente "'+q+'"</div>';
@@ -2302,7 +2302,7 @@ async function exportarReportePDF() {
   const M=40,CONTENT_W=PW-M*2,LABEL_W=200,VALUE_X=M+LABEL_W,VALUE_W=CONTENT_W-LABEL_W;
   let y=M;
   const RGB={OK:[39,174,96],DANGER:[207,0,46],WARN:[253,208,0],NEUTRAL:[107,107,107],NEW:[255,178,102],GRID:[222,226,230],LABEL_BG:[247,248,250],INK:[33,37,41],INK_SOFT:[90,96,104]};
-  const statusBg=(val)=>{const v=String(val||'').toUpperCase().trim();if(!v||v==='—')return null;if(v==='CERRADO_CON_INCIDENCIAS'||v==='CANCELADO'||v==='DIFERENCIA'||v==='INCORRECTO')return RGB.DANGER;if(v==='CERRADO'||v==='OK'||v==='CORRECTO')return RGB.OK;if(v==='NUEVO')return RGB.NEW;if(v==='HERENCIA')return RGB.WARN;if(v==='AUDITADO'||v==='MESA_OK')return RGB.NEUTRAL;return null;};
+  const statusBg=(val)=>{const v=String(val||'').toUpperCase().trim();if(!v||v==='—')return null;if(v==='CERRADO_D'||v==='CANCELADO'||v==='DIFERENCIA'||v==='INCORRECTO')return RGB.DANGER;if(v==='CERRADO'||v==='OK'||v==='CORRECTO')return RGB.OK;if(v==='NUEVO')return RGB.NEW;if(v==='HERENCIA')return RGB.WARN;if(v==='AUDITADO'||v==='MESA_OK')return RGB.NEUTRAL;return null;};
   toast('Preparando recursos...');
   const instLogo=await getInstitutionalLogo();
   function drawHeader(){doc.setFont('helvetica','italic');doc.setFontSize(8.5);doc.setTextColor(140,140,140);doc.text('Business Use',M,M-4);if(instLogo&&instLogo.data){const targetW=80;const ratio=instLogo.h&&instLogo.w?instLogo.h/instLogo.w:0.35;const targetH=Math.max(16,Math.min(36,targetW*ratio));const fmt=(instLogo.data.indexOf('image/png')!==-1)?'PNG':'JPEG';try{doc.addImage(instLogo.data,fmt,PW-M-targetW,M-16,targetW,targetH);}catch(_){}}doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(120,120,120);doc.text('DHL / P&G',PW-M,M+18,{align:'right'});doc.setDrawColor(RGB.GRID[0],RGB.GRID[1],RGB.GRID[2]);doc.setLineWidth(0.5);doc.line(M,M+24,PW-M,M+24);}
@@ -2655,19 +2655,9 @@ function renderEvidenciasUrlsBlock_(urlsStr) {
   if (!lines.length) return '';
   return lines.map(renderEvidenciaUrl_).join('');
 }
+const _CHUNK_CHARS   = 90 * 1024;   
+const _DIRECT_LIMIT  = 180 * 1024;  
 
-// ── Límites de transporte GAS ─────────────────────────────────────────────
-// POST body: máx ~256 KB. Base64 de un PDF de 240 KB = ~332 KB → supera el límite.
-// Solución: partir el base64 en chunks de 90 KB de chars.
-// GAS acumula los chunks en CacheService (máx 100 KB/valor) y ensambla en el último.
-//
-// Umbral de corte: si el base64 supera 180 KB de chars → chunked.
-// Con chunks de 90 KB: PDF de 332 KB → 4 partes, cada POST ~91 KB → bien bajo 256 KB.
-const _CHUNK_CHARS   = 90 * 1024;   // chars base64 por chunk  (90 KB)
-const _DIRECT_LIMIT  = 180 * 1024;  // umbral: base64.length > esto → chunked
-
-// ── Wrapper específico para despacho: elige ruta directa o chunked ─────────
-// Devuelve true si la evidencia quedó registrada en el sheet, false si falló.
 async function uploadEvidenceDespacho_(id, doc) {
   if (!doc || !doc.data) return false;
   const base64 = doc.data.split(',')[1];

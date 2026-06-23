@@ -421,7 +421,7 @@ table.preview tr.row-err td { background: var(--danger-tint); }
           <div class="role-badge supervisor">SUP</div>
           <div class="role-text">
             <div class="role-name">Supervisor</div>
-            <div class="role-desc">Dashboard · Reportes historicos · KPIs</div>
+            <div class="role-desc">Resumen diario · Reportes historicos</div>
           </div>
           <div class="role-arrow">›</div>
         </div>
@@ -540,13 +540,13 @@ table.preview tr.row-err td { background: var(--danger-tint); }
 // ════════════════════════════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbw7q3-xnDQ9B5J7LrdlD-AXn572VfuEI1hqlvgnRGFYSYqm30rLzulnd-sPYn17GHs/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby1lZ1RxVSKgtHKr6WI4bShxOiLA64yx3omASybYaPY31oTV142HGt2aGxDcjyTbjYP/exec';
 
 const ROL_CFG = {
   auditor:    { icon:'AUD', label:'Auditor',              sub:'Modulo de auditoria operativa',  cls:'auditor',    headerGrad:'var(--grad-header)' },
   mesa:       { icon:'MC',  label:'Mesa de Control',      sub:'Carga · Enriquecimiento · MC',   cls:'mesa',       headerGrad:'var(--grad-mesa)' },
   despacho:   { icon:'DES', label:'Analista Despacho',    sub:'Validacion · Cierre',            cls:'despacho',   headerGrad:'var(--grad-despacho)' },
-  supervisor: { icon:'SUP', label:'Supervisor',           sub:'Reportes historicos · KPIs',     cls:'supervisor', headerGrad:'var(--grad-supervisor)' }
+  supervisor: { icon:'SUP', label:'Supervisor',           sub:'Resumen diario · Reportes historicos', cls:'supervisor', headerGrad:'var(--grad-supervisor)' }
 };
 
 const TIPOS_TARIMA = [
@@ -704,7 +704,7 @@ function buildApp() {
       { id:'logout',             icon:'', text:'Salir' }
     ],
     supervisor: [
-      { id:'sup-dashboard',      icon:'', text:'Dashboard' },
+      { id:'sup-resumen',        icon:'', text:'Resumen' },
       { id:'sup-reporte',        icon:'', text:'Reporte' },
       { id:'logout',             icon:'', text:'Salir' }
     ]
@@ -732,7 +732,7 @@ function buildApp() {
   } else if (session.role==='despacho') {
     renderDespachoCierre(); renderLogout();
   } else if (session.role==='supervisor') {
-    renderSupDashboard(); renderSupReporte(); renderLogout();
+    renderSupResumen(); renderSupReporte(); renderLogout();
   }
 }
 
@@ -744,7 +744,7 @@ function switchTab(id) {
   if (id==='auditor-pendientes') renderPendientesAuditor();
   if (id==='mesa-carga')         syncPendientes();
   if (id==='despacho-cierre')    loadDespachoEnriquecidas();
-  if (id==='sup-dashboard')      loadDashboard();
+  if (id==='sup-resumen')        loadResumenDiario();
 }
 
 function renderLogout() {
@@ -2137,93 +2137,79 @@ async function handleDespachoDoc(event) {
   toast('Documento listo — ' + kb + ' KB', 'success');
 }
 
-let dashboardTimer=null;
+let resumenTimer=null;
 
-function renderSupDashboard() {
-  const tab=document.getElementById('tab-sup-dashboard');
+function renderSupResumen() {
+  const tab=document.getElementById('tab-sup-resumen');
   if(!tab)return;
   const todayStr=new Date().toISOString().slice(0,10);
   tab.innerHTML=`
-    <div class="section-head"><div class="section-icon">📈</div><div><div class="section-title">Dashboard Operativo</div><div class="section-desc">KPIs en tiempo real · Segmentacion por turno</div></div></div>
+    <div class="section-head"><div class="section-icon" style="font-family:var(--f-mono);font-weight:800;font-size:13px;color:var(--red)">RD</div><div><div class="section-title">Resumen Diario</div><div class="section-desc">Embarques y recibos por turno · Excluye cancelados</div></div></div>
     <div class="card">
       <div class="card-title"><span class="ct-dot"></span>Filtros</div>
       <div class="form-row-2">
-        <div><label>Fecha</label><input type="date" id="dash-fecha" value="${todayStr}" onchange="loadDashboard()"></div>
+        <div><label>Fecha</label><input type="date" id="res-fecha" value="${todayStr}" onchange="loadResumenDiario()"></div>
         <div style="display:flex;align-items:flex-end;gap:8px">
-          <button class="btn btn-dark btn-sm" onclick="dashSetToday()">Hoy</button>
-          <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">Actualizar</button>
+          <button class="btn btn-dark btn-sm" onclick="resSetToday()">Hoy</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadResumenDiario()">Actualizar</button>
         </div>
       </div>
-      <div style="color:var(--gray-500);font-size:11px;margin-top:6px;font-family:var(--f-mono)" id="dash-last-update">Cargando...</div>
+      <div style="color:var(--gray-500);font-size:11px;margin-top:6px;font-family:var(--f-mono)" id="res-last-update">Cargando...</div>
     </div>
-    <div id="dashboard-content"></div>
+    <div id="resumen-content"></div>
   `;
-  loadDashboard();
-  if(dashboardTimer)clearInterval(dashboardTimer);
-  dashboardTimer=setInterval(()=>{ const active=document.getElementById('tab-sup-dashboard')?.classList.contains('active'); if(active)loadDashboard(); },60000);
+  loadResumenDiario();
+  if(resumenTimer)clearInterval(resumenTimer);
+  resumenTimer=setInterval(()=>{ const active=document.getElementById('tab-sup-resumen')?.classList.contains('active'); if(active)loadResumenDiario(); },60000);
 }
 
-function dashSetToday() {
-  const el=document.getElementById('dash-fecha');
-  if(el){el.value=new Date().toISOString().slice(0,10);loadDashboard();}
+function resSetToday() {
+  const el=document.getElementById('res-fecha');
+  if(el){el.value=new Date().toISOString().slice(0,10);loadResumenDiario();}
 }
 
-function dashKpiStrip(d,label) {
-  d=d||{total:0,nuevos:0,herencias:0,auditados:0,mesa_ok:0,cerrados:0,incidencias:0,cancelados:0,pct_cumplimiento:0,pallets_chep:0,pallets_blancas:0};
-  const total = Number(d.total||0);
-  const cerrados = Number(d.cerrados||0);
-  const pct = total>0 ? Math.round(cerrados/total*100) : (d.pct_cumplimiento||0);
-  // Barra de progreso visual
-  const barColor = pct>=80?'var(--ok)':pct>=50?'var(--yellow)':'var(--red)';
-  return `<div class="card" style="padding:14px">
-    <div class="card-title"><span class="ct-dot"></span>${label}</div>
-    <div class="kpi-strip">
-      <div class="kpi kpi-brand"><div class="kpi-label">Total</div><div class="kpi-value">${d.total||0}</div></div>
-      <div class="kpi kpi-yellow"><div class="kpi-label">Nuevos</div><div class="kpi-value">${d.nuevos||0}</div></div>
-      <div class="kpi kpi-yellow"><div class="kpi-label">Herencias</div><div class="kpi-value">${d.herencias||0}</div></div>
-      <div class="kpi"><div class="kpi-label">Auditados</div><div class="kpi-value">${d.auditados||0}</div></div>
-      <div class="kpi"><div class="kpi-label">Mesa OK</div><div class="kpi-value">${d.mesa_ok||0}</div></div>
-      <div class="kpi kpi-ok"><div class="kpi-label">Cerrados</div><div class="kpi-value">${d.cerrados||0}</div><div class="kpi-foot">${pct}%</div></div>
-      <div class="kpi kpi-danger"><div class="kpi-label">Incidencias</div><div class="kpi-value">${d.incidencias||0}</div></div>
-      <div class="kpi kpi-danger"><div class="kpi-label">Cancelados</div><div class="kpi-value">${d.cancelados||0}</div></div>
-    </div>
-    <div style="height:4px;background:var(--gray-200);border-radius:99px;margin:8px 0;overflow:hidden"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:99px;transition:width .5s"></div></div>
-    <div class="detail-grid" style="margin-top:10px">
-      <div class="dt-item dt-brand"><span class="dt-label">CHEP</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${d.pallets_chep||0}</span></div>
-      <div class="dt-item dt-yellow"><span class="dt-label">Blancas</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${d.pallets_blancas||0}</span></div>
-      <div class="dt-item dt-ok"><span class="dt-label">Total Pallets</span><span class="dt-value" style="font-size:20px;font-family:var(--f-display)">${(Number(d.pallets_chep||0))+(Number(d.pallets_blancas||0))}</span></div>
-    </div>
+function resumenTurnoRow_(turnoLabel, data) {
+  data = data || { embarques:0, recibos:0 };
+  return `<div class="dt-item dt-brand">
+    <span class="dt-label">${turnoLabel}</span>
+    <span class="dt-value" style="font-size:14px">${data.embarques} embarques / ${data.recibos} recibos</span>
   </div>`;
 }
 
-async function loadDashboard() {
-  const c=document.getElementById('dashboard-content'); if(!c)return;
-  const fecha=(document.getElementById('dash-fecha')?.value||new Date().toISOString().slice(0,10));
+async function loadResumenDiario() {
+  const c=document.getElementById('resumen-content'); if(!c)return;
+  const fecha=(document.getElementById('res-fecha')?.value||new Date().toISOString().slice(0,10));
   if(!c.dataset.loaded){
-    c.innerHTML='<div class="empty"><div class="em-icon">⏳</div><div class="em-title">Cargando dashboard...</div><div class="em-sub">Consultando datos en tiempo real</div></div>';
+    c.innerHTML='<div class="empty"><div class="em-title">Cargando resumen...</div><div class="em-sub">Consultando datos en tiempo real</div></div>';
   }
-  const res=await apiGet('get_dashboard',{fecha});
-  const upd=document.getElementById('dash-last-update');
+  const res=await apiGet('get_resumen_diario',{fecha});
+  const upd=document.getElementById('res-last-update');
   if(!res||!res.ok){
-    c.innerHTML='<div class="empty"><div class="em-icon">⚠</div><div class="em-title">Error de conexion</div><div class="em-sub">Verifica tu conexion e intenta nuevamente</div></div>';
+    c.innerHTML='<div class="empty"><div class="em-title">Error de conexion</div><div class="em-sub">Verifica tu conexion e intenta nuevamente</div></div>';
     if(upd) upd.textContent='Error al cargar — '+new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
     return;
   }
   const d=res.data||{};
-  // FIX: normalizar estructura — el backend puede devolver global directo o anidado
-  const g = d.global || {
-    total: Number(d.total||0), nuevos: Number(d.nuevos||0), herencias: Number(d.herencias||0),
-    auditados: Number(d.auditados||0), mesa_ok: Number(d.mesa_ok||0),
-    cerrados: Number(d.cerrados||0), incidencias: Number(d.incidencias||0),
-    cancelados: Number(d.cancelados||0), pct_cumplimiento: Number(d.pct_cumplimiento||0),
-    pallets_chep: Number(d.pallets_chep||0), pallets_blancas: Number(d.pallets_blancas||0)
-  };
-  const turnos = d.turnos || {};
-  const t1 = turnos['T1_06_14'] || {};
-  const t2 = turnos['T2_14_2130'] || {};
-  const t3 = turnos['T3_2130_06'] || {};
+  const t=d.turnos||{};
+  const total=d.total||{embarques:0,recibos:0};
   c.dataset.loaded='1';
-  c.innerHTML=dashKpiStrip(g,'Resumen Global · '+(d.fecha||fecha))+'<div class="accent-line"></div>'+dashKpiStrip(t1,'Turno 1 · 06:00 - 14:00')+dashKpiStrip(t2,'Turno 2 · 14:00 - 21:30')+dashKpiStrip(t3,'Turno 3 · 21:30 - 06:00');
+  c.innerHTML=`
+    <div class="card">
+      <div class="card-title"><span class="ct-dot"></span>Total del Dia · ${d.fecha||fecha}</div>
+      <div class="detail-grid">
+        <div class="dt-item dt-brand"><span class="dt-label">Total Embarques</span><span class="dt-value" style="font-size:22px;font-family:var(--f-display)">${total.embarques||0}</span></div>
+        <div class="dt-item dt-yellow"><span class="dt-label">Total Recibos</span><span class="dt-value" style="font-size:22px;font-family:var(--f-display)">${total.recibos||0}</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ct-dot"></span>Resumen por Turno</div>
+      ${resumenTurnoRow_('Turno 1 · 06:00 - 14:00', t.T1)}
+      <div style="height:8px"></div>
+      ${resumenTurnoRow_('Turno 2 · 14:00 - 21:30', t.T2)}
+      <div style="height:8px"></div>
+      ${resumenTurnoRow_('Turno 3 · 21:30 - 06:00', t.T3)}
+    </div>
+  `;
   if(upd){const now=new Date();upd.textContent='Ultima actualizacion: '+now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
 }
 

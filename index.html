@@ -386,7 +386,7 @@ table.preview tr.row-err td { background: var(--danger-tint); }
     </div>
     <div class="splash-title">
       Auditoria de Pallets
-      <small>Sistema Enterprise  · Logistica</small>
+      <small> Enterprise Application · Logistica</small>
     </div>
     <div class="splash-divider"></div>
 
@@ -1739,7 +1739,7 @@ function renderMesaEnriquece() {
       <button class="btn btn-ghost" onclick="mesaCancelarBusqueda()">Cancelar</button>
     </div>
     <div id="mesa-no-result" class="empty" style="display:none">
-      <div class="em-icon">🔍</div><div class="em-title">Sin resultados</div><div class="em-sub">Esa unidad no esta en el sistema</div>
+      <div class="em-icon">🔍</div><div class="em-title">Sin resultados</div><div class="em-sub">Esa unidad no esta </div>
     </div>
   `;
   setTimeout(() => {
@@ -2467,7 +2467,7 @@ async function exportarReportePDF() {
   }
 
   const totalPages=doc.internal.getNumberOfPages();
-  for(let i=1;i<=totalPages;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(150,150,150);doc.text('Sistema de Auditoria de Pallets · '+(r.unidad||''),M,PH-18);doc.text(i+' / '+totalPages,PW-M,PH-18,{align:'right'});}
+  for(let i=1;i<=totalPages;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(150,150,150);doc.text('Aplicacion de Auditoria de Pallets · '+(r.unidad||''),M,PH-18);doc.text(i+' / '+totalPages,PW-M,PH-18,{align:'right'});}
   const safeUnidad=String(r.unidad||r.resumen?.unidad||'reporte').replace(/[^A-Za-z0-9_-]/g,'_');
   doc.save('reporte_'+safeUnidad+'_'+new Date().toISOString().slice(0,10)+'.pdf');
   toast('PDF generado','success');
